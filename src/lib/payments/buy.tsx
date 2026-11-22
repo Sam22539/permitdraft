@@ -24,6 +24,11 @@ export type BuyButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onCl
   children: ReactNode;
   /** What a signed_in button does while nobody is signed in: the website's own way to sign in (its sign-in page or dialog). */
   onSignIn?: () => void;
+  /**
+   * The page of this website a buyer comes back to once they pay, by its path ("/welcome"): letters, digits and -._~/ only,
+   * no query or #. Absent, the home page. A canceled checkout always comes back to the home page.
+   */
+  paidPage?: string;
 };
 
 /**
@@ -32,12 +37,12 @@ export type BuyButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onCl
  * goes to onSignIn, so no one pays for a purchase no account holds; it still names the price it will sell (data-foundable-buy-for),
  * which Foundable's checks read, since the Buy attribute is not there yet.
  */
-export function BuyButton({ priceHandle, audience = "anyone", children, onSignIn, type = "button", disabled, ...rest }: BuyButtonProps) {
+export function BuyButton({ priceHandle, audience = "anyone", children, onSignIn, paidPage, type = "button", disabled, ...rest }: BuyButtonProps) {
   const signedIn = useSignedIn(audience === "signed_in");
   if (audience === "signed_in" && signedIn !== true) {
     return <button type={type} {...rest} disabled={disabled || signedIn === null} data-foundable-buy-for={priceHandle} onClick={() => { onSignIn?.(); }}>{signInWords}</button>;
   }
-  return <button type={type} {...rest} disabled={disabled} data-foundable-buy={priceHandle}>{children}</button>;
+  return <button type={type} {...rest} disabled={disabled} data-foundable-buy={priceHandle} data-foundable-paid-page={paidPage}>{children}</button>;
 }
 
 export type ManageSubscriptionButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick" | "children"> & {

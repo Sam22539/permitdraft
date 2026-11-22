@@ -19,6 +19,8 @@ const SLOTS: [Slot, string, string][] = [
   ["gauge", "Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 ];
 
+const WIDE: [string, string] = ["Whole unit, wide shot", "Unidad completa, foto general"];
+
 function Photos() {
   const { t } = useLang();
   useDraft(5);
@@ -47,6 +49,13 @@ function Photos() {
           </div>
         );
       })}
+      <div className="cx-shot" data-testid="wide-shot">
+        <div className="cx-shot-top">
+          <span>{t("Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)")}</span>
+          <strong className={photos.wide ? "cx-ok" : "ap-muted"}>{photos.wide ? t("Attached", "Adjunta") : t("Optional", "Opcional")}</strong>
+        </div>
+        <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} />
+      </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
       <p className="cx-note">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>

@@ -18,6 +18,7 @@ export const Route = createFileRoute("/permit/draft/$id")({
 const SLOT_LABEL: Record<Slot, [string, string]> = {
   plate: ["Data plate (model and serial)", "Placa de datos (modelo y serie)"],
   outdoor: ["Outdoor unit with left side yard and clearance", "Unidad exterior con patio lateral izquierdo y espacio libre"],
+  wide: ["Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)"],
   gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 };
 
@@ -120,7 +121,7 @@ function Review() {
 
       <section className="ap-card" data-testid="review-photos">
         <h2 className="ap-h2">{t("Photos", "Fotos")}</h2>
-        {SLOTS.map((s) => {
+        {[...SLOTS, ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])].map((s) => {
           const ref = cap.photos.find((p) => p.slot === s);
           return (
             <div key={s} className="ph-ev" data-testid={`rv-photo-${s}`}>
