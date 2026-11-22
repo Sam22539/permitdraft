@@ -260,8 +260,12 @@ a.ap-job{border-left:6px solid #c2410c}
 .ck-head{display:flex;gap:.9rem;align-items:center}
 .ck-step{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#c2410c}
 .ck-list{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
-.ck-list li{position:relative;background:#fff;border:1px solid #d6dce8;border-radius:.75rem;padding:.8rem .9rem .8rem 3rem}
-.ck-list li::before{content:"";position:absolute;left:.95rem;top:.95rem;width:1.25rem;height:1.25rem;border:2px solid #12264a;border-radius:.3rem}
+.ck-list li{background:#fff;border:1px solid #d6dce8;border-radius:.75rem;overflow:hidden}
+.ck-list li:has([data-state=checked]){background:#ecfdf3;border-color:#15803d}
+.ck-row{display:flex;gap:.8rem;align-items:flex-start;padding:.8rem .9rem;cursor:pointer;min-height:3rem}
+.ck-row button{margin-top:.15rem;width:1.5rem;height:1.5rem;border:2px solid #12264a;border-radius:.3rem;background:#fff}
+.ck-row button[data-state=checked]{background:#15803d;border-color:#15803d;color:#fff}
+.ck-row:has([data-state=checked]) span{color:#14532d;text-decoration:line-through;text-decoration-color:#15803d}
 
 /* Capture steps: the step's own Next or Finish button. In the card on a computer; pinned above the bottom menu
    (or the keyboard) on a phone, with its message above it, and the page given room so nothing hides behind it. */

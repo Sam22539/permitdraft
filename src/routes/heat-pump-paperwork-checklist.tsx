@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ClipboardList, Camera, Gauge, FileSearch, Landmark } from "lucide-react";
 import { AppPage } from "../components/app-shell";
 import { Image } from "../image";
+import { useEffect, useState } from "react";
+import { Checkbox } from "../components/ui/checkbox";
 import { useLang } from "../lib/lang";
 
 const title = "Heat Pump Change-Out Paperwork Checklist — PermitDraft";
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/heat-pump-paperwork-checklist")({
 
 type Item = [string, string];
 type Group = { id: string; icon: typeof Camera; h: Item; who: Item; items: Item[] };
+
+const STORE = "pd-heat-pump-checklist-v1";
 
 const GROUPS: Group[] = [
   {
@@ -85,6 +89,16 @@ const GROUPS: Group[] = [
 
 function Checklist() {
   const { t } = useLang();
+  const [done, setDone] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try { setDone(JSON.parse(localStorage.getItem(STORE) || "{}")); } catch { /* ignore */ }
+  }, []);
+  const toggle = (id: string, v: boolean) => setDone((d) => {
+    const n = { ...d, [id]: v };
+    if (!v) delete n[id];
+    try { localStorage.setItem(STORE, JSON.stringify(n)); } catch { /* ignore */ }
+    return n;
+  });
   return (
     <AppPage>
       <section className="lp-hero" aria-labelledby="ck-h1">
@@ -106,7 +120,17 @@ function Checklist() {
             </div>
           </div>
           <ul className="ck-list">
-            {g.items.map((it, i) => <li key={i}>{t(it[0], it[1])}</li>)}
+            {g.items.map((it, i) => {
+              const id = `ck-${g.id}-${i + 1}`;
+              return (
+                <li key={id}>
+                  <label htmlFor={id} className="ck-row">
+                    <Checkbox id={id} checked={!!done[id]} onCheckedChange={(v) => toggle(id, v === true)} />
+                    <span>{t(it[0], it[1])}</span>
+                  </label>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ))}
