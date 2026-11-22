@@ -28,8 +28,8 @@ const JOBS: Job[] = [
 ];
 const cls: Record<Status, string> = { Draft: "draft", "Missing info": "missing", Done: "done", Blocked: "blocked" };
 const esStatus: Record<Status, string> = { Draft: "Borrador", "Missing info": "Falta información", Done: "Listo", Blocked: "Bloqueado" };
-type Chip = "All" | "Drafts" | "Missing info" | "In progress";
-const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["Missing info", "Falta información"], ["In progress", "En curso"]];
+type Chip = "Awaiting review" | "All" | "Drafts" | "Missing info" | "In progress";
+const chips: [Chip, string][] = [["Awaiting review", "Esperando revisión"], ["All", "Todos"], ["Drafts", "Borradores"], ["Missing info", "Falta información"], ["In progress", "En curso"]];
 
 export function Jobs() {
   const { t, lang } = useLang();
@@ -41,15 +41,17 @@ export function Jobs() {
   const captured = useCaptured();
   const jurs = useOfficeJurisdictions();
   const act = urgentAction(insp, todayIso());
-  const [chip, setChip] = useState<Chip>("All");
-  const capJobs: (Job & { cap: Captured })[] = captured.map((c) => {
+  const [chip, setChip] = useState<Chip>("Awaiting review");
+  const capJobs: (Job & { cap: Captured; awaiting: boolean })[] = captured.map((c) => {
     const sm = captureSummary(c, lang);
-    return { id: c.id, cap: c, addr: sm.addr, equip: sm.equip, date: new Date(c.finishedAt).toLocaleDateString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium" }),
+    // Awaiting office review: a captured draft the rules engine marks ready for office review.
+    const awaiting = sm.missing === 0 && evaluateCapture(c, jurs[c.id] ?? null).officeReview.ready;
+    return { id: c.id, cap: c, awaiting, addr: sm.addr, equip: sm.equip, date: new Date(c.finishedAt).toLocaleDateString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium" }),
       status: (sm.missing > 0 ? "Missing info" : "Draft") as Status, next: undefined };
   });
   const all = [...capJobs, ...JOBS];
   const shown = all.filter((j) =>
-    chip === "All" ? true : chip === "Drafts" ? j.status === "Draft" : chip === "Missing info" ? j.status === "Missing info" : j.status === "Missing info",
+    chip === "Awaiting review" ? (j as { awaiting?: boolean }).awaiting === true : chip === "All" ? true : chip === "Drafts" ? j.status === "Draft" : chip === "Missing info" ? j.status === "Missing info" : j.status === "Missing info",
   );
   const count = (s: Status) => all.filter((j) => j.status === s).length;
 
@@ -82,6 +84,12 @@ export function Jobs() {
           ))}
         </div>
       </div>
+      {shown.length === 0 && (
+        <div className="jb-empty" data-testid="jobs-empty">
+          <p>{chip === "Awaiting review" ? t("No drafts are awaiting office review right now.", "Ningún borrador espera revisión de oficina por ahora.") : t("No jobs match this filter.", "Ningún trabajo coincide con este filtro.")}</p>
+          <button type="button" className="ap-btn ghost" onClick={() => setChip("All")} data-testid="show-all-jobs">{t("Show all jobs", "Ver todos los trabajos")}</button>
+        </div>
+      )}
       {shown.map((j) => {
         const body = (
           <>

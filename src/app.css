@@ -99,6 +99,7 @@ a.ap-job{border-left:6px solid #c2410c}
 .jb-who{display:flex;align-items:center;gap:8px;font-weight:600}
 .jb-init{width:32px;height:32px;border-radius:50%;background:#12264a;color:#fff;font-size:.8rem;font-weight:700;display:grid;place-items:center}
 .jb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:#51607a;font-size:.95rem}
+.jb-empty{display:grid;gap:12px;padding:20px;border-radius:16px;border:1.5px dashed #c7cfdd;background:#fff;color:#51607a}
 .jb-tag{font-size:.75rem;font-weight:600;color:#51607a;border:1px solid #aab4c7;border-radius:6px;padding:0 8px}
 .jb-next{color:#c2410c;font-weight:800;font-size:1.1rem}
 .jb-job.blocked .jb-next{color:#b91c1c}
