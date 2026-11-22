@@ -45,7 +45,7 @@ function Photos() {
               <span>{t(en, es)}</span>
               <strong className={ok ? "cx-ok" : "cx-need"}>{ok ? t("Attached", "Adjunta") : t("Required", "Requerida")}</strong>
             </div>
-            <PhotoSlot slot={k} label={[en, es]} photo={photos[k]} takeLabel={["Add photo", "Agregar foto"]} />
+            <PhotoSlot slot={k} label={[en, es]} photo={photos[k]} takeLabel={["Add photo", "Agregar foto"]} tagUnit={k === "plate"} />
           </div>
         );
       })}
@@ -54,7 +54,7 @@ function Photos() {
           <span>{t("Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)")}</span>
           <strong className={photos.wide ? "cx-ok" : "ap-muted"}>{photos.wide ? t("Attached", "Adjunta") : t("Optional", "Opcional")}</strong>
         </div>
-        <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} />
+        <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} tagUnit />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>

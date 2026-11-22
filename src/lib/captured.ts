@@ -1,10 +1,10 @@
 import { useSyncExternalStore } from "react";
-import { copyPhotos, deleteJobPhotos, JOB_ID, type Slot } from "./photos";
+import { copyPhotos, deleteJobPhotos, JOB_ID, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
 
 // Finished practice captures, kept in this browser (localStorage). Photos stay in the existing IndexedDB photo store:
 // each capture gets its own `job` id, so its photos live under `<captureId>:<slot>` like every other photo.
-export type CapturedPhoto = { slot: Slot; key: string; name: string; type: string; savedAt: number; uploaded: boolean };
+export type CapturedPhoto = { unit?: Unit; slot: Slot; key: string; name: string; type: string; savedAt: number; uploaded: boolean };
 export type Captured = {
   id: string; finishedAt: number;
   values: Record<string, string>;        // exactly the keys the tech edited
@@ -49,7 +49,7 @@ export async function finishCapture(): Promise<string | null> {
     const copies = await copyPhotos(JOB_ID, id);
     const rec: Captured = {
       id, finishedAt: Date.now(), values, formDefaults,
-      photos: copies.map((c) => ({ slot: c.slot, key: c.key, name: c.name, type: c.type, savedAt: c.savedAt, uploaded: c.uploaded })),
+      photos: copies.map((c) => ({ ...(c.unit ? { unit: c.unit } : {}), slot: c.slot, key: c.key, name: c.name, type: c.type, savedAt: c.savedAt, uploaded: c.uploaded })),
     };
     const prev = read();
     const next = JSON.stringify([rec, ...prev]);

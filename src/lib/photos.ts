@@ -7,7 +7,8 @@ export type Slot = "plate" | "outdoor" | "gauge" | "wide";
 // SLOTS are the required photos (readiness). "wide" is an optional whole-unit shot and never blocks anything.
 export const SLOTS: Slot[] = ["plate", "outdoor", "gauge"];
 export const ALL_SLOTS: Slot[] = [...SLOTS, "wide"];
-export type PhotoRec = { key: string; job: string; slot: Slot; blob: Blob; name: string; type: string; savedAt: number; uploaded: boolean };
+export type Unit = "indoor" | "outdoor";
+export type PhotoRec = { unit?: Unit; key: string; job: string; slot: Slot; blob: Blob; name: string; type: string; savedAt: number; uploaded: boolean };
 
 const DB = "permitdraft-photos";
 const STORE = "photos";
@@ -47,8 +48,19 @@ export async function savePhoto(slot: Slot, file: File, job = JOB_ID): Promise<v
   if (typeof createImageBitmap === "function") {
     try { (await createImageBitmap(file)).close(); } catch { throw new Error("not-image"); }
   }
-  const rec: PhotoRec = { key: keyOf(job, slot), job, slot, blob: file, name: file.name || `${slot}.jpg`, type: file.type, savedAt: Date.now(), uploaded: false };
+  let unit: Unit | undefined;
+  try { unit = (await loadPhotos(job)).find((r) => r.slot === slot)?.unit; } catch { /* keep untagged */ }
+  const rec: PhotoRec = { ...(unit ? { unit } : {}), key: keyOf(job, slot), job, slot, blob: file, name: file.name || `${slot}.jpg`, type: file.type, savedAt: Date.now(), uploaded: false };
   await run("readwrite", (s) => s.put(rec)); // one put: a failure aborts and the previous photo stays
+  notify();
+}
+
+export async function setPhotoUnit(slot: Slot, unit: Unit | undefined, job = JOB_ID): Promise<void> {
+  const rec = (await loadPhotos(job)).find((r) => r.slot === slot);
+  if (!rec) return;
+  const next: PhotoRec = { ...rec };
+  if (unit) next.unit = unit; else delete next.unit;
+  await run("readwrite", (s) => s.put(next));
   notify();
 }
 
@@ -62,7 +74,7 @@ const bc = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("pd-ph
 function notify() { listeners.forEach((l) => l()); bc?.postMessage("changed"); }
 bc?.addEventListener("message", () => listeners.forEach((l) => l()));
 
-export type PhotoView = { url: string; name: string; savedAt: number; uploaded: boolean };
+export type PhotoView = { unit?: Unit; url: string; name: string; savedAt: number; uploaded: boolean };
 
 export function usePhotos() {
   const [map, setMap] = useState<Partial<Record<Slot, PhotoView>>>({});
@@ -78,7 +90,7 @@ export function usePhotos() {
       for (const r of recs) {
         const url = URL.createObjectURL(r.blob);
         urls.current.push(url);
-        m[r.slot] = { url, name: r.name, savedAt: r.savedAt, uploaded: r.uploaded };
+        m[r.slot] = { unit: r.unit, url, name: r.name, savedAt: r.savedAt, uploaded: r.uploaded };
       }
       setMap(m); setLoadError(false);
     } catch { setLoadError(true); }

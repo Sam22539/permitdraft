@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
-import { removePhoto, savePhoto, type PhotoView, type Slot } from "../lib/photos";
+import { removePhoto, savePhoto, setPhotoUnit, type PhotoView, type Slot, type Unit } from "../lib/photos";
 
 export function PendingLabel({ p }: { p: PhotoView }) {
   const { t } = useLang();
   return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Waiting to upload", "Esperando para subir")}</span>;
 }
 
-export function PhotoSlot({ slot, label, photo, takeLabel }: { slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
+export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit }: { tagUnit?: boolean; slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
   const { t, lang } = useLang();
   const cam = useRef<HTMLInputElement>(null);
   const file = useRef<HTMLInputElement>(null);
@@ -45,6 +45,18 @@ export function PhotoSlot({ slot, label, photo, takeLabel }: { slot: Slot; label
             <span className="ap-muted">{new Date(photo.savedAt).toLocaleString(lang === "es" ? "es" : "en-US")}</span>
           </div>
         </div>
+      )}
+      {tagUnit && photo && (
+        <fieldset className="ph-unit" data-testid={`unit-${slot}`} style={{ display: "flex", gap: ".75rem", flexWrap: "wrap", alignItems: "center", border: 0, padding: 0, margin: ".5rem 0" }}>
+          <legend className="font-semibold">{t("Which unit is this?", "¿De qué unidad es?")}</legend>
+          {(["indoor", "outdoor"] as Unit[]).map((u) => (
+            <label key={u} style={{ display: "inline-flex", gap: ".4rem", alignItems: "center", minHeight: 44 }}>
+              <input type="radio" name={`unit-${slot}`} value={u} checked={photo.unit === u} data-testid={`unit-${slot}-${u}`}
+                onChange={() => { setPhotoUnit(slot, u).catch(() => setErr(t("Could not save the unit tag.", "No se pudo guardar la etiqueta de unidad."))); }} />
+              {u === "indoor" ? t("Indoor unit", "Unidad interior") : t("Outdoor unit", "Unidad exterior")}
+            </label>
+          ))}
+        </fieldset>
       )}
       <input ref={cam} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} aria-hidden data-testid={`cam-${slot}`} onChange={pick} />
       <input ref={file} type="file" accept="image/*" className="sr-only" tabIndex={-1} aria-hidden data-testid={`file-${slot}`} onChange={pick} />

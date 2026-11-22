@@ -60,6 +60,12 @@ function Review() {
   const when = new Date(cap.finishedAt).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "short" });
   const extra = uncategorized(cap);
   const ev = evaluateCapture(cap, jurs[cap.id] ?? null);
+  const caption = (s: Slot, u?: "indoor" | "outdoor") => {
+    const kind = s === "plate" ? t("Label close-up", "Primer plano de la etiqueta") : s === "wide" ? t("Whole-unit photo", "Foto de la unidad completa") : t("Photo", "Foto");
+    const unit = u === "indoor" ? t("Indoor unit", "Unidad interior") : u === "outdoor" ? t("Outdoor unit", "Unidad exterior") : null;
+    if (s !== "plate" && s !== "wide") return kind;
+    return unit ? `${unit} · ${kind}` : `${t("Unit not specified", "Unidad no especificada")} · ${kind}`;
+  };
   const dash = t("Not captured", "No capturado");
 
   return (
@@ -129,6 +135,7 @@ function Review() {
               {ref ? (
                 <>
                   {urls[s] ? <Image src={urls[s]!} alt={t(...SLOT_LABEL[s])} width={240} height={240} /> : <p className="ap-muted">{photoErr ? t("Could not read this photo on this device.", "No se pudo leer esta foto en este dispositivo.") : t("Loading photo…", "Cargando foto…")}</p>}
+                  <p className="font-semibold" data-testid={`rv-caption-${s}`}>{caption(s, ref.unit)}</p>
                   <p className="ap-muted text-sm">{t(`Photo ${ref.name}, saved on this device ${new Date(ref.savedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} · Waiting to upload. Shown as evidence only; it does not confirm any value.`, `Foto ${ref.name}, guardada en este dispositivo ${new Date(ref.savedAt).toLocaleString("es-US", { dateStyle: "medium", timeStyle: "short" })} · Esperando para subir. Solo como evidencia; no confirma ningún valor.`)}</p>
                 </>
               ) : <p className="ap-next">{t("No photo captured", "Sin foto capturada")}</p>}
