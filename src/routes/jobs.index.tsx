@@ -6,6 +6,8 @@ import { todayIso, urgentAction, useInsp } from "../lib/inspection";
 import { STEP_PATHS, useResumeStep } from "../lib/job-draft";
 import { useLang } from "../lib/lang";
 import { usePhotos } from "../lib/photos";
+import { useCaptured, type Captured } from "../lib/captured";
+import { captureSummary } from "../lib/capture-fields";
 
 export const Route = createFileRoute("/jobs/")({
   head: () => ({ meta: [{ title: "Jobs — PermitDraft" }, { name: "description", content: "Your jobs, their status and the next step for each." }] }),
@@ -31,12 +33,19 @@ function Jobs() {
   const insp = useInsp();
   const resume = useResumeStep();
   const { pending } = usePhotos();
+  const captured = useCaptured();
   const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("All");
-  const shown = JOBS.filter((j) =>
+  const capJobs: (Job & { cap: Captured })[] = captured.map((c) => {
+    const sm = captureSummary(c, lang);
+    return { id: c.id, cap: c, addr: sm.addr, equip: sm.equip, date: new Date(c.finishedAt).toLocaleDateString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium" }),
+      status: (sm.missing > 0 ? "Missing info" : "Draft") as Status, next: undefined };
+  });
+  const all = [...capJobs, ...JOBS];
+  const shown = all.filter((j) =>
     chip === "All" ? true : chip === "Drafts" ? j.status === "Draft" : chip === "Missing info" ? j.status === "Missing info" : j.status === "Missing info",
   );
-  const count = (s: Status) => JOBS.filter((j) => j.status === s).length;
+  const count = (s: Status) => all.filter((j) => j.status === s).length;
 
   return (
     <AppPage bottom wide>
@@ -76,6 +85,17 @@ function Jobs() {
             {j.next && <p className="jb-next">{j.next}</p>}
           </>
         );
+        const cap = (j as { cap?: Captured }).cap;
+        if (cap) {
+          const sm = captureSummary(cap, lang);
+          return (
+            <div key={j.id} className={`jb-job ${cls[j.status]}`} data-testid="captured-job">
+              {body}
+              <p className="jb-next">{sm.missing > 0 ? t(`Next: review draft (${sm.missing} not captured)`, `Siguiente: revisar borrador (${sm.missing} sin capturar)`) : t("Next: review draft", "Siguiente: revisar borrador")}</p>
+              <Link to="/permit/draft/$id" params={{ id: cap.id }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+            </div>
+          );
+        }
         return j.href ? (
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>
             <Link to="/jobs/hp-1187" className="grid gap-[inherit]">{body}</Link>

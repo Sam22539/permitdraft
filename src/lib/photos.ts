@@ -91,3 +91,23 @@ export function usePhotos() {
   const pending = Object.values(map).filter((p) => p && !p.uploaded).length;
   return { photos: map, ready, loadError, pending };
 }
+
+/** Copy every photo of one job into another job's keys (same store, same `job:slot` convention). The source stays. */
+export async function copyPhotos(from: string, to: string): Promise<PhotoRec[]> {
+  const recs = await loadPhotos(from);
+  const copies = recs.map((r) => ({ ...r, key: keyOf(to, r.slot), job: to }));
+  if (copies.length) {
+    await open().then((db) => new Promise<void>((res, rej) => {
+      const tx = db.transaction(STORE, "readwrite");
+      copies.forEach((c) => tx.objectStore(STORE).put(c));
+      tx.oncomplete = () => { db.close(); res(); };
+      tx.onerror = () => { db.close(); rej(tx.error ?? new Error("copy failed")); };
+      tx.onabort = () => { db.close(); rej(tx.error ?? new Error("copy aborted")); };
+    }));
+  }
+  return copies;
+}
+
+export async function deleteJobPhotos(job: string): Promise<void> {
+  for (const s of SLOTS) { try { await run("readwrite", (st) => st.delete(keyOf(job, s))); } catch { /* ignore */ } }
+}

@@ -41,6 +41,9 @@ function subscribe(f: () => void) {
 const snap = () => read();
 const serverSnap = () => EMPTY;
 
+/** The keys the person actually edited (no defaults). */
+export function readDraftValues(): Record<string, string> { return { ...read().values }; }
+
 export function finishDraft() {
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
   raw = null; cache = EMPTY;

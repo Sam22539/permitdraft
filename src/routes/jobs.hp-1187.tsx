@@ -10,7 +10,7 @@ import { PendingLabel } from "../components/photo-slot";
 
 export const Route = createFileRoute("/jobs/hp-1187")({
   head: () => ({ meta: [{ title: "Job #HP-1187 · 4412 Alder Court, Sacramento" }, { name: "description", content: "Next step, paperwork timeline and compliance checks for job HP-1187." }] }),
-  validateSearch: (s: Record<string, unknown>): { saved?: "1" } => ({ saved: s.saved === "1" || s.saved === 1 ? "1" : undefined }),
+  validateSearch: (s: Record<string, unknown>): { saved?: "1"; done?: string } => ({ saved: s.saved === "1" || s.saved === 1 ? "1" : undefined, done: typeof s.done === "string" && s.done ? s.done : undefined }),
   component: Detail,
 });
 
@@ -34,7 +34,7 @@ const CHECKS: [string, string, "g" | "a" | "r"][] = [
 
 function Detail() {
   const { t } = useLang();
-  const { saved } = Route.useSearch();
+  const { saved, done: doneId } = Route.useSearch();
   const [done, setDone] = useState<boolean[]>(STEPS.map(() => false));
   const [warranty, setWarranty] = useState(false);
   const { photos, pending } = usePhotos();
@@ -52,7 +52,12 @@ function Detail() {
 
   return (
     <AppPage bottom>
-      {saved && <p role="status" className="ap-card font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>}
+      {saved && (
+        <div role="status" className="ap-card">
+          <p className="font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>
+          {doneId && <Link to="/permit/draft/$id" params={{ id: doneId }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
+        </div>
+      )}
       <h1 className="text-3xl">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
       <Link to="/permit/hp-1187" className="ap-btn navy">{t("View permit document", "Ver documento del permiso")}</Link>
 
