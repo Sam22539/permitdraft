@@ -28,8 +28,11 @@ function PilotForm() {
   if (state === "done")
     return (
       <div className="ap-signup-col"><section className="ap-card" id="pilot" data-testid="pilot-done" role="status">
-        <h2>{t("Thanks — we got your interest.", "Gracias: recibimos su interés.")}</h2>
-        <p className="ap-muted">{t("We'll email you at", "Le escribiremos a")} {f.email} {t("about the pilot.", "sobre el piloto.")}</p>
+        <h2>{t("Thanks — we received your Early Access signup.", "Gracias: recibimos su registro de acceso anticipado.")}</h2>
+        <p className="ap-muted">{t("We saved your details for", "Guardamos sus datos de")} {f.company} {t("with the work email", "con el correo de trabajo")} {f.email}. {t("Signing up for Early Access is not the same as starting the free 14-day PermitDraft Core trial, and it does not create an account or start the trial for you.", "Registrarse para el acceso anticipado no es lo mismo que comenzar la prueba gratis de 14 días de PermitDraft Core, y no crea una cuenta ni inicia la prueba por usted.")}</p>
+        <h3>{t("What to do next", "Qué hacer ahora")}</h3>
+        <p>{t("To start the free 14-day Core trial yourself, go to", "Para comenzar usted mismo la prueba gratis de 14 días de Core, vaya a")} <a href="#core-offer" className="underline font-semibold" data-testid="pilot-done-trial">{t("PermitDraft Core on this page", "PermitDraft Core en esta página")}</a>{t(", sign in with Google or an emailed code, then choose “Start free trial”. No card is needed.", ", inicie sesión con Google o con un código enviado por correo y elija «Comenzar prueba gratis». No se necesita tarjeta.")}</p>
+        <p>{t("Want to see the workflow first? ", "¿Quiere ver el flujo primero? ")}<Link to="/demo" className="underline font-semibold" data-testid="pilot-done-demo">{t("Try the free PermitDraft Demo", "Probar la demo gratuita de PermitDraft")}</Link>{t(": every step, no sign-in or card.", ": todos los pasos, sin iniciar sesión ni tarjeta.")}</p>
       </section></div>
     );
   return (
