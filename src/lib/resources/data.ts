@@ -120,6 +120,12 @@ const D = "2026-11-22";
 export const FEDERAL_RECORDS: Rec[] = [
   { key: "fed_epa_608", url: "https://www.epa.gov/section608/section-608-technician-certification", page_title: "Section 608 Technician Certification | US EPA",
     agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; HTTP 200, no redirect." },
+  { key: "fed_epa_608_managing", url: "https://www.epa.gov/section608/managing-refrigeration-and-ac-equipment", page_title: "Managing Refrigeration and A/C Equipment | US EPA",
+    agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D, volatile: true,
+    notes: "EPA overview of Section 608 requirements for stationary refrigeration and A/C equipment; last updated Nov 16, 2026 per the page." },
+  { key: "fed_epa_608_recordkeeping", url: "https://www.epa.gov/section608/recordkeeping-and-reporting-requirements-stationary-refrigeration", page_title: "Recordkeeping and Reporting Requirements for Stationary Refrigeration | US EPA",
+    agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D, volatile: true,
+    notes: "EPA summary of recordkeeping and reporting duties for technicians, owners, certifiers and reclaimers under 40 CFR Part 82 Subpart F; last updated Feb 25, 2026 per the page. Summary only, not legal advice." },
   { key: "fed_energycodes_state_portal", url: null, page_title: null, agency: "U.S. Department of Energy", source_type: "official_gov", status: "unverified", checked_on: null, volatile: false,
     notes: "energycodes.gov home opened, but its state status page returned HTTP 403 to our check, so no state-portal address is confirmed yet." },
 ];
