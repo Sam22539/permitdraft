@@ -29,12 +29,12 @@ export function BottomBar({ current }: { current?: "jobs" }) {
   const { t } = useLang();
   return (
     <nav className="ap-bottom" aria-label="Main">
-      <Link to="/jobs" aria-current={current === "jobs" ? "page" : undefined} className="ap-tab">
+      <Link to="/jobs" activeProps={{ "aria-current": undefined } as never} className={`ap-tab${current === "jobs" ? " is-active" : ""}`}>
         <Briefcase size={22} aria-hidden />
         {t("Jobs", "Trabajos")}
       </Link>
       <Link to="/new" className="ap-new">{t("+ New job", "+ Nuevo trabajo")}</Link>
-      <Link to="/jobs" className="ap-tab">
+      <Link to="/jobs" activeProps={{ "aria-current": undefined } as never} className="ap-tab">
         <Settings size={22} aria-hidden />
         {t("Settings", "Ajustes")}
       </Link>
@@ -42,11 +42,11 @@ export function BottomBar({ current }: { current?: "jobs" }) {
   );
 }
 
-export function AppPage({ children, bottom }: { children: React.ReactNode; bottom?: boolean }) {
+export function AppPage({ children, bottom, wide }: { children: React.ReactNode; bottom?: boolean; wide?: boolean }) {
   return (
     <div className="ap">
       <AppTop />
-      <main className={`ap-main ${bottom ? "has-bottom" : ""}`}>{children}</main>
+      <main className={`ap-main ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""}`}>{children}</main>
       {bottom && <BottomBar current="jobs" />}
     </div>
   );

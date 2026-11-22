@@ -47,7 +47,7 @@ a.ap-job{border-left:6px solid #c2410c}
 .ap-tag{font-size:.75rem;font-weight:600;color:#51607a;border:1px solid #aab4c7;border-radius:6px;padding:.1rem .45rem;justify-self:start}
 .ap-bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#12264a;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.5rem;padding:.5rem .75rem calc(.5rem + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
 .ap-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;color:#cbd5ea;font-size:.85rem;font-weight:600}
-.ap-tab[aria-current=page]{color:#fff;border-bottom:3px solid #fff}
+
 .ap-new{display:flex;align-items:center;justify-content:center;min-height:56px;padding:0 1.2rem;border-radius:999px;background:#c2410c;color:#fff;font-weight:700}
 .ap-row{display:flex;align-items:center;gap:.9rem;min-height:56px;padding:.5rem .25rem;width:100%;text-align:left;cursor:pointer}
 .ap-row [role=checkbox]{width:32px;height:32px;flex:none;border:2px solid #12264a}
@@ -65,3 +65,42 @@ a.ap-job{border-left:6px solid #c2410c}
 .ap-prog{height:12px;border-radius:999px;background:#d6dce8;overflow:hidden}
 .ap-prog div{height:100%;background:#c2410c}
 .ap-two{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.ap-tab.is-active{color:#fff;border-bottom:3px solid #fff}
+.ap-bottom{left:50%;right:auto;width:100%;transform:translateX(-50%);border-radius:16px 16px 0 0}
+.jb-main{gap:16px;padding:24px 16px 7rem}
+.jb-head{display:grid;gap:8px}
+.jb-title{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.jb-title h1{font-size:2.5rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.jb-offline{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;color:#51607a}
+.jb-dot{width:8px;height:8px;border-radius:50%;background:#16a34a}
+.jb-trial{background:#12264a;color:#fff;border-radius:12px;padding:8px 16px;font-size:.9rem;font-weight:600}
+.jb-counts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jb-count{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:4px 8px;background:#fff;border:1.5px solid #12264a;border-radius:12px;padding:8px}
+.jb-count strong{font-family:var(--font-heading);font-size:1.5rem;color:#12264a;line-height:1}
+.jb-count span{font-size:.8rem;font-weight:600;color:#51607a}
+.jb-chipwrap{position:relative}
+.jb-chipwrap::after{content:"";position:absolute;right:0;top:0;bottom:0;width:32px;background:linear-gradient(to right,rgba(244,246,250,0),#f4f6fa);pointer-events:none}
+.jb-chips{display:flex;gap:8px;overflow-x:auto;padding-right:32px;scrollbar-width:none}
+.jb-chips::-webkit-scrollbar{display:none}
+.jb-chip{flex:none;min-height:48px;padding:0 16px;border-radius:12px;border:1.5px solid #12264a;background:#fff;color:#12264a;font-weight:600}
+.jb-chip[aria-pressed=true]{background:#12264a;color:#fff}
+.jb-job{display:grid;gap:8px;background:#fff;border:1px solid #d6dce8;border-left:6px solid #9aa4b5;border-radius:16px;padding:16px;color:inherit}
+.jb-job.missing{border-left-color:#c2410c}
+.jb-job.blocked{border-left-color:#dc2626}
+.jb-job.draft{border-left-color:#9aa4b5}
+.jb-job.done{border-left-color:#16a34a}
+.jb-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.jb-addr{font-family:var(--font-heading);font-weight:700;font-size:1.15rem;line-height:1.25;color:#12264a}
+.jb-badge{flex:none;font-size:.8rem;font-weight:700;padding:4px 12px;border-radius:999px}
+.jb-badge.draft{background:#e2e5ea;color:#3b4252}
+.jb-badge.missing{background:#fde9b8;color:#7a4b00}
+.jb-badge.done{background:#cdeed7;color:#14532d}
+.jb-badge.blocked{background:#fbd0d0;color:#8a1111}
+.jb-who{display:flex;align-items:center;gap:8px;font-weight:600}
+.jb-init{width:32px;height:32px;border-radius:50%;background:#12264a;color:#fff;font-size:.8rem;font-weight:700;display:grid;place-items:center}
+.jb-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:#51607a;font-size:.95rem}
+.jb-tag{font-size:.75rem;font-weight:600;color:#51607a;border:1px solid #aab4c7;border-radius:6px;padding:0 8px}
+.jb-next{color:#c2410c;font-weight:800;font-size:1.1rem}
+.jb-job.blocked .jb-next{color:#b91c1c}
+.jb-main{grid-template-columns:minmax(0,1fr)}
+.jb-main.has-bottom{padding-bottom:9rem}

@@ -31,39 +31,42 @@ function Jobs() {
   const count = (s: Status) => JOBS.filter((j) => j.status === s).length;
 
   return (
-    <AppPage bottom>
-      <div className="ap-title">
-        <h1>{t("Jobs", "Trabajos")}</h1>
-        <span className="ap-pill">{t("Saves offline", "Guarda sin conexión")}</span>
+    <AppPage bottom wide>
+      <header className="jb-head">
+        <div className="jb-title">
+          <h1>{t("Jobs", "Trabajos")}</h1>
+          <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
+        </div>
+        <p className="jb-trial">{t("14 days left in your free trial · See plan", "Quedan 14 días de su prueba gratis · Ver plan")}</p>
+      </header>
+      <div className="jb-counts">
+        <div className="jb-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
+        <div className="jb-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>
+        <div className="jb-count"><strong>{count("Done")}</strong><span>{t("Done", "Listo")}</span></div>
       </div>
-      <p className="ap-trial">{t("14 days left in your free trial · See plan", "Quedan 14 días de su prueba gratis · Ver plan")}</p>
-      <div className="ap-counts">
-        <div className="ap-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
-        <div className="ap-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>
-        <div className="ap-count"><strong>{count("Done")}</strong><span>{t("Done", "Listo")}</span></div>
-      </div>
-      <div className="ap-chips" role="group" aria-label={t("Filter jobs", "Filtrar trabajos")}>
-        {chips.map(([c, es]) => (
-          <button key={c} type="button" className="ap-chip" aria-pressed={chip === c} onClick={() => setChip(c)}>{t(c, es)}</button>
-        ))}
+      <div className="jb-chipwrap">
+        <div className="jb-chips" role="group" aria-label={t("Filter jobs", "Filtrar trabajos")}>
+          {chips.map(([c, es]) => (
+            <button key={c} type="button" className="jb-chip" aria-pressed={chip === c} onClick={() => setChip(c)}>{t(c, es)}</button>
+          ))}
+        </div>
       </div>
       {shown.map((j) => {
         const body = (
           <>
-            <div className="ap-job-top">
-              <span className="ap-job-addr">{j.addr}</span>
-              <span className={`ap-badge ${cls[j.status]}`}>{lang === "es" ? esStatus[j.status] : j.status}</span>
+            <div className="jb-top">
+              <span className="jb-addr">{j.addr}</span>
+              <span className={`jb-badge ${cls[j.status]}`}>{lang === "es" ? esStatus[j.status] : j.status}</span>
             </div>
-            {j.who && <div className="ap-who"><span className="ap-init">{j.who[0]}</span><span>{j.who[1]}</span></div>}
-            <p className="ap-muted">{j.equip} · {j.date}</p>
-            {j.next && <p className="ap-next">{j.next}</p>}
-            {j.sample && <span className="ap-tag">{t("Sample", "Muestra")}</span>}
+            {j.who && <div className="jb-who"><span className="jb-init">{j.who[0]}</span><span>{j.who[1]}</span></div>}
+            <p className="jb-meta">{j.equip} · {j.date}{j.sample && <span className="jb-tag">{t("Sample", "Muestra")}</span>}</p>
+            {j.next && <p className="jb-next">{j.next}</p>}
           </>
         );
         return j.href ? (
-          <Link key={j.id} to="/jobs/hp-1187" className="ap-job">{body}</Link>
+          <Link key={j.id} to="/jobs/hp-1187" className={`jb-job ${cls[j.status]}`}>{body}</Link>
         ) : (
-          <div key={j.id} className="ap-job">{body}</div>
+          <div key={j.id} className={`jb-job ${cls[j.status]}`}>{body}</div>
         );
       })}
     </AppPage>
