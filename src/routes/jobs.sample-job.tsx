@@ -1,3 +1,4 @@
+import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useCorePath } from "../components/demo";
@@ -91,6 +92,7 @@ export function Detail() {
       </section>
 
       <InspectionTimeline />
+      <ResourceLink stage="close_out" />
 
       <section className="cx-card calm">
         <h2 className="cx-h">{t("Compliance checks", "Verificaciones de cumplimiento")}</h2>

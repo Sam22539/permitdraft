@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Briefcase, Settings } from "lucide-react";
+import { BookOpen, Briefcase, Settings } from "lucide-react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { DemoBar, useCorePath, useDemo } from "./demo";
@@ -36,6 +36,10 @@ export function BottomBar({ current }: { current?: "jobs" }) {
         {t("Jobs", "Trabajos")}
       </Link>
       <Link to={p("/new")} className="ap-new">{t("+ New job", "+ Nuevo trabajo")}</Link>
+      <Link to="/resources" className="ap-tab">
+        <BookOpen size={22} aria-hidden />
+        {t("Resources", "Recursos")}
+      </Link>
       <Link to={p("/jobs")} activeProps={{ "aria-current": undefined } as never} className="ap-tab">
         <Settings size={22} aria-hidden />
         {t("Settings", "Ajustes")}
@@ -54,6 +58,7 @@ export function AppPage({ children, bottom, wide, capture }: { children: React.R
       <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
         <p>{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
         <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
+        <Link to="/resources" className="underline font-semibold">{t("Official resources", "Recursos oficiales")}</Link>
       </footer>
       {bottom && <BottomBar current="jobs" />}
     </div>

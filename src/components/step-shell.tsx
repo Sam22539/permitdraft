@@ -1,3 +1,4 @@
+import { ResourceLink } from "./resource-link";
 import { Link } from "@tanstack/react-router";
 import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
@@ -41,6 +42,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel }: {
           <Link to={p(back)} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>
       </section>
+      <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />
       <p className="cx-note">{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.")}</p>
     </AppPage>
   );

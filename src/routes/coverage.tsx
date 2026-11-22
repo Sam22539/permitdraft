@@ -1,3 +1,4 @@
+import { ResourceLink } from "../components/resource-link";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
 import { PACK } from "../lib/rules/data";
@@ -41,6 +42,7 @@ function Coverage() {
         <p><strong>{t("Ready for filing", "Listo para presentar")}</strong>: {t("needs a confirmed jurisdiction, verified rules for that job and no unresolved evidence. It stays “Not ready” until all three are true, and PermitDraft does not file anything.", "requiere jurisdicción confirmada, reglas verificadas para ese trabajo y ninguna evidencia pendiente. Sigue “No listo” hasta cumplir las tres, y PermitDraft no presenta nada.")}</p>
         <p className="ap-muted">{t(`Rule data: ${PACK.packId}, version ${PACK.version}.`, `Datos de reglas: ${PACK.packId}, versión ${PACK.version}.`)}</p>
       </section>
+      <ResourceLink stage="permit" className="ap-muted" />
       <Link to="/jobs" className="ap-btn primary">{t("Back to Jobs", "Volver a Trabajos")}</Link>
     </AppPage>
   );

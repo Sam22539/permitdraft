@@ -1,3 +1,4 @@
+import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -48,6 +49,7 @@ export function NewJob() {
           <Link to={p("/jobs")} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>
       </form>
+      <ResourceLink stage="setup" />
     </AppPage>
   );
 }
