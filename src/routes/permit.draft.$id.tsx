@@ -80,7 +80,7 @@ export function Review() {
     return f ? f.label : [r.text[0], r.text[1]];
   };
   const corr = cap.corrections ?? {};
-  const flagged = Object.values(corr).filter((c) => c.flaggedAt).length;
+  const flagged = Object.values(corr).filter((c) => c.flaggedAt && !c.decision).length;
   const jobCtx: [string, string] = ev.workflow ? [ev.workflow.name[0], ev.workflow.name[1]] : ["", ""];
 
   return (
@@ -143,7 +143,7 @@ export function Review() {
                 <strong>{shown || dash}</strong>
                 {READING_UNIT_KEY[f.key] && <span className="font-semibold" data-testid={`rv-unit-${f.key}`}>{t(...readingUnit(cap.values, f.key))}</span>}
                 <span className="ap-muted text-sm">{prov}</span>
-                {f.kind !== "check" && (shown || corr[f.key]) && <CorrectionControls capId={cap.id} field={f.key} label={t(...f.label)} current={has ? String(raw) : ""} c={corr[f.key]} />}
+                {f.kind !== "check" && (shown || corr[f.key]) && <CorrectionControls capId={cap.id} field={f.key} label={t(...f.label)} current={has ? String(raw) : ""} c={corr[f.key]} original={has ? String(raw) : ""} />}
               </li>
             );
           })}

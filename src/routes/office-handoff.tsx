@@ -107,13 +107,13 @@ export function OfficeHandoff() {
           )}
           {Object.keys(c.corrections ?? {}).length > 0 && (
             <div className="cr-list" data-testid="oh-corrections">
-              <p className="jb-meta">{t(`${Object.values(c.corrections!).filter((x) => x.flaggedAt).length} corrected item(s) awaiting office review`, `${Object.values(c.corrections!).filter((x) => x.flaggedAt).length} dato(s) corregido(s) esperando revisión de oficina`)}</p>
+              <p className="jb-meta">{t(`${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} corrected item(s) awaiting office review`, `${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} dato(s) corregido(s) esperando revisión de oficina`)}</p>
               {Object.entries(c.corrections!).map(([k, x]) => {
                 const f = fieldSets(c).find((y) => y.key === k);
                 return (
                   <div key={k} className="cr-list" data-testid={`oh-corr-${k}`}>
                     <span className="font-semibold">{f ? t(...f.label) : k}</span>
-                    <CorrectionStatus c={x} testId={`oh-corr-status-${k}`} />
+                    <CorrectionStatus c={x} testId={`oh-corr-status-${k}`} original={String(c.values[k] ?? "")} />
                   </div>
                 );
               })}

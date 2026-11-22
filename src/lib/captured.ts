@@ -18,7 +18,14 @@ export type Captured = {
  * A correction to one captured item, with the evidence for it. `flaggedAt` only means "awaiting office review":
  * flagging never confirms, approves or readies anything for filing, and never clears a missing-item blocker.
  */
-export type Correction = { value: string; evidence: string; savedAt: number; flaggedAt?: number };
+export type Decision = {
+  status: "accepted" | "returned"; reason: string; at: number; reviewer: string;
+  /** Accepted only: the captured value (null = nothing captured) replaced by the corrected value. */
+  original?: string | null;
+};
+export type Correction = { value: string; evidence: string; savedAt: number; flaggedAt?: number; decision?: Decision; /** Last return reason, kept after a resubmit. */ lastReturn?: { reason: string; at: number; reviewer: string } };
+export const REVIEWER = "Office reviewer (this device)";
+const DUCT_OK = ["sealed", "not", "exempt"];
 export const CAPTURED_KEY = "permitdraft-captured-jobs-v1";
 const key = () => nsKey(CAPTURED_KEY);
 const DEFAULT_SHOWN: Record<string, string> = { type: "Heat pump change-out", work: "Heat-pump change-out, same pad, left side yard" };
@@ -96,9 +103,45 @@ function updateCorrections(capId: string, change: (c: Record<string, Correction>
 export function saveCorrection(capId: string, field: string, value: string, evidence: string): boolean {
   const v = value.trim(), e = evidence.trim();
   if (!v || !e) return false;
-  return updateCorrections(capId, (m) => ({ ...m, [field]: { value: v, evidence: e, savedAt: Date.now() } }));
+  const prev = read().find((c) => c.id === capId)?.corrections?.[field];
+  if (prev?.decision?.status === "accepted") return false; // already applied
+  const lastReturn = prev?.decision?.status === "returned" ? { reason: prev.decision.reason, at: prev.decision.at, reviewer: prev.decision.reviewer } : prev?.lastReturn;
+  return updateCorrections(capId, (m) => ({ ...m, [field]: { value: v, evidence: e, savedAt: Date.now(), ...(lastReturn ? { lastReturn } : {}) } }));
 }
 /** Mark a saved correction for office review. Nothing else changes. */
 export function flagCorrection(capId: string, field: string): boolean {
   return updateCorrections(capId, (m) => (m[field] ? { ...m, [field]: { ...m[field], flaggedAt: Date.now() } } : m));
+}
+
+/** Why an accept would be refused, or "" when the corrected value passes the same checks capture uses. */
+export function acceptProblem(field: string, value: string): string {
+  if (!value.trim()) return "empty";
+  if (field === "duct" && !DUCT_OK.includes(value.trim())) return "duct";
+  return "";
+}
+/** Reviewer accepts a correction awaiting office review: the corrected value is applied, the original kept in the decision. */
+export function acceptCorrection(capId: string, field: string, reason: string): "ok" | "invalid" | "state" | "storage" {
+  const r = reason.trim();
+  const cap = read().find((c) => c.id === capId);
+  const c = cap?.corrections?.[field];
+  if (!cap || !c || !c.flaggedAt || c.decision) return "state";
+  if (!r) return "state";
+  if (acceptProblem(field, c.value)) return "invalid";
+  try {
+    const list = read();
+    const original = field in cap.values ? cap.values[field] : null;
+    writeAll(list.map((x) => x.id !== capId ? x : {
+      ...x, values: { ...x.values, [field]: c.value.trim() },
+      corrections: { ...(x.corrections ?? {}), [field]: { ...c, decision: { status: "accepted", reason: r, at: Date.now(), reviewer: REVIEWER, original } } },
+    }));
+    return "ok";
+  } catch { return "storage"; }
+}
+/** Reviewer returns a correction with a required reason. The captured value stays; the correction stays unresolved until resubmitted. */
+export function returnCorrection(capId: string, field: string, reason: string): boolean {
+  const r = reason.trim();
+  if (!r) return false;
+  const c = read().find((x) => x.id === capId)?.corrections?.[field];
+  if (!c || !c.flaggedAt || c.decision) return false;
+  return updateCorrections(capId, (m) => ({ ...m, [field]: { ...c, decision: { status: "returned", reason: r, at: Date.now(), reviewer: REVIEWER } } }));
 }
