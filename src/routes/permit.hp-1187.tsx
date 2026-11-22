@@ -102,12 +102,40 @@ function Page() {
     setHistory((h) => [{ ...e, id: `${at}-${h.length}`, editor: EDITOR, at }, ...h]);
   }
 
+  const [focusReq, setFocusReq] = useState(0);
+
+  function hashToId(h: string) {
+    if (h === "#panel-size") return "panel";
+    if (h.startsWith("#field-")) return h.slice(7);
+    return "";
+  }
+
+  function goTo(id: string) {
+    pick(id);
+    setFocusReq((n) => n + 1);
+  }
+
   useEffect(() => {
-    if (window.location.hash === "#panel-size") {
-      setSelId("panel");
-      document.getElementById("panel-size")?.scrollIntoView();
-    }
+    const apply = () => {
+      const id = hashToId(window.location.hash);
+      if (id) goTo(id);
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!focusReq || !loaded) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById("v") as HTMLInputElement | null;
+      const target = el ?? document.getElementById("field-" + selId);
+      target?.scrollIntoView({ block: "center" });
+      (el ?? (document.querySelector(`#field-${selId} button`) as HTMLElement | null))?.focus({ preventScroll: true });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [focusReq, loaded, selId]);
 
   const sel = fields.find((f) => f.id === selId) ?? fields[0];
   const blockers = fields.filter((f) => f.status !== "Confirmed");
@@ -210,12 +238,39 @@ function Page() {
           </Button>
         </section>
 
+        <section className="pd-fu" aria-labelledby="fu" aria-live="polite" data-testid="followup">
+          <h2 id="fu">Office follow-up list: <span data-testid="followup-count">{blockers.length}</span> {blockers.length === 1 ? "item" : "items"} to confirm</h2>
+          {canReady ? (
+            <p className="pd-fu-empty">All clear. No office follow-up is needed.</p>
+          ) : (
+            <ul className="pd-fu-list">
+              {blockers.map((b) => (
+                <li key={b.id}>
+                  <a
+                    className="pd-fu-link"
+                    href={`#field-${b.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.history.replaceState(null, "", `#field-${b.id}`);
+                      goTo(b.id);
+                    }}
+                  >
+                    <span>{b.label}{b.conflict ? " (conflict)" : ""}</span>
+                    <span className="pd-fu-go">Enter answer →</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         <div className="pd-grid">
           <section aria-labelledby="fl">
             <h2 id="fl">Draft fields</h2>
             <ul className="pd-list">
               {fields.map((f) => (
-                <li key={f.id} id={f.id === "panel" ? "panel-size" : undefined}>
+                <li key={f.id} id={`field-${f.id}`}>
+                  {f.id === "panel" && <span id="panel-size" />}
                   <button type="button" className={`pd-row ${f.id === sel.id ? "on" : ""}`} aria-pressed={f.id === sel.id} onClick={() => pick(f.id)}>
                     <span className="pd-label">{f.label}</span>
                     <span className="pd-value">{f.value || "—"}</span>
