@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { Dictation } from "../components/dictation";
 import { StepShell, selectCls } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -15,14 +15,12 @@ export const Route = createFileRoute("/new/work")({
 function Work() {
   const { t } = useLang();
   const d = useDraft(3);
-  const [dict, setDict] = useState(false);
   const needed = t("NEEDED", "NECESARIO");
   return (
     <StepShell n={3} title={["Work performed", "Trabajo realizado"]} sub={["Step 3 of 5 · What the crew did", "Paso 3 de 5 · Lo que hizo el equipo"]} back="/new/equipment" next="/new/checks">
       <div className="ap-field"><Label htmlFor="wk">{t("Work performed", "Trabajo realizado")}</Label>
         <Textarea id="wk" rows={4} className="text-lg bg-white" value={d.get("work")} onChange={(e) => d.set("work", e.target.value)} /></div>
-      <button type="button" className="ap-btn ghost" onClick={() => setDict(true)}>{t("Dictated note", "Nota dictada")}</button>
-      {dict && <p role="status" className="font-semibold">{t("Dictation is a placeholder in this practice site.", "El dictado es un marcador en este sitio de práctica.")}</p>}
+      <Dictation notes={d.get("work")} onSave={(v) => d.set("work", v)} />
       <div className="ap-field"><Label htmlFor="pa">{t("Panel size amps * (needed for paperwork)", "Amperios del panel * (necesario para el papeleo)")}</Label>
         <Input id="pa" type="number" inputMode="numeric" min={0} value={d.get("panel")} onChange={(e) => d.set("panel", e.target.value)} />
         {!d.get("panel") && <strong className="ap-next">{needed}</strong>}</div>
