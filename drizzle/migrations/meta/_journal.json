@@ -8,6 +8,13 @@
       "when": 1795373087562,
       "tag": "0000_pilot_signups_table",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795376547719,
+      "tag": "0001_drop_county_only_check_add_state_column",
+      "breakpoints": true
     }
   ]
 }

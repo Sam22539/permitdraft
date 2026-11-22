@@ -4,7 +4,7 @@ import { PACK } from "../lib/rules/data";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/coverage")({
-  head: () => ({ meta: [{ title: "Coverage — PermitDraft" }, { name: "description", content: "What PermitDraft checks today for each kind of job, and what it does not yet cover." }] }),
+  head: () => ({ meta: [{ title: "Coverage — PermitDraft" }, { name: "description", content: "PermitDraft’s documentation workflow works in all 50 US states. See what it checks today and what verified rule coverage it does not yet have." }] }),
   component: Coverage,
 });
 
@@ -17,6 +17,10 @@ function Coverage() {
       <h1 className="text-3xl">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</h1>
       <p className="ap-muted">{t("Today PermitDraft runs a documentation checklist for every job: it makes sure the details and photos an office needs are captured. It does not yet check any law, code or local rule, anywhere.", "Hoy PermitDraft corre una lista de documentación en cada trabajo: verifica que se capturen los datos y fotos que una oficina necesita. Todavía no verifica ninguna ley, código ni regla local, en ningún lugar.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+      <section className="ap-card" data-testid="coverage-national">
+        <h2 className="ap-h2">{t("Nationwide workflow, verified rules not yet", "Flujo nacional, reglas verificadas aún no")}</h2>
+        <p>{t("The documentation workflow (job details, photos, notes, office review) can be used for HVAC jobs in all 50 US states. Verified permit rules currently cover no state, county or city. The jurisdictions below are listed only as sample references. For any other jurisdiction, the permit office, dates, fees and requirements are unverified: the office must confirm them.", "El flujo de documentación (datos del trabajo, fotos, notas, revisión de oficina) puede usarse para trabajos de HVAC en los 50 estados de EE. UU. Las reglas de permisos verificadas hoy no cubren ningún estado, condado ni ciudad. Las jurisdicciones de abajo son solo referencias de muestra. Para cualquier otra jurisdicción, la oficina de permisos, las fechas, las tarifas y los requisitos no están verificados: la oficina debe confirmarlos.")}</p>
+      </section>
       <section className="ap-card" data-testid="coverage-matrix">
         <h2 className="ap-h2">{t("Coverage by kind of job", "Cobertura por tipo de trabajo")}</h2>
         <div className="rd-scroll">
