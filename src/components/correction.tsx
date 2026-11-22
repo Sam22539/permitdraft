@@ -1,3 +1,4 @@
+import "../permit.css";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -28,6 +29,20 @@ export function CorrectionStatus({ c, testId, original }: { c: Correction; testI
         ? t(`Marked ${stamp(c.flaggedAt, lang)} · not confirmed or approved by a reviewer`, `Marcado ${stamp(c.flaggedAt, lang)} · sin confirmar ni aprobar por un revisor`)
         : t(`Saved ${stamp(c.savedAt, lang)} · not confirmed or approved by a reviewer`, `Guardado ${stamp(c.savedAt, lang)} · sin confirmar ni aprobar por un revisor`)}</span>
     </span>
+  );
+}
+
+/** Red side-by-side box for a flagged correction that has no decision yet. Picks neither value. */
+export function ConflictBox({ c, field, captured, capturedSource }: { c: Correction; field: string; captured: string; capturedSource: string }) {
+  const { t } = useLang();
+  const note = c.lastReturn?.reason;
+  return (
+    <div className="pd-conflict" role="alert" data-testid={`conflict-${field}`}>
+      <p className="pd-ev-label">{t("Conflict: resolve before Ready", "Conflicto: resuélvalo antes de marcar listo")}</p>
+      <p className="pd-ev-text">{t("Captured value", "Valor capturado")}: <strong data-testid={`conflict-captured-${field}`}>{captured || t("No value yet", "Sin valor todavía")}</strong> ({t("Source", "Fuente")}: {capturedSource})</p>
+      <p className="pd-ev-text">{t("Conflicting value", "Valor en conflicto")}: <strong data-testid={`conflict-value-${field}`}>{c.value}</strong> ({t("Source", "Fuente")}: {c.evidence})</p>
+      {note && <p className="pd-ev-text">{t("Reviewer note", "Nota del revisor")}: “{note}”</p>}
+    </div>
   );
 }
 

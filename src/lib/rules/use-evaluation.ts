@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
 import type { Captured } from "../captured";
-import { activeType } from "../capture-fields";
+import { activeType, fieldSets } from "../capture-fields";
 import { SLOTS } from "../photos";
-import { evaluate } from "./engine";
+import { evaluate, type CheckResult } from "./engine";
 import { PACK } from "./data";
 import { nsKey } from "../demo-mode";
 
@@ -33,5 +33,22 @@ export function useOfficeJurisdictions(): Record<string, string> {
 export function today() { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`; }
 export function evaluateCapture(c: Captured, jurisdictionCode: string | null) {
   // A saved job's shown defaults (never edited) are not captured values: only what the tech entered counts.
-  return evaluate(PACK, { type: activeType(c), values: c.values, photoSlots: SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
+  const ev = evaluate(PACK, { type: activeType(c), values: c.values, photoSlots: SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
+  // A flagged correction with no decision is an unresolved conflict: it blocks Ready until the office accepts or returns it.
+  const open = Object.entries(c.corrections ?? {}).filter(([, k]) => k.flaggedAt && !k.decision);
+  if (open.length === 0) return ev;
+  const sets = fieldSets(c);
+  const items: CheckResult[] = open.map(([key]) => {
+    const f = sets.find((x) => x.key === key);
+    const name: [string, string] = f ? [f.label[0], f.label[1]] : [key, key];
+    return {
+      ruleId: `conflict-${key}`, ruleVersion: 1, status: "missing" as const,
+      text: [`Conflict on ${name[0]}`, `Conflicto en ${name[1]}`], todo: ["Office: accept or return the conflicting value before Ready.", "Oficina: acepte o devuelva el valor en conflicto antes de marcar listo."],
+      why: ["A flagged correction conflicts with the captured value and has no decision.", "Una corrección marcada está en conflicto con el valor capturado y no tiene decisión."],
+      layer: "app", scope: "documentation", ruleStatus: "unverified", sources: [], effectiveFrom: "", verifiedOn: "", dateBasis: "evaluation_date", evidence: `conflict:${key}`,
+    } as CheckResult;
+  });
+  const missing = [...ev.missing, ...items];
+  const reasons = ev.filing.reasons.includes("evidence_unresolved") ? ev.filing.reasons : [...ev.filing.reasons, "evidence_unresolved" as const];
+  return { ...ev, missing, officeReview: { ready: false }, filing: { ready: false, reasons }, next: ev.missing.length > 0 ? ev.next : { kind: "capture" as const, item: items[0] } };
 }

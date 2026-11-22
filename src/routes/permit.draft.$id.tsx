@@ -13,7 +13,7 @@ import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evalua
 import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
 import { CopyRequest } from "../components/copy-request";
 import { copyRequest } from "../lib/copy-requests";
-import { CorrectionControls, CorrectionStatus } from "../components/correction";
+import { ConflictBox, CorrectionControls, CorrectionStatus } from "../components/correction";
 
 export const Route = createFileRoute("/permit/draft/$id")({
   head: () => ({ meta: [{ title: "Review draft — PermitDraft" }, { name: "description", content: "Review draft built from what was captured on the job, each value with where it came from." }] }),
@@ -177,6 +177,7 @@ export function Review() {
                 <strong>{shown || dash}</strong>
                 {READING_UNIT_KEY[f.key] && <span className="font-semibold" data-testid={`rv-unit-${f.key}`}>{t(...readingUnit(cap.values, f.key))}</span>}
                 <span className="ap-muted text-sm">{prov}</span>
+                {corr[f.key]?.flaggedAt && !corr[f.key]?.decision && <ConflictBox c={corr[f.key]} field={f.key} captured={shown} capturedSource={prov} />}
                 {f.kind !== "check" && (shown || corr[f.key]) && <CorrectionControls capId={cap.id} field={f.key} label={t(...f.label)} current={has ? String(raw) : ""} c={corr[f.key]} original={has ? String(raw) : ""} />}
               </li>
             );
