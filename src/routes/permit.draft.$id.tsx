@@ -223,7 +223,7 @@ export function Review() {
       {isDemoReview && (
         <section className="ap-card" data-testid="demo-early-access" aria-labelledby="dea-h">
           <h2 className="ap-h2" id="dea-h">{t("Want this for your crew?", "¿Quiere esto para su equipo?")}</h2>
-          <p className="ap-muted">{t("Optional: ask for a spot in the pilot. You can keep exploring the demo either way.", "Opcional: pida un lugar en el piloto. Puede seguir explorando la demo de cualquier forma.")}</p>
+          <p className="ap-muted">{t("Which missing detail sends a job back to your crew most often? Tell us on the early access form, or keep exploring the demo.", "¿Qué dato que falta devuelve más trabajos a su equipo? Cuéntenos en el formulario de acceso anticipado, o siga explorando la demo.")}</p>
           <Link to="/" hash="pilot" className="ap-btn primary" data-testid="demo-early-access-link">{t("Get Early Access", "Obtener acceso anticipado")}</Link>
         </section>
       )}
