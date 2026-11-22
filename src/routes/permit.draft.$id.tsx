@@ -106,7 +106,7 @@ export function Review() {
       <ReadinessCard ev={ev} capId={cap.id} jur={jurs[cap.id] ?? ""} />
       <CoverageLine ev={ev} />
       <ResourceLink stage="permit" />
-      <p className="cx-note" data-testid="filing-handoff-link"><Link to="/resources" hash="filing-handoff" className="underline font-semibold">{t("Official filing handoff: confirm the permitting authority", "Entrega para presentar: confirme la autoridad de permisos")}</Link>{" · "}{t("opens official pages only; nothing is filed or sent", "solo abre páginas oficiales; no se presenta ni envía nada")}</p>
+      {jurs[cap.id] && (<p className="cx-note" data-testid="filing-handoff-link"><Link to="/resources" hash="filing-handoff" className="underline font-semibold">{t("Official filing handoff: confirm the permitting authority", "Entrega para presentar: confirme la autoridad de permisos")}</Link>{" · "}{t("opens official pages only; nothing is filed or sent", "solo abre páginas oficiales; no se presenta ni envía nada")}</p>)}
       <p className="ap-muted">{t(`Finished ${when}. Practice job, not connected to real permit filing. Every value below is exactly what was captured; nothing here is confirmed by a reviewer yet.`, `Finalizado ${when}. Trabajo de práctica, no conectado a la presentación real de permisos. Cada valor es exactamente lo capturado; nada está confirmado por un revisor todavía.`)}</p>
       <p className="ap-next" data-testid="review-missing">{sm.missing > 0 ? t(`${sm.missing} item(s) not captured`, `${sm.missing} dato(s) sin capturar`) : t("Nothing missing from capture", "No falta nada de la captura")}</p>
       <p className="ap-next" data-testid="review-status">{ev.officeReview.ready
