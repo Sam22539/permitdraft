@@ -13,6 +13,7 @@ import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evalua
 import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
 import { CopyRequest } from "../components/copy-request";
 import { copyRequest } from "../lib/copy-requests";
+import { CorrectionControls } from "../components/correction";
 
 export const Route = createFileRoute("/permit/draft/$id")({
   head: () => ({ meta: [{ title: "Review draft — PermitDraft" }, { name: "description", content: "Review draft built from what was captured on the job, each value with where it came from." }] }),
@@ -78,6 +79,8 @@ export function Review() {
     const f = key ? fieldSets(cap).find((x) => x.key === key) : undefined;
     return f ? f.label : [r.text[0], r.text[1]];
   };
+  const corr = cap.corrections ?? {};
+  const flagged = Object.values(corr).filter((c) => c.flaggedAt).length;
   const jobCtx: [string, string] = ev.workflow ? [ev.workflow.name[0], ev.workflow.name[1]] : ["", ""];
 
   return (
@@ -93,6 +96,12 @@ export function Review() {
       <p className="ap-next" data-testid="review-status">{ev.officeReview.ready
         ? t("Ready for office review. Every required detail is captured, but nothing is confirmed by a reviewer yet.", "Listo para revisión de oficina. Cada dato obligatorio está capturado, pero ningún revisor ha confirmado nada todavía.")
         : t(`Not ready for office review: ${ev.missing.length} required item(s) still missing: ${ev.missing.map((m) => m.text[0]).join(", ")}`, `No listo para revisión de oficina: faltan ${ev.missing.length} dato(s) obligatorio(s): ${ev.missing.map((m) => m.text[1]).join(", ")}`)}</p>
+      {Object.keys(corr).length > 0 && (
+        <p className="ap-muted" data-testid="review-corrections">{t(
+          `${Object.keys(corr).length} corrected item(s), ${flagged} awaiting office review. Corrections are shown beside the captured value in the office view below; they do not confirm, approve or ready anything for filing, and missing items stay missing until captured.`,
+          `${Object.keys(corr).length} dato(s) corregido(s), ${flagged} esperando revisión de oficina. Las correcciones aparecen junto al valor capturado en la vista de oficina; no confirman, aprueban ni preparan nada para presentar, y los datos faltantes siguen faltando hasta capturarlos.`,
+        )}</p>
+      )}
 
       <section className="ap-card" data-testid="review-checks">
         <h2 className="ap-h2">{t("Checks", "Verificaciones")}</h2>
@@ -109,7 +118,7 @@ export function Review() {
       </section>
 
       <section className="ap-card" data-testid="review-fields">
-        <details>
+        <details open={Object.keys(corr).length > 0 || undefined}>
         <summary className="ap-h2" style={{ minHeight: 48, cursor: "pointer" }}>{t("Office view: captured details and evidence", "Vista de oficina: datos y evidencia capturados")}</summary>
         <ul>
           {fieldSets(cap).map((f) => {
@@ -133,6 +142,7 @@ export function Review() {
                 <strong>{shown || dash}</strong>
                 {READING_UNIT_KEY[f.key] && <span className="font-semibold" data-testid={`rv-unit-${f.key}`}>{t(...readingUnit(cap.values, f.key))}</span>}
                 <span className="ap-muted text-sm">{prov}</span>
+                {f.kind !== "check" && (shown || corr[f.key]) && <CorrectionControls capId={cap.id} field={f.key} label={t(...f.label)} current={has ? String(raw) : ""} c={corr[f.key]} />}
               </li>
             );
           })}

@@ -11,7 +11,14 @@ export type Captured = {
   values: Record<string, string>;        // exactly the keys the tech edited
   formDefaults: Record<string, string>;  // form defaults shown but never edited
   photos: CapturedPhoto[];
+  /** Item-level corrections saved on the review draft, by field key. The captured value above is never overwritten. */
+  corrections?: Record<string, Correction>;
 };
+/**
+ * A correction to one captured item, with the evidence for it. `flaggedAt` only means "awaiting office review":
+ * flagging never confirms, approves or readies anything for filing, and never clears a missing-item blocker.
+ */
+export type Correction = { value: string; evidence: string; savedAt: number; flaggedAt?: number };
 export const CAPTURED_KEY = "permitdraft-captured-jobs-v1";
 const key = () => nsKey(CAPTURED_KEY);
 const DEFAULT_SHOWN: Record<string, string> = { type: "Heat pump change-out", work: "Heat-pump change-out, same pad, left side yard" };
@@ -68,4 +75,30 @@ export async function finishCapture(): Promise<string | null> {
     await deleteJobPhotos(id);
     return null;
   }
+}
+
+/** Write the captured list back with a readback check, then tell every screen. Throws when the save did not stick. */
+function writeAll(list: Captured[]) {
+  const next = JSON.stringify(list);
+  localStorage.setItem(key(), next);
+  if (localStorage.getItem(key()) !== next) throw new Error("readback mismatch");
+  read(); subs.forEach((f) => f());
+}
+function updateCorrections(capId: string, change: (c: Record<string, Correction>) => Record<string, Correction>): boolean {
+  try {
+    const list = read();
+    if (!list.some((c) => c.id === capId)) return false;
+    writeAll(list.map((c) => (c.id === capId ? { ...c, corrections: change({ ...(c.corrections ?? {}) }) } : c)));
+    return true;
+  } catch { return false; }
+}
+/** Save (or replace) a correction for one item. A new or changed correction is not flagged until marked again. */
+export function saveCorrection(capId: string, field: string, value: string, evidence: string): boolean {
+  const v = value.trim(), e = evidence.trim();
+  if (!v || !e) return false;
+  return updateCorrections(capId, (m) => ({ ...m, [field]: { value: v, evidence: e, savedAt: Date.now() } }));
+}
+/** Mark a saved correction for office review. Nothing else changes. */
+export function flagCorrection(capId: string, field: string): boolean {
+  return updateCorrections(capId, (m) => (m[field] ? { ...m, [field]: { ...m[field], flaggedAt: Date.now() } } : m));
 }

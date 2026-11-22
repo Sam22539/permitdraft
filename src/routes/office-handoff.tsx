@@ -5,7 +5,8 @@ import { AppPage } from "../components/app-shell";
 import { useCorePath, useDemo } from "../components/demo";
 import { Input } from "../components/ui/input";
 import { useCaptured } from "../lib/captured";
-import { captureSummary } from "../lib/capture-fields";
+import { captureSummary, fieldSets } from "../lib/capture-fields";
+import { CorrectionStatus } from "../components/correction";
 import { useLang } from "../lib/lang";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 
@@ -103,6 +104,20 @@ export function OfficeHandoff() {
             </div>
           ) : (
             <p className="jb-meta">{t("No missing items.", "No falta nada.")}</p>
+          )}
+          {Object.keys(c.corrections ?? {}).length > 0 && (
+            <div className="cr-list" data-testid="oh-corrections">
+              <p className="jb-meta">{t(`${Object.values(c.corrections!).filter((x) => x.flaggedAt).length} corrected item(s) awaiting office review`, `${Object.values(c.corrections!).filter((x) => x.flaggedAt).length} dato(s) corregido(s) esperando revisión de oficina`)}</p>
+              {Object.entries(c.corrections!).map(([k, x]) => {
+                const f = fieldSets(c).find((y) => y.key === k);
+                return (
+                  <div key={k} className="cr-list" data-testid={`oh-corr-${k}`}>
+                    <span className="font-semibold">{f ? t(...f.label) : k}</span>
+                    <CorrectionStatus c={x} testId={`oh-corr-status-${k}`} />
+                  </div>
+                );
+              })}
+            </div>
           )}
           <Link to={p("/permit/draft/$id")} params={{ id: c.id } as never} className="ap-btn primary" data-testid="oh-open">{t("Open review draft", "Abrir borrador de revisión")}</Link>
         </div>

@@ -279,3 +279,12 @@ a.ap-job{border-left:6px solid #c2410c}
   html[data-cx-kb] .cx-pin{bottom:var(--cx-kb,0px);padding-bottom:12px}
   html[data-cx-kb]:has(.cx-pin){scroll-padding-bottom:calc(var(--cx-kb,0px) + var(--cx-pin-h,80px) + 16px)}
 }
+/* Item-level corrections on the review draft and Office handoff */
+.cr-box{display:grid;gap:.5rem;margin-top:.35rem}
+.cr-status{display:grid;gap:.15rem;background:#e8eefb;border-left:4px solid #12264a;border-radius:.5rem;padding:.5rem .75rem;color:#12264a}
+.cr-form{display:grid;gap:.6rem}
+.cr-form textarea{font-size:1.1rem;background:#fff;min-height:80px}
+.cr-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.cr-actions .ap-btn{min-height:48px;font-size:1rem;width:auto;flex:1 1 12rem}
+@media (min-width:640px){.cr-actions .ap-btn{flex:0 1 auto}}
+.cr-list{display:grid;gap:.5rem}
