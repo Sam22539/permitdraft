@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Checkbox } from "../components/ui/checkbox";
+import { InspectionTimeline } from "../components/inspection-timeline";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/jobs/hp-1187")({
@@ -75,6 +76,8 @@ function Detail() {
           ))}
         </ul>
       </section>
+
+      <InspectionTimeline />
 
       <section className="ap-card">
         <h2 className="text-xl">{t("Compliance checks", "Verificaciones de cumplimiento")}</h2>

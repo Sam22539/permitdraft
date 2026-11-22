@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
+import { STATE_LABEL, fmtDate } from "../components/inspection-timeline";
+import { todayIso, urgentAction, useInsp } from "../lib/inspection";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/jobs/")({
@@ -24,6 +26,8 @@ const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["M
 
 function Jobs() {
   const { t, lang } = useLang();
+  const insp = useInsp();
+  const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("All");
   const shown = JOBS.filter((j) =>
     chip === "All" ? true : chip === "Drafts" ? j.status === "Draft" : chip === "Missing info" ? j.status === "Missing info" : j.status === "Missing info",
@@ -64,7 +68,14 @@ function Jobs() {
           </>
         );
         return j.href ? (
-          <Link key={j.id} to="/jobs/hp-1187" className={`jb-job ${cls[j.status]}`}>{body}</Link>
+          <div key={j.id} className={`jb-job ${cls[j.status]}`}>
+            <Link to="/jobs/hp-1187" className="grid gap-[inherit]">{body}</Link>
+            <Link to="/jobs/hp-1187" hash="inspection-timeline" className="jb-next" data-testid="jobs-insp-action">
+              {t("Inspection: ", "Inspección: ")}{t(act.en, act.es)}
+              {act.date && <> · {fmtDate(act.date, lang)}</>}
+              {act.state !== "confirm" && <> · {t(...STATE_LABEL[act.state])}</>}
+            </Link>
+          </div>
         ) : (
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>{body}</div>
         );
