@@ -5,7 +5,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
 
-export const Route = createFileRoute("/new")({
+export const Route = createFileRoute("/new/")({
   head: () => ({ meta: [{ title: "New job — PermitDraft" }, { name: "description", content: "Step 1 of 5: homeowner and job site." }] }),
   component: NewJob,
 });
@@ -22,7 +22,7 @@ function NewJob() {
     e.preventDefault();
     if (!f.name.trim() || !f.addr.trim() || !f.city.trim()) return setErr(t("Fill in the fields marked *.", "Complete los campos marcados con *."));
     setDraft(f);
-    nav({ to: "/jobs" });
+    nav({ to: "/new/equipment" });
   }
 
   return (
