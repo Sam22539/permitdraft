@@ -8,6 +8,7 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import "../permit.css";
 import { usePhotos } from "../lib/photos";
+import { PhotoViewer } from "../components/photo-viewer";
 import { useInsp } from "../lib/inspection";
 import { useLang } from "../lib/lang";
 import { CopyRequest } from "../components/copy-request";
@@ -111,6 +112,7 @@ function Page() {
   const [loaded, setLoaded] = useState(false);
   const [pid, setPid] = useState("");
   const { photos } = usePhotos();
+  const plateNote = t("Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.", "Foto guardada en este dispositivo · Esperando para subir. Solo como referencia; no confirma ningún valor.");
   const insp = useInsp();
   const isSac = insp.juris === "sacramento-city";
 
@@ -338,8 +340,8 @@ function Page() {
               {sel.id === "charge" && <p className="pd-ev-src">{t("Unit not specified", "Unidad no especificada")}</p>}
               {sel.source === "Equipment photo" && photos.plate && (
                 <div className="ph-ev" data-testid="permit-plate">
-                  <Image src={photos.plate.url} alt="Saved data plate photo" width={240} height={240} />
-                  <p className="pd-ev-text">{t("Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.", "Foto guardada en este dispositivo · Esperando para subir. Solo como referencia; no confirma ningún valor.")}</p>
+                  <PhotoViewer src={photos.plate.url} alt={t("Saved data plate photo", "Foto guardada de la placa de datos")} testId="permit-plate-view" caption={<><p className="font-semibold">{fl(sel)}: {fv(sel.value)}</p><p className="pd-ev-text">{plateNote}</p></>} />
+                  <p className="pd-ev-text">{plateNote}</p>
                 </div>
               )}
               {isSac && sel.id === "location" && (

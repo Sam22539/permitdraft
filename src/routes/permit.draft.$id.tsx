@@ -3,7 +3,7 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useCorePath } from "../components/demo";
 import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
-import { Image } from "../image";
+import { PhotoViewer } from "../components/photo-viewer";
 import { useCaptured } from "../lib/captured";
 import { activeType, captureSummary, DUCT_LABEL, fieldSets, READING_UNIT_KEY, readingUnit, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
@@ -70,6 +70,7 @@ export function Review() {
     if (s !== "plate" && s !== "wide") return kind;
     return unit ? `${unit} · ${kind}` : `${t("Unit not specified", "Unidad no especificada")} · ${kind}`;
   };
+  const photoNote = (ref: { name: string; savedAt: number }) => t(`Photo ${ref.name}, saved on this device ${new Date(ref.savedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} · Waiting to upload. Shown as evidence only; it does not confirm any value.`, `Foto ${ref.name}, guardada en este dispositivo ${new Date(ref.savedAt).toLocaleString("es-US", { dateStyle: "medium", timeStyle: "short" })} · Esperando para subir. Solo como evidencia; no confirma ningún valor.`);
   const dash = t("Not captured", "No capturado");
   const fieldLabel = (r: { evidence: string; text: readonly [string, string] }): [string, string] => {
     const key = r.evidence.startsWith("field:") ? r.evidence.slice(6) : "";
@@ -146,9 +147,9 @@ export function Review() {
               <p className="font-semibold">{t(...SLOT_LABEL[s])}</p>
               {ref ? (
                 <>
-                  {urls[s] ? <Image src={urls[s]!} alt={t(...SLOT_LABEL[s])} width={240} height={240} /> : <p className="ap-muted">{photoErr ? t("Could not read this photo on this device.", "No se pudo leer esta foto en este dispositivo.") : t("Loading photo…", "Cargando foto…")}</p>}
+                  {urls[s] ? <PhotoViewer src={urls[s]!} alt={t(...SLOT_LABEL[s])} testId={`rv-view-${s}`} caption={<><p className="font-semibold">{caption(s, ref.unit)}</p><p>{photoNote(ref)}</p></>} /> : <p className="ap-muted">{photoErr ? t("Could not read this photo on this device.", "No se pudo leer esta foto en este dispositivo.") : t("Loading photo…", "Cargando foto…")}</p>}
                   <p className="font-semibold" data-testid={`rv-caption-${s}`}>{caption(s, ref.unit)}</p>
-                  <p className="ap-muted text-sm">{t(`Photo ${ref.name}, saved on this device ${new Date(ref.savedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })} · Waiting to upload. Shown as evidence only; it does not confirm any value.`, `Foto ${ref.name}, guardada en este dispositivo ${new Date(ref.savedAt).toLocaleString("es-US", { dateStyle: "medium", timeStyle: "short" })} · Esperando para subir. Solo como evidencia; no confirma ningún valor.`)}</p>
+                  <p className="ap-muted text-sm">{photoNote(ref)}</p>
                 </>
               ) : <p className="ap-next">{t("No photo captured", "Sin foto capturada")}</p>}
             </div>
