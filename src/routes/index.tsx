@@ -4,6 +4,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { joinPilot, US_STATES } from "../lib/pilot";
 import { AppPage } from "../components/app-shell";
+import { BuyButton, ManageSubscriptionButton } from "../lib/payments/buy";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/")({
@@ -91,6 +92,15 @@ function Start() {
       <Link to="/permit/hp-1187" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
       <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
       <PilotForm />
+      <section className="ap-card ap-subscribe" aria-labelledby="sub-h" data-testid="subscribe">
+        <h2 id="sub-h">PermitDraft Core</h2>
+        <p><strong>{t("US$49/month", "US$49/mes")}</strong> · {t("renews monthly", "se renueva mensualmente")}</p>
+        <p className="ap-muted">{t("Paid access to the PermitDraft documentation workflow. It does not verify permit rules and does not file anything for you.", "Acceso de pago al flujo de documentación de PermitDraft. No verifica reglas de permisos ni presenta nada por usted.")}</p>
+        <div className="ap-subscribe-actions">
+          <BuyButton priceHandle="permitdraft_core_4900_usd_monthly" className="ap-btn primary">{t("Subscribe to PermitDraft Core", "Suscribirse a PermitDraft Core")}</BuyButton>
+          <ManageSubscriptionButton priceHandle="permitdraft_core_4900_usd_monthly" className="ap-btn ghost">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
+        </div>
+      </section>
     </AppPage>
   );
 }

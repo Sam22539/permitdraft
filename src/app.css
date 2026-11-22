@@ -190,3 +190,7 @@ a.ap-job{border-left:6px solid #c2410c}
 .cx-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:420px){.cx-two{grid-template-columns:1fr}}
 .cx-h{font-family:var(--font-heading);font-size:1.2rem;font-weight:700;color:#12264a;margin-top:4px}
 .cx-h1{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.1}.cx-card:is(a){border-left-color:#c2410c}
+
+.ap-subscribe{display:grid;gap:.6rem}
+.ap-subscribe-actions{display:flex;flex-direction:column;gap:.6rem}
+@media (min-width:640px){.ap-subscribe-actions{flex-direction:row;flex-wrap:wrap}}
