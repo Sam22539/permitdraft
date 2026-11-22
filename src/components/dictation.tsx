@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { useLang } from "../lib/lang";
+import { useDraftStage } from "../lib/job-draft";
 
 type Rec = {
   lang: string; continuous: boolean; interimResults: boolean;
@@ -9,12 +10,16 @@ type Rec = {
   onresult: ((e: any) => void) | null; onerror: ((e: any) => void) | null; onend: (() => void) | null;
 };
 
-/** Dictation into a staged box; nothing touches the notes until "Save to notes" (appends). No audio is kept. */
+/** Dictation into a staged box; nothing touches the notes until "Save to notes" (appends). No audio is kept.
+ *  The staged box is kept in the job's draft, so stepping back and returning keeps unsaved dictated text. */
 export function Dictation({ notes, onSave }: { notes: string; onSave: (next: string) => void }) {
   const { lang, t } = useLang();
-  const [open, setOpen] = useState(false);
+  const [stored, setStored] = useDraftStage("dictation");
+  const open = stored !== undefined;
+  const staged = stored ?? "";
+  const setOpen = (o: boolean) => setStored(o ? staged : undefined);
+  const setStaged = (v: string) => setStored(v);
   const [listening, setListening] = useState(false);
-  const [staged, setStaged] = useState("");
   const [err, setErr] = useState("");
   const rec = useRef<Rec | null>(null);
   const base = useRef("");
@@ -49,12 +54,12 @@ export function Dictation({ notes, onSave }: { notes: string; onSave: (next: str
     try { r.start(); setListening(true); } catch { setErr(t("Could not start the microphone.", "No se pudo iniciar el micrófono.")); }
   };
   const stop = () => { try { rec.current?.stop(); } catch { /* ignore */ } setListening(false); };
-  const close = () => { try { rec.current?.abort(); } catch { /* ignore */ } setListening(false); setStaged(""); setErr(""); setOpen(false); };
+  const close = () => { try { rec.current?.abort(); } catch { /* ignore */ } setListening(false); setErr(""); setStored(undefined); };
   const save = () => {
     try { rec.current?.abort(); } catch { /* ignore */ }
     const add = staged.trim();
     if (add) onSave(notes.trim() ? notes.replace(/\s+$/, "") + "\n" + add : add);
-    setListening(false); setStaged(""); setErr(""); setOpen(false);
+    setListening(false); setErr(""); setStored(undefined);
   };
 
   return (

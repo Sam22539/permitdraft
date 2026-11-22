@@ -10,7 +10,9 @@ const BASE_KEY = "permitdraft-job-draft-v1";
 const key = () => nsKey(BASE_KEY);
 export const STEP_PATHS = ["/new", "/new/equipment", "/new/work", "/new/checks", "/new/photos"] as const;
 
-type Saved = { values: Record<string, string>; step: number };
+// `stage` keeps text typed but not yet saved into an answer (the dictation box), so stepping back and forward keeps it.
+// It is never part of the finished job's answers.
+type Saved = { values: Record<string, string>; step: number; stage?: Record<string, string> };
 const EMPTY: Saved = { values: {}, step: 0 };
 let raw: string | null | undefined;
 let rawKey = "";
@@ -26,7 +28,7 @@ function read(): Saved {
   raw = r; rawKey = k;
   try {
     const p = r ? JSON.parse(r) : null;
-    cache = p && typeof p === "object" ? { values: typeof p.values === "object" && p.values ? p.values : {}, step: Number(p.step) || 0 } : EMPTY;
+    cache = p && typeof p === "object" ? { values: typeof p.values === "object" && p.values ? p.values : {}, step: Number(p.step) || 0, stage: typeof p.stage === "object" && p.stage ? p.stage : {} } : EMPTY;
   } catch { cache = EMPTY; }
   return cache;
 }
@@ -61,6 +63,18 @@ export function finishDraft() {
 export function useResumeStep(): number {
   const s = useSyncExternalStore(subscribe, snap, serverSnap);
   return s.step >= 1 && s.step <= 5 ? s.step : 0;
+}
+
+/** Unsaved text staged in this draft (kept across steps until saved, cancelled, finished or reset). */
+export function useDraftStage(k: string): [string | undefined, (v: string | undefined) => void] {
+  const s = useSyncExternalStore(subscribe, snap, serverSnap);
+  const set = (v: string | undefined) => {
+    const c = read();
+    const stage = { ...(c.stage ?? {}) };
+    if (v === undefined) delete stage[k]; else stage[k] = v;
+    write({ ...c, stage });
+  };
+  return [s.stage?.[k], set];
 }
 
 export function useDraft(step?: number) {
