@@ -16,6 +16,7 @@ type Field = {
   status: "Confirmed" | "NEEDED";
   source: string;
   evidence: string;
+  conflict?: { value: string; source: string; note: string; origValue: string; origSource: string };
 };
 
 const SOURCES = ["Equipment photo", "Dictated note", "Meter reading", "Office entry"];
@@ -38,6 +39,11 @@ function Page() {
   const [note, setNote] = useState("");
   const [ready, setReady] = useState(false);
   const [err, setErr] = useState("");
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [cv, setCv] = useState("");
+  const [cs, setCs] = useState(SOURCES[0]);
+  const [cn, setCn] = useState("");
+  const [cerr, setCerr] = useState("");
 
   const sel = fields.find((f) => f.id === selId) ?? fields[0];
   const blockers = fields.filter((f) => f.status !== "Confirmed");
@@ -48,6 +54,28 @@ function Page() {
     setValue("");
     setNote("");
     setErr("");
+    setFlagOpen(false);
+    setCv("");
+    setCn("");
+    setCerr("");
+  }
+
+  function flag(e: React.FormEvent) {
+    e.preventDefault();
+    if (!cv.trim()) return setCerr("Enter the conflicting value.");
+    if (!cs) return setCerr("Choose a source.");
+    setFields((fs) =>
+      fs.map((f) =>
+        f.id === sel.id
+          ? { ...f, status: "NEEDED", conflict: { value: cv.trim(), source: cs, note: cn.trim(), origValue: f.value, origSource: f.source } }
+          : f,
+      ),
+    );
+    setReady(false);
+    setFlagOpen(false);
+    setCv("");
+    setCn("");
+    setCerr("");
   }
 
   function confirm(e: React.FormEvent) {
@@ -58,7 +86,14 @@ function Page() {
     setFields((fs) =>
       fs.map((f) =>
         f.id === sel.id
-          ? { ...f, value: value.trim(), status: "Confirmed", source, evidence: `${source} entered by the office reviewer, ${when}.${note.trim() ? ` Note: “${note.trim()}”` : ""}` }
+          ? {
+              ...f,
+              value: value.trim(),
+              status: "Confirmed",
+              source,
+              conflict: undefined,
+              evidence: `${source} entered by the office reviewer, ${when}.${note.trim() ? ` Note: “${note.trim()}”` : ""}${f.conflict ? ` Resolved conflict. Original value: ${f.conflict.origValue} (${f.conflict.origSource}). Conflicting value: ${f.conflict.value} (${f.conflict.source}).${f.conflict.note ? ` Conflict note: “${f.conflict.note}”` : ""}` : ""}`,
+            }
           : f,
       ),
     );
@@ -132,7 +167,37 @@ function Page() {
               <p className="pd-ev-value">{sel.value || "No value yet"}</p>
               <p className="pd-ev-text">{sel.evidence}</p>
               <p className="pd-ev-src">Source: {sel.source}</p>
+              {sel.conflict && (
+                <div className="pd-conflict" role="alert">
+                  <p className="pd-ev-label">Conflict: resolve before Ready</p>
+                  <p className="pd-ev-text">Original value: <strong>{sel.conflict.origValue || "No value yet"}</strong> (Source: {sel.conflict.origSource})</p>
+                  <p className="pd-ev-text">Conflicting value: <strong>{sel.conflict.value}</strong> (Source: {sel.conflict.source})</p>
+                  {sel.conflict.note && <p className="pd-ev-text">Conflict note: “{sel.conflict.note}”</p>}
+                </div>
+              )}
+              {!sel.conflict && sel.value && !flagOpen && (
+                <Button type="button" variant="outline" size="sm" onClick={() => setFlagOpen(true)}>Flag a conflict</Button>
+              )}
             </div>
+
+            {flagOpen && !sel.conflict && (
+              <form className="pd-card" onSubmit={flag}>
+                <h2>Flag a conflict on {sel.label.toLowerCase()}</h2>
+                <Label htmlFor="cv">Conflicting value</Label>
+                <Input id="cv" className="pd-in" value={cv} onChange={(e) => setCv(e.target.value)} />
+                <Label htmlFor="cs">Source of conflicting value</Label>
+                <select id="cs" className="pd-in pd-select" value={cs} onChange={(e) => setCs(e.target.value)}>
+                  {SOURCES.map((s) => (<option key={s}>{s}</option>))}
+                </select>
+                <Label htmlFor="cn">Note</Label>
+                <Textarea id="cn" value={cn} onChange={(e) => setCn(e.target.value)} placeholder="What does not match, and where you saw it" />
+                {cerr && <p className="pd-err" role="alert">{cerr}</p>}
+                <div className="pd-actions">
+                  <Button type="submit" size="lg">Flag conflict</Button>
+                  <Button type="button" variant="outline" size="lg" onClick={() => setFlagOpen(false)}>Cancel</Button>
+                </div>
+              </form>
+            )}
 
             {sel.status === "NEEDED" ? (
               <form className="pd-card" onSubmit={confirm}>
