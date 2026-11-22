@@ -40,7 +40,7 @@ export function BottomBar({ current }: { current?: "jobs" }) {
         <BookOpen size={22} aria-hidden />
         {t("Resources", "Recursos")}
       </Link>
-      <Link to={p("/jobs")} activeProps={{ "aria-current": undefined } as never} className="ap-tab">
+      <Link to={p("/settings")} className="ap-tab" data-testid="nav-settings">
         <Settings size={22} aria-hidden />
         {t("Settings", "Ajustes")}
       </Link>
