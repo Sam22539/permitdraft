@@ -7,6 +7,7 @@ import { STEP_PATHS, useResumeStep } from "../lib/job-draft";
 import { useLang } from "../lib/lang";
 import { usePhotos } from "../lib/photos";
 import { useCaptured, type Captured } from "../lib/captured";
+import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { captureSummary } from "../lib/capture-fields";
 
 export const Route = createFileRoute("/jobs/")({
@@ -34,6 +35,7 @@ function Jobs() {
   const resume = useResumeStep();
   const { pending } = usePhotos();
   const captured = useCaptured();
+  const jurs = useOfficeJurisdictions();
   const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("All");
   const capJobs: (Job & { cap: Captured })[] = captured.map((c) => {
@@ -61,6 +63,7 @@ function Jobs() {
           {t("Resume job", "Reanudar trabajo")} · {t(`Step ${resume} of 5`, `Paso ${resume} de 5`)}
         </Link>
       )}
+      <p className="jb-meta"><Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
       <div className="jb-counts">
         <div className="jb-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
         <div className="jb-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>
@@ -91,7 +94,15 @@ function Jobs() {
           return (
             <div key={j.id} className={`jb-job ${cls[j.status]}`} data-testid="captured-job">
               {body}
-              <p className="jb-next">{sm.missing > 0 ? t(`Next: review draft (${sm.missing} not captured)`, `Siguiente: revisar borrador (${sm.missing} sin capturar)`) : t("Next: review draft", "Siguiente: revisar borrador")}</p>
+              {(() => {
+                const ev = evaluateCapture(cap, jurs[cap.id] ?? null);
+                return (
+                  <>
+                    <p className="jb-next" data-testid="job-next">{t("Next: ", "Siguiente: ")}{ev.next.kind === "capture" && ev.next.item ? t(`add ${ev.next.item.text[0].toLowerCase()}`, `agregue ${ev.next.item.text[1].toLowerCase()}`) : ev.next.kind === "jurisdiction" ? t("office confirms the jurisdiction", "la oficina confirma la jurisdicción") : t("review the draft with the office", "revise el borrador con la oficina")}</p>
+                    <p className="jb-meta">{ev.officeReview.ready ? t("Ready for office review", "Listo para revisión de oficina") : t(`Not ready for office review (${ev.missing.length} missing)`, `No listo para revisión de oficina (faltan ${ev.missing.length})`)} · {t("Not ready for filing", "No listo para presentar")}</p>
+                  </>
+                );
+              })()}
               <Link to="/permit/draft/$id" params={{ id: cap.id }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
             </div>
           );

@@ -88,6 +88,7 @@ function Start() {
           <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
         ))}
       </ol>
+      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: PermitDraft checks that your paperwork is complete. It does not yet check any law or local rule, and it never says a job is compliant.", "Cobertura honesta: PermitDraft verifica que su papeleo esté completo. Todavía no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple.")}</p>
       <Link to="/permit/hp-1187" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
       <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
       <PilotForm />

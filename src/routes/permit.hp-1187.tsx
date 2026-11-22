@@ -9,6 +9,7 @@ import { Textarea } from "../components/ui/textarea";
 import "../permit.css";
 import { usePhotos } from "../lib/photos";
 import { useInsp } from "../lib/inspection";
+import { useLang } from "../lib/lang";
 
 const BUNDLE = "https://www.cityofsacramento.gov/community-development/building/building-forms/minor-permit-application-form-bundles";
 const FORMS = [
@@ -63,7 +64,26 @@ const initial: Field[] = [
   { id: "charge", label: "Refrigerant charge reading", value: "Subcooling 10.5°F, superheat 12°F", status: "Confirmed", source: "Meter reading", evidence: "Gauge reading logged Nov 18, 2026 1:17 PM by Marcus Reyes: subcooling 10.5°F, superheat 12°F, outdoor ambient 71°F." },
 ];
 
+const ES_LABEL: Record<string, string> = { model: "Modelo del equipo", serial: "Número de serie", refrigerant: "Tipo de refrigerante", location: "Ubicación de la unidad exterior", panel: "Tamaño del panel", duct: "Respuesta de sellado de ductos", charge: "Lectura de carga de refrigerante" };
+const ES_VALUE: Record<string, string> = { "Left side yard, 36 in. from the property line": "Patio lateral izquierdo, a 36 pulg. del límite de la propiedad", "Subcooling 10.5°F, superheat 12°F": "Subenfriamiento 10.5°F, sobrecalentamiento 12°F" };
+const ES_SOURCE: Record<string, string> = { "Equipment photo": "Foto del equipo", "Dictated note": "Nota dictada", "Meter reading": "Lectura del medidor", "Office entry": "Entrada de la oficina", "None yet": "Ninguna todavía" };
+const ES_EVIDENCE: Record<string, string> = {
+  model: "Foto IMG_2041 (placa de datos de la unidad exterior), tomada el 18 nov 2026, 9:42 AM por Marcus Reyes. La etiqueta dice: “MODEL NO. 25HPB536A003”.",
+  serial: "Foto IMG_2041 (placa de datos de la unidad exterior), tomada el 18 nov 2026, 9:42 AM por Marcus Reyes. La etiqueta dice: “SERIAL NO. 2819E04417”.",
+  refrigerant: "Foto IMG_2042 (línea de refrigerante de la placa), 18 nov 2026, 9:43 AM, Marcus Reyes. La etiqueta dice: “REFRIGERANT R-410A, FACTORY CHARGE 8 LB 4 OZ”.",
+  location: "Nota de voz 0:21, 18 nov 2026, 10:05 AM, Marcus Reyes: “New outdoor unit goes on the left side yard, same pad, about three feet off the fence.”",
+  panel: "Sin evidencia. Pida al técnico una foto de la etiqueta del panel principal, o que la oficina ingrese el amperaje.",
+  duct: "Sin evidencia. El técnico no ha dictado si los ductos existentes se probaron o sellaron.",
+  charge: "Lectura del manómetro registrada el 18 nov 2026, 1:17 PM por Marcus Reyes: subenfriamiento 10.5°F, sobrecalentamiento 12°F, ambiente exterior 71°F.",
+};
+
 function Page() {
+  const { t, lang } = useLang();
+  const es = lang === "es";
+  const fl = (f: { id: string; label: string }) => (es ? ES_LABEL[f.id] ?? f.label : f.label);
+  const fv = (v: string) => (es ? ES_VALUE[v] ?? v : v);
+  const fs_ = (v: string) => (es ? ES_SOURCE[v] ?? v : v);
+  const fe = (f: { id: string; evidence: string }) => (es && initial.find((i) => i.id === f.id)?.evidence === f.evidence ? ES_EVIDENCE[f.id] : f.evidence);
   const [fields, setFields] = useState<Field[]>(initial);
   const [selId, setSelId] = useState("model");
   const [value, setValue] = useState("");
@@ -208,7 +228,6 @@ function Page() {
     setErr("");
   }
 
-  const status = ready ? "Ready" : "Not ready";
 
   return (
     <div className="pd">
@@ -217,42 +236,42 @@ function Page() {
         <Image src="/generated-assets/company-logo.png" alt="PermitDraft logo" width={44} height={44} priority />
         <div>
           <p className="pd-brand">PermitDraft</p>
-          <p className="pd-practice">Practice job — not connected to real permit filing</p>
+          <p className="pd-practice">{t("Practice job — not connected to real permit filing", "Trabajo de práctica: no conectado a la presentación real de permisos")}</p>
         </div>
       </header>
 
       <main className="pd-main">
         <section className="pd-head">
           <div>
-            <h1>Heat-pump change-out permit draft</h1>
-            <p className="pd-job">Single-family home, 4412 Alder Court, Sacramento · Job #HP-1187 · Tech: Marcus Reyes</p>
+            <h1>{t("Heat-pump change-out permit draft", "Borrador de permiso: cambio de bomba de calor")}</h1>
+            <p className="pd-job">{t("Single-family home", "Casa unifamiliar")}, 4412 Alder Court, Sacramento · {t("Job", "Trabajo")} #HP-1187 · {t("Tech", "Técnico")}: Marcus Reyes</p>
           </div>
           <div className={`pd-status ${ready ? "ok" : "no"}`} role="status">
-            <span>Packet status</span>
-            <strong>{status}</strong>
+            <span>{t("Packet status", "Estado del paquete")}</span>
+            <strong>{ready ? t("Ready for office review", "Listo para revisión de oficina") : t("Not ready", "No está listo")}</strong>
           </div>
         </section>
 
         <section className={`pd-block ${canReady ? "clear" : ""}`} aria-live="polite">
           <div>
             {canReady ? (
-              <p><strong>Nothing is blocking.</strong> Every required field is Confirmed.</p>
+              <p><strong>{t("Nothing is blocking.", "Nada lo bloquea.")}</strong> {t("Every required field is Confirmed.", "Cada campo obligatorio está confirmado.")}</p>
             ) : (
               <p>
-                <strong>Blocked by {blockers.length} required {blockers.length === 1 ? "field" : "fields"}:</strong>{" "}
-                {blockers.map((b) => b.label).join(", ")}.
+                <strong>{t(`Blocked by ${blockers.length} required ${blockers.length === 1 ? "field" : "fields"}:`, `Bloqueado por ${blockers.length} campo(s) obligatorio(s):`)}</strong>{" "}
+                {blockers.map((b) => fl(b)).join(", ")}.
               </p>
             )}
           </div>
           <Button size="lg" className="pd-ready" disabled={!canReady || ready} onClick={() => setReady(true)}>
-            {ready ? "Marked Ready" : "Mark Ready"}
+            {ready ? t("Marked ready for office review", "Marcado listo para revisión de oficina") : t("Mark ready for office review", "Marcar listo para revisión de oficina")}
           </Button>
         </section>
 
         <section className="pd-fu" aria-labelledby="fu" aria-live="polite" data-testid="followup">
-          <h2 id="fu">Office follow-up list: <span data-testid="followup-count">{blockers.length}</span> {blockers.length === 1 ? "item" : "items"} to confirm</h2>
+          <h2 id="fu">{t("Office follow-up list", "Lista de seguimiento de la oficina")}: <span data-testid="followup-count">{blockers.length}</span> {t(blockers.length === 1 ? "item to confirm" : "items to confirm", "por confirmar")}</h2>
           {canReady ? (
-            <p className="pd-fu-empty">All clear. No office follow-up is needed.</p>
+            <p className="pd-fu-empty">{t("All clear. No office follow-up is needed.", "Todo claro. No se necesita seguimiento de la oficina.")}</p>
           ) : (
             <ul className="pd-fu-list">
               {blockers.map((b) => (
@@ -266,8 +285,8 @@ function Page() {
                       goTo(b.id);
                     }}
                   >
-                    <span>{b.label}{b.conflict ? " (conflict)" : ""}</span>
-                    <span className="pd-fu-go">Enter answer →</span>
+                    <span>{fl(b)}{b.conflict ? t(" (conflict)", " (conflicto)") : ""}</span>
+                    <span className="pd-fu-go">{t("Enter answer →", "Ingresar respuesta →")}</span>
                   </a>
                 </li>
               ))}
@@ -277,16 +296,16 @@ function Page() {
 
         <div className="pd-grid">
           <section aria-labelledby="fl">
-            <h2 id="fl">Draft fields</h2>
+            <h2 id="fl">{t("Draft fields", "Campos del borrador")}</h2>
             <ul className="pd-list">
               {fields.map((f) => (
                 <li key={f.id} id={`field-${f.id}`}>
                   {f.id === "panel" && <span id="panel-size" />}
                   <button type="button" className={`pd-row ${f.id === sel.id ? "on" : ""}`} aria-pressed={f.id === sel.id} onClick={() => pick(f.id)}>
-                    <span className="pd-label">{f.label}</span>
-                    <span className="pd-value">{f.value || "—"}</span>
-                    <span className={`pd-badge ${f.status === "NEEDED" ? "needed" : "conf"}`}>{f.status}</span>
-                    <span className="pd-src">Source: {f.source}</span>
+                    <span className="pd-label">{fl(f)}</span>
+                    <span className="pd-value">{fv(f.value) || "—"}</span>
+                    <span className={`pd-badge ${f.status === "NEEDED" ? "needed" : "conf"}`}>{f.status === "NEEDED" ? t("NEEDED", "NECESARIO") : t("Confirmed", "Confirmado")}</span>
+                    <span className="pd-src">{t("Source", "Fuente")}: {fs_(f.source)}</span>
                   </button>
                 </li>
               ))}
@@ -295,15 +314,15 @@ function Page() {
 
           <aside className="pd-side">
             <div className="pd-card">
-              <h2>Evidence</h2>
-              <p className="pd-ev-label">{sel.label}</p>
-              <p className="pd-ev-value">{sel.value || "No value yet"}</p>
-              <p className="pd-ev-text">{sel.evidence}</p>
-              <p className="pd-ev-src">Source: {sel.source}</p>
+              <h2>{t("Evidence", "Evidencia")}</h2>
+              <p className="pd-ev-label">{fl(sel)}</p>
+              <p className="pd-ev-value">{fv(sel.value) || t("No value yet", "Sin valor todavía")}</p>
+              <p className="pd-ev-text">{fe(sel)}</p>
+              <p className="pd-ev-src">{t("Source", "Fuente")}: {fs_(sel.source)}</p>
               {sel.source === "Equipment photo" && photos.plate && (
                 <div className="ph-ev" data-testid="permit-plate">
                   <Image src={photos.plate.url} alt="Saved data plate photo" width={240} height={240} />
-                  <p className="pd-ev-text">Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.</p>
+                  <p className="pd-ev-text">{t("Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.", "Foto guardada en este dispositivo · Esperando para subir. Solo como referencia; no confirma ningún valor.")}</p>
                 </div>
               )}
               {isSac && sel.id === "location" && (
@@ -311,22 +330,22 @@ function Page() {
               )}
               {sel.conflict && (
                 <div className="pd-conflict" role="alert">
-                  <p className="pd-ev-label">Conflict: resolve before Ready</p>
-                  <p className="pd-ev-text">Original value: <strong>{sel.conflict.origValue || "No value yet"}</strong> (Source: {sel.conflict.origSource})</p>
-                  <p className="pd-ev-text">Conflicting value: <strong>{sel.conflict.value}</strong> (Source: {sel.conflict.source})</p>
+                  <p className="pd-ev-label">{t("Conflict: resolve before Ready", "Conflicto: resuélvalo antes de marcar listo")}</p>
+                  <p className="pd-ev-text">{t("Original value", "Valor original")}: <strong>{sel.conflict.origValue || t("No value yet", "Sin valor todavía")}</strong> ({t("Source", "Fuente")}: {fs_(sel.conflict.origSource)})</p>
+                  <p className="pd-ev-text">{t("Conflicting value", "Valor en conflicto")}: <strong>{sel.conflict.value}</strong> ({t("Source", "Fuente")}: {fs_(sel.conflict.source)})</p>
                   {sel.conflict.note && <p className="pd-ev-text">Conflict note: “{sel.conflict.note}”</p>}
                 </div>
               )}
               {!sel.conflict && sel.value && !flagOpen && (
-                <Button type="button" variant="outline" size="sm" onClick={() => setFlagOpen(true)}>Flag a conflict</Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setFlagOpen(true)}>{t("Flag a conflict", "Marcar un conflicto")}</Button>
               )}
             </div>
 
             <div className="pd-card" aria-labelledby="hist">
-              <h2 id="hist">History: {sel.label}</h2>
-              <p className="pd-ev-src">Newest first. Practice entries only, kept in this browser for this participant.</p>
+              <h2 id="hist">{t("History", "Historial")}: {fl(sel)}</h2>
+              <p className="pd-ev-src">{t("Newest first. Practice entries only, kept in this browser for this participant.", "Lo más reciente primero. Solo entradas de práctica, guardadas en este navegador.")}</p>
               {history.filter((h) => h.fieldId === sel.id).length === 0 ? (
-                <p className="pd-ev-text">No changes recorded for this field yet.</p>
+                <p className="pd-ev-text">{t("No changes recorded for this field yet.", "Aún no hay cambios registrados para este campo.")}</p>
               ) : (
                 <ol className="pd-hist">
                   {history.filter((h) => h.fieldId === sel.id).map((h) => (
@@ -344,47 +363,47 @@ function Page() {
 
             {flagOpen && !sel.conflict && (
               <form className="pd-card" onSubmit={flag}>
-                <h2>Flag a conflict on {sel.label.toLowerCase()}</h2>
-                <Label htmlFor="cv">Conflicting value</Label>
+                <h2>{t("Flag a conflict on", "Marcar un conflicto en")} {fl(sel).toLowerCase()}</h2>
+                <Label htmlFor="cv">{t("Conflicting value", "Valor en conflicto")}</Label>
                 <Input id="cv" className="pd-in" value={cv} onChange={(e) => setCv(e.target.value)} />
-                <Label htmlFor="cs">Source of conflicting value</Label>
+                <Label htmlFor="cs">{t("Source of conflicting value", "Fuente del valor en conflicto")}</Label>
                 <select id="cs" className="pd-in pd-select" value={cs} onChange={(e) => setCs(e.target.value)}>
-                  {SOURCES.map((s) => (<option key={s}>{s}</option>))}
+                  {SOURCES.map((s) => (<option key={s} value={s}>{fs_(s)}</option>))}
                 </select>
-                <Label htmlFor="cn">Note</Label>
+                <Label htmlFor="cn">{t("Note", "Nota")}</Label>
                 <Textarea id="cn" value={cn} onChange={(e) => setCn(e.target.value)} placeholder="What does not match, and where you saw it" />
                 {cerr && <p className="pd-err" role="alert">{cerr}</p>}
                 <div className="pd-actions">
-                  <Button type="submit" size="lg">Flag conflict</Button>
-                  <Button type="button" variant="outline" size="lg" onClick={() => setFlagOpen(false)}>Cancel</Button>
+                  <Button type="submit" size="lg">{t("Flag conflict", "Marcar conflicto")}</Button>
+                  <Button type="button" variant="outline" size="lg" onClick={() => setFlagOpen(false)}>{t("Cancel", "Cancelar")}</Button>
                 </div>
               </form>
             )}
 
             {sel.status === "NEEDED" ? (
               <form className="pd-card" onSubmit={confirm}>
-                <h2>Confirm {sel.label.toLowerCase()}</h2>
-                <Label htmlFor="v">Value</Label>
+                <h2>{t("Confirm", "Confirmar")} {fl(sel).toLowerCase()}</h2>
+                <Label htmlFor="v">{t("Value", "Valor")}</Label>
                 <Input id="v" className="pd-in" value={value} onChange={(e) => setValue(e.target.value)} placeholder={sel.id === "panel" ? "e.g. 200 A" : "e.g. Tested and sealed, 6% leakage"} />
-                <Label htmlFor="s">Source</Label>
+                <Label htmlFor="s">{t("Source", "Fuente")}</Label>
                 <select id="s" className="pd-in pd-select" value={source} onChange={(e) => setSource(e.target.value)}>
-                  {SOURCES.map((s) => (<option key={s}>{s}</option>))}
+                  {SOURCES.map((s) => (<option key={s} value={s}>{fs_(s)}</option>))}
                 </select>
-                <Label htmlFor="n">Evidence note (optional)</Label>
+                <Label htmlFor="n">{t("Evidence note (optional)", "Nota de evidencia (opcional)")}</Label>
                 <Textarea id="n" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Photo name, who said it, when" />
                 {err && <p className="pd-err" role="alert">{err}</p>}
-                <Button type="submit" size="lg">Confirm field</Button>
+                <Button type="submit" size="lg">{t("Confirm field", "Confirmar campo")}</Button>
               </form>
             ) : (
-              <div className="pd-card pd-done"><p>This field is Confirmed. Select a NEEDED field to enter its value and source.</p></div>
+              <div className="pd-card pd-done"><p>{t("This field is Confirmed. Select a NEEDED field to enter its value and source.", "Este campo está confirmado. Elija un campo NECESARIO para ingresar su valor y fuente.")}</p></div>
             )}
           </aside>
         </div>
 
         {isSac && (
           <section className="pd-card" aria-labelledby="sacf" data-testid="sac-forms">
-            <h2 id="sacf">City of Sacramento forms</h2>
-            <p className="pd-ev-text">Reference only. Nothing is submitted or filled in from this draft. See the <a className="underline font-semibold" href={BUNDLE} target="_blank" rel="noopener noreferrer">city's Minor Permit Application Form Bundles</a>.</p>
+            <h2 id="sacf">{t("City of Sacramento forms", "Formularios de la Ciudad de Sacramento")}</h2>
+            <p className="pd-ev-text">{t("Reference only. Nothing is submitted or filled in from this draft. See the", "Solo referencia. No se envía ni se llena nada desde este borrador. Vea los")} <a className="underline font-semibold" href={BUNDLE} target="_blank" rel="noopener noreferrer">{t("city's Minor Permit Application Form Bundles", "paquetes de formularios de permisos menores de la ciudad")}</a>.</p>
             <ul className="pd-fu-list">
               {FORMS.map((f) => (
                 <li key={f.code}>
@@ -399,8 +418,9 @@ function Page() {
       </main>
 
       <footer className="pd-foot">
-        <p>Draft — not a guarantee of compliance. Contractor review and signature required.</p>
-        <p>Practice screen with a sample job. Not connected to real permit filing.</p>
+        <p>{t("Draft — not a guarantee of compliance. Contractor review and signature required.", "Borrador: no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+        <p>{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No conectada a la presentación real de permisos.")}</p>
+        <p><a className="underline font-semibold" href="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</a></p>
       </footer>
     </div>
   );

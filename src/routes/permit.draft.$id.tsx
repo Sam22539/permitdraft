@@ -5,6 +5,8 @@ import { Image } from "../image";
 import { useCaptured } from "../lib/captured";
 import { activeType, captureSummary, DUCT_LABEL, fieldSets, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
+import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
+import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
 
 export const Route = createFileRoute("/permit/draft/$id")({
@@ -27,6 +29,7 @@ function Review() {
   const [photoErr, setPhotoErr] = useState(false);
   useEffect(() => setMounted(true), []);
   const cap = all.find((c) => c.id === id);
+  const jurs = useOfficeJurisdictions();
 
   useEffect(() => {
     if (!cap) return;
@@ -54,22 +57,38 @@ function Review() {
   const sm = captureSummary(cap, lang);
   const when = new Date(cap.finishedAt).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "short" });
   const extra = uncategorized(cap);
-  const missingReq = fieldSets(cap).filter((f) => f.required && String(cap.values[f.key] ?? "").trim() === "");
-  const missNames = missingReq.map((f) => t(...f.label)).join(", ");
+  const ev = evaluateCapture(cap, jurs[cap.id] ?? null);
   const dash = t("Not captured", "No capturado");
 
   return (
     <AppPage bottom>
       <h1 className="text-3xl">{t("Review draft", "Borrador de revisión")}</h1>
       <p className="ap-muted">{sm.addr} · {activeType(cap) || sm.equip}</p>
+      <p className="rd-notice" data-testid="draft-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+      <ReadinessCard ev={ev} capId={cap.id} jur={jurs[cap.id] ?? ""} />
+      <CoverageLine ev={ev} />
       <p className="ap-muted">{t(`Finished ${when}. Practice job, not connected to real permit filing. Every value below is exactly what was captured; nothing here is confirmed by a reviewer yet.`, `Finalizado ${when}. Trabajo de práctica, no conectado a la presentación real de permisos. Cada valor es exactamente lo capturado; nada está confirmado por un revisor todavía.`)}</p>
       <p className="ap-next" data-testid="review-missing">{sm.missing > 0 ? t(`${sm.missing} item(s) not captured`, `${sm.missing} dato(s) sin capturar`) : t("Nothing missing from capture", "No falta nada de la captura")}</p>
-      <p className="ap-next" data-testid="review-status">{missingReq.length > 0
-        ? t(`Not ready for office review: ${missingReq.length} required detail(s) still missing: ${missNames}`, `No listo para revisión de oficina: faltan ${missingReq.length} dato(s) obligatorio(s): ${missNames}`)
-        : t("Ready to send to office review. Every required detail is captured, but nothing is confirmed by a reviewer yet.", "Listo para enviar a revisión de oficina. Cada dato obligatorio está capturado, pero ningún revisor ha confirmado nada todavía.")}</p>
+      <p className="ap-next" data-testid="review-status">{ev.officeReview.ready
+        ? t("Ready for office review. Every required detail is captured, but nothing is confirmed by a reviewer yet.", "Listo para revisión de oficina. Cada dato obligatorio está capturado, pero ningún revisor ha confirmado nada todavía.")
+        : t(`Not ready for office review: ${ev.missing.length} required item(s) still missing: ${ev.missing.map((m) => m.text[0]).join(", ")}`, `No listo para revisión de oficina: faltan ${ev.missing.length} dato(s) obligatorio(s): ${ev.missing.map((m) => m.text[1]).join(", ")}`)}</p>
+
+      <section className="ap-card" data-testid="review-checks">
+        <h2 className="ap-h2">{t("Checks", "Verificaciones")}</h2>
+        <p className="ap-muted">{t("Documentation checks from PermitDraft's own checklist. They are not legal or code checks.", "Verificaciones de documentación de la lista propia de PermitDraft. No son verificaciones legales ni de código.")}</p>
+        {ev.results.map((r) => (
+          <div key={r.ruleId} className="rd-item" data-testid={`check-${r.ruleId}`}>
+            <strong>{t(...r.text)} · {r.status === "met" ? t("Captured", "Capturado") : t("NEEDED", "NECESARIO")}</strong>
+            {r.status === "missing" && <span className="ap-next">{t(...r.todo)}</span>}
+            <WhyDetails r={r} />
+          </div>
+        ))}
+        <p className="ap-muted text-sm" data-testid="audit-line">{t(`Rule data ${ev.packId} v${ev.packVersion}, evaluated ${ev.asOf}.`, `Datos de reglas ${ev.packId} v${ev.packVersion}, evaluado ${ev.asOf}.`)}</p>
+      </section>
 
       <section className="ap-card" data-testid="review-fields">
-        <h2 className="ap-h2">{t("Captured details", "Datos capturados")}</h2>
+        <details>
+        <summary className="ap-h2" style={{ minHeight: 48, cursor: "pointer" }}>{t("Office view: captured details and evidence", "Vista de oficina: datos y evidencia capturados")}</summary>
         <ul>
           {fieldSets(cap).map((f) => {
             const raw = cap.values[f.key];
@@ -95,6 +114,7 @@ function Review() {
             );
           })}
         </ul>
+        </details>
       </section>
 
       <section className="ap-card" data-testid="review-photos">

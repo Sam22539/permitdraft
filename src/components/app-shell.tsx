@@ -43,10 +43,15 @@ export function BottomBar({ current }: { current?: "jobs" }) {
 }
 
 export function AppPage({ children, bottom, wide }: { children: React.ReactNode; bottom?: boolean; wide?: boolean }) {
+  const { t } = useLang();
   return (
     <div className="ap">
       <AppTop />
       <main className={`ap-main ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""}`}>{children}</main>
+      <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
+        <p>{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+        <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
+      </footer>
       {bottom && <BottomBar current="jobs" />}
     </div>
   );
