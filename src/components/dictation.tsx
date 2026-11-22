@@ -58,12 +58,12 @@ export function Dictation({ notes, onSave }: { notes: string; onSave: (next: str
   };
 
   return (
-    <div className="ap-field">
+    <div className="cx-field">
       <button type="button" className="ap-btn ghost w-full min-h-16 text-xl" aria-pressed={listening} onClick={listening ? stop : start}>
         {listening ? t("■ Stop dictation", "■ Detener dictado") : t("🎤 Start dictation", "🎤 Iniciar dictado")}
       </button>
       {open && (
-        <div className="ap-field">
+        <div className="cx-field">
           <Label htmlFor="dictated">{t("Dictated text (edit before saving)", "Texto dictado (edite antes de guardar)")}</Label>
           <Textarea id="dictated" rows={4} className="text-lg bg-white" value={staged} onChange={(e) => setStaged(e.target.value)} />
           {listening && <p role="status" className="font-semibold">{t("Listening… speak now.", "Escuchando… hable ahora.")}</p>}

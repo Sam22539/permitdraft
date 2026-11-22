@@ -12,6 +12,12 @@ import { useInsp } from "../lib/inspection";
 import { useLang } from "../lib/lang";
 
 const BUNDLE = "https://www.cityofsacramento.gov/community-development/building/building-forms/minor-permit-application-form-bundles";
+const FORM_NOTE_ES: Record<string, string> = {
+  "CDD-0200": "Dirección y alcance del proyecto. La dirección está en el encabezado del trabajo arriba; este borrador no tiene campo de dirección ni de alcance.",
+  "CDD-0184": "El propietario firma si se usa cuando el inspector no ha obtenido acceso normal al interior. Este borrador no tiene campo de detectores de humo/CO.",
+  "CDD-0035": "Reemplazo equivalente; propiedad no histórica según el paquete de la ciudad. Se relaciona con el campo de ubicación de la unidad exterior. El estado de la propiedad no se registra en este borrador, por lo que es una referencia condicional.",
+  "CDD-0031": "Solo propiedades históricas. Se relaciona con el campo de ubicación de la unidad exterior. El estado de la propiedad no se registra en este borrador, por lo que es una referencia condicional; no se elige ninguno de los dos formularios.",
+};
 const FORMS = [
   { code: "CDD-0200", name: "Building Permit Application", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0200_Application-for-Building-Permit_Part-I.pdf", note: "Project address and scope. The address is in the job header above; this draft has no address or scope field." },
   { code: "CDD-0184", name: "Smoke/Carbon Monoxide Detector Installation Guidelines and Owner Certification of Compliance", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0184_Smoke-and-Carbon-Monoxide-Detector-Installation-Guidelines-Owner-Cert-of-Compliance.pdf", note: "Owner signs if used when the inspector has not obtained normal interior access. This draft has no smoke/CO field." },
@@ -48,8 +54,9 @@ type Entry = {
 
 const EDITOR = "Practice reviewer (named practice role, not a verified identity)";
 
-function fmt(iso: string) {
-  return new Date(iso).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "medium" });
+const EDITOR_ES = "Revisor de práctica (rol de práctica con nombre, no una identidad verificada)";
+function fmt(iso: string, lang: "en" | "es" = "en") {
+  return new Date(iso).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "medium" });
 }
 
 const SOURCES = ["Equipment photo", "Dictated note", "Meter reading", "Office entry"];
@@ -81,6 +88,8 @@ function Page() {
   const { t, lang } = useLang();
   const es = lang === "es";
   const fl = (f: { id: string; label: string }) => (es ? ES_LABEL[f.id] ?? f.label : f.label);
+  const HA = (a: string) => (es ? ({ "Flagged conflict": "Conflicto marcado", "Confirmed value": "Valor confirmado", "Resolved conflict": "Conflicto resuelto" } as Record<string, string>)[a] ?? a : a);
+  const HS = (a: string) => (es ? ({ Confirmed: "Confirmado", NEEDED: "NECESARIO", "NEEDED (blocks Ready)": "NECESARIO (impide Listo)" } as Record<string, string>)[a] ?? a : a);
   const fv = (v: string) => (es ? ES_VALUE[v] ?? v : v);
   const fs_ = (v: string) => (es ? ES_SOURCE[v] ?? v : v);
   const fe = (f: { id: string; evidence: string }) => (es && initial.find((i) => i.id === f.id)?.evidence === f.evidence ? ES_EVIDENCE[f.id] : f.evidence);
@@ -326,7 +335,7 @@ function Page() {
                 </div>
               )}
               {isSac && sel.id === "location" && (
-                <p className="pd-ev-text" data-testid="loc-forms">City of Sacramento forms that may relate (conditional on property status): <a className="underline font-semibold" href={FORMS[2].url} target="_blank" rel="noopener noreferrer">Planning Exemption Form - Express – CDD-0035</a> or <a className="underline font-semibold" href={FORMS[3].url} target="_blank" rel="noopener noreferrer">HVAC/Electrical/Solar Equipment for Historic Properties – CDD-0031</a>.</p>
+                <p className="pd-ev-text" data-testid="loc-forms">{t("City of Sacramento forms that may relate (conditional on property status)", "Formularios de la Ciudad de Sacramento que pueden relacionarse (según el estado de la propiedad)")}: <a className="underline font-semibold" href={FORMS[2].url} target="_blank" rel="noopener noreferrer">Planning Exemption Form - Express – CDD-0035</a> or <a className="underline font-semibold" href={FORMS[3].url} target="_blank" rel="noopener noreferrer">HVAC/Electrical/Solar Equipment for Historic Properties – CDD-0031</a>.</p>
               )}
               {sel.conflict && (
                 <div className="pd-conflict" role="alert">
@@ -350,11 +359,11 @@ function Page() {
                 <ol className="pd-hist">
                   {history.filter((h) => h.fieldId === sel.id).map((h) => (
                     <li key={h.id}>
-                      <p><strong>{h.action}</strong> · <time dateTime={h.at}>{fmt(h.at)}</time></p>
-                      <p>Prior value: {h.priorValue || "No value yet"}</p>
-                      {h.proposedValue !== undefined && <p className="pd-prop">Proposed conflicting value (not the actual value): {h.proposedValue}</p>}
-                      <p>Resulting actual value: {h.resultValue || "No value yet"} · {h.resultStatus}</p>
-                      <p className="pd-ev-src">Editor: {h.editor}</p>
+                      <p><strong>{HA(h.action)}</strong> · <time dateTime={h.at}>{fmt(h.at, lang)}</time></p>
+                      <p>{t("Prior value", "Valor anterior")}: {h.priorValue || t("No value yet", "Sin valor todavía")}</p>
+                      {h.proposedValue !== undefined && <p className="pd-prop">{t("Proposed conflicting value (not the actual value)", "Valor en conflicto propuesto (no es el valor real)")}: {h.proposedValue}</p>}
+                      <p>{t("Resulting actual value", "Valor real resultante")}: {h.resultValue || t("No value yet", "Sin valor todavía")} · {HS(h.resultStatus)}</p>
+                      <p className="pd-ev-src">{t("Editor", "Editor")}: {h.editor === EDITOR ? t(EDITOR, EDITOR_ES) : h.editor}</p>
                     </li>
                   ))}
                 </ol>
@@ -408,11 +417,11 @@ function Page() {
               {FORMS.map((f) => (
                 <li key={f.code}>
                   <p><a className="underline font-semibold" href={f.url} target="_blank" rel="noopener noreferrer">{f.name} – {f.code}</a></p>
-                  <p className="pd-ev-text">{f.note}</p>
+                  <p className="pd-ev-text">{es ? FORM_NOTE_ES[f.code] ?? f.note : f.note}</p>
                 </li>
               ))}
             </ul>
-            <p className="pd-ev-text">The city lists the CF1R Residential HVAC Form as obtained from a third party; no code cycle is selected here.</p>
+            <p className="pd-ev-text">{t("The city lists the CF1R Residential HVAC Form as obtained from a third party; no code cycle is selected here.", "La ciudad indica que el Formulario CF1R Residential HVAC se obtiene de un tercero; aquí no se elige ningún ciclo de código.")}</p>
           </section>
         )}
       </main>

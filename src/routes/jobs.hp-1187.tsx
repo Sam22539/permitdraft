@@ -43,32 +43,32 @@ function Detail() {
   const marker = { g: ["Confirmed", "Confirmado"], a: ["NEEDED", "FALTA"], r: ["Blocked", "Bloqueado"] } as const;
 
   const summary = (title: string, es: string, text: string) => (
-    <section className="ap-card">
-      <h2 className="text-xl">{t(title, es)}</h2>
+    <section className="cx-card calm">
+      <h2 className="cx-h">{t(title, es)}</h2>
       <p>{text}</p>
       <Link to="/new" className="ap-edit">{t("Edit", "Editar")}</Link>
     </section>
   );
 
   return (
-    <AppPage bottom>
+    <AppPage bottom capture>
       {saved && (
-        <div role="status" className="ap-card">
+        <div role="status" className="cx-card calm">
           <p className="font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>
           {doneId && <Link to="/permit/draft/$id" params={{ id: doneId }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
         </div>
       )}
-      <h1 className="text-3xl">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
+      <h1 className="cx-h1">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
       <Link to="/permit/hp-1187" className="ap-btn navy">{t("View permit document", "Ver documento del permiso")}</Link>
 
-      <Link to="/permit/hp-1187" hash="panel-size" className="ap-card" style={{ borderLeft: "6px solid #c2410c" }}>
-        <h2 className="text-xl">{t("Your next step", "Su siguiente paso")}</h2>
-        <p className="ap-next">{t("Fix 2 missing items", "Corrija 2 datos faltantes")}</p>
-        <p className="ap-muted">{t("Panel size and duct sealing answer", "Tamaño del panel y respuesta de sellado de ductos")}</p>
+      <Link to="/permit/hp-1187" hash="panel-size" className="cx-card">
+        <h2 className="cx-h">{t("Your next step", "Su siguiente paso")}</h2>
+        <p className="jb-next">{t("Fix 2 missing items", "Corrija 2 datos faltantes")}</p>
+        <p className="cx-note">{t("Panel size and duct sealing answer", "Tamaño del panel y respuesta de sellado de ductos")}</p>
       </Link>
 
-      <section className="ap-card">
-        <h2 className="text-xl">{t("Permit & paperwork", "Permiso y papeleo")}</h2>
+      <section className="cx-card calm">
+        <h2 className="cx-h">{t("Permit & paperwork", "Permiso y papeleo")}</h2>
         <ul className="ap-tl">
           {STEPS.map(([en, es], i) => (
             <li key={en}>
@@ -89,30 +89,30 @@ function Detail() {
 
       <InspectionTimeline />
 
-      <section className="ap-card">
-        <h2 className="text-xl">{t("Compliance checks", "Verificaciones de cumplimiento")}</h2>
+      <section className="cx-card calm">
+        <h2 className="cx-h">{t("Compliance checks", "Verificaciones de cumplimiento")}</h2>
         <ul>
           {CHECKS.map(([en, es, c]) => (
             <li key={en} className="ap-chk">
               <span className={`ap-dot ${c}`} aria-hidden />
               <span style={{ flex: 1 }}>{t(en, es)}</span>
-              <strong className="ap-muted">{t(marker[c][0], marker[c][1])}</strong>
+              <strong className="cx-note">{t(marker[c][0], marker[c][1])}</strong>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="ap-card">
-        <h2 className="text-xl">{t("Warranty registration", "Registro de garantía")}</h2>
+      <section className="cx-card calm">
+        <h2 className="cx-h">{t("Warranty registration", "Registro de garantía")}</h2>
         <label className="ap-chk" style={{ gap: "1rem" }}>
           <Checkbox checked={warranty} onCheckedChange={(v) => setWarranty(v === true)} className="size-8 border-2 border-[#12264a] data-[state=checked]:bg-[#12264a]" />
           <span>{t("Warranty registered with the manufacturer", "Garantía registrada con el fabricante")}</span>
         </label>
-        <p className="ap-muted text-sm">{t("Registration window: 60 days after install", "Plazo de registro: 60 días después de la instalación")}</p>
+        <p className="cx-note">{t("Registration window: 60 days after install", "Plazo de registro: 60 días después de la instalación")}</p>
       </section>
 
-      <section className="ap-card">
-        <h2 className="text-xl">{t("Photos", "Fotos")}</h2>
+      <section className="cx-card calm">
+        <h2 className="cx-h">{t("Photos", "Fotos")}</h2>
         <p>{t(`${have} attached · ${3 - have} required`, `${have} adjuntas · ${3 - have} requeridas`)}</p>
         <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
         {SLOTS.filter((k) => photos[k]).map((k) => (

@@ -18,22 +18,22 @@ function Work() {
   const needed = t("NEEDED", "NECESARIO");
   return (
     <StepShell n={3} title={["Work performed", "Trabajo realizado"]} sub={["Step 3 of 5 · What the crew did", "Paso 3 de 5 · Lo que hizo el equipo"]} back="/new/equipment" next="/new/checks">
-      <div className="ap-field"><Label htmlFor="wk">{t("Work performed", "Trabajo realizado")}</Label>
+      <div className="cx-field"><Label htmlFor="wk">{t("Work performed", "Trabajo realizado")}</Label>
         <Textarea id="wk" rows={4} className="text-lg bg-white" value={d.get("work")} onChange={(e) => d.set("work", e.target.value)} /></div>
       <Dictation notes={d.get("work")} onSave={(v) => d.set("work", v)} />
-      <div className="ap-field"><Label htmlFor="pa">{t("Panel size amps * (needed for paperwork)", "Amperios del panel * (necesario para el papeleo)")}</Label>
+      <div className="cx-field"><Label htmlFor="pa">{t("Panel size amps * (needed for paperwork)", "Amperios del panel * (necesario para el papeleo)")}</Label>
         <Input id="pa" type="number" inputMode="numeric" min={0} value={d.get("panel")} onChange={(e) => d.set("panel", e.target.value)} />
-        {!d.get("panel") && <strong className="ap-next">{needed}</strong>}</div>
-      <div className="ap-field"><Label htmlFor="ds">{t("Duct sealing answer *", "Respuesta de sellado de ductos *")}</Label>
+        {!d.get("panel") && <strong className="cx-need">{needed}</strong>}</div>
+      <div className="cx-field"><Label htmlFor="ds">{t("Duct sealing answer *", "Respuesta de sellado de ductos *")}</Label>
         <select id="ds" className={selectCls} value={d.get("duct")} onChange={(e) => d.set("duct", e.target.value)}>
           <option value="">{t("Choose…", "Elegir…")}</option>
           <option value="sealed">{t("Sealed and verified", "Sellado y verificado")}</option>
           <option value="not">{t("Not sealed", "No sellado")}</option>
           <option value="exempt">{t("Exempt, with reason", "Exento, con motivo")}</option>
         </select>
-        {!d.get("duct") && <strong className="ap-next">{needed}</strong>}</div>
+        {!d.get("duct") && <strong className="cx-need">{needed}</strong>}</div>
       {d.get("duct") === "exempt" && (
-        <div className="ap-field"><Label htmlFor="dr">{t("Reason for exemption", "Motivo de la exención")}</Label>
+        <div className="cx-field"><Label htmlFor="dr">{t("Reason for exemption", "Motivo de la exención")}</Label>
           <Input id="dr" value={d.get("ductReason")} onChange={(e) => d.set("ductReason", e.target.value)} /></div>
       )}
     </StepShell>
