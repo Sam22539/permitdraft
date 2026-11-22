@@ -2,7 +2,8 @@ import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useDraft } from "../lib/job-draft";
+import { FixBar } from "../components/fix-bar";
+import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { AppPage } from "../components/app-shell";
 import { PinnedAction, StepHead } from "../components/step-shell";
 import { Input } from "../components/ui/input";
@@ -11,6 +12,7 @@ import { useLang } from "../lib/lang";
 import { useCorePath } from "../components/demo";
 
 export const Route = createFileRoute("/new/")({
+  validateSearch: fixSearch,
   head: () => ({ meta: [{ title: "New job — PermitDraft" }, { name: "description", content: "Step 1 of 5: homeowner and job site." }] }),
   component: () => <CoreGate><NewJob /></CoreGate>,
 });
@@ -19,7 +21,8 @@ export function NewJob() {
   const { t } = useLang();
   const p = useCorePath();
   const nav = useNavigate();
-  const d = useDraft(1);
+  const d = useStepDraft(1);
+  useFixFocus(d.fix, d.fix?.value ?? "");
   const f = { name: d.get("name"), phone: d.get("phone"), addr: d.get("addr"), city: d.get("city") };
   const [draft, setDraft] = useState<typeof f | null>(null);
   const [err, setErr] = useState("");
@@ -27,6 +30,7 @@ export function NewJob() {
 
   function next(e: React.FormEvent) {
     e.preventDefault();
+    if (d.fixState !== "off") return;
     if (!f.name.trim() || !f.addr.trim() || !f.city.trim()) return setErr(t("Fill in the fields marked *.", "Complete los campos marcados con *."));
     setDraft(f);
     nav({ to: p("/new/equipment") });
@@ -43,14 +47,15 @@ export function NewJob() {
         <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label><Input id="a" value={f.addr} onChange={set("addr")} /></div>
         <div className="cx-field"><Label htmlFor="c">{t("City *", "Ciudad *")}</Label><Input id="c" value={f.city} onChange={set("city")} /></div>
         <p className="cx-note">{t("County: set in Settings", "Condado: se define en Ajustes")}</p>
-        <div className="cx-actions">
+        {d.fixState === "off" && <div className="cx-actions">
           <PinnedAction className="cx-pin-err">
             {err && <p role="alert" className="cx-err">{err}</p>}
             <button type="submit" className="ap-btn primary">{t("Next", "Siguiente")}</button>
           </PinnedAction>
           <Link to={p("/jobs")} className="cx-back">{t("Back", "Atrás")}</Link>
-        </div>
+        </div>}
       </form>
+      {d.fixState !== "off" && <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}
       <ResourceLink stage="setup" />
     </AppPage>
   );

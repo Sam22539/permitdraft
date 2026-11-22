@@ -85,10 +85,12 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
   );
 }
 
-export function StepShell({ n, title, sub, back, children, next, nextLabel, action }: {
+export function StepShell({ n, title, sub, back, children, next, nextLabel, action, fixBar }: {
   n: number; title: [string, string]; sub: [string, string]; back: string; next?: string; nextLabel?: [string, string]; children: React.ReactNode;
   /** A step's own final action (and its feedback), pinned on a phone in place of a Next link. */
   action?: React.ReactNode;
+  /** Set when the step was opened from a review draft: replaces Next and Back with Save to draft and Back to draft. */
+  fixBar?: React.ReactNode;
 }) {
   const { t } = useLang();
   const p = useCorePath();
@@ -98,12 +100,13 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
       <p className="cx-note">{t(...sub).split(" · ").slice(1).join(" · ") || t(...sub)}</p>
       <section className="cx-card">
         {children}
-        {action ? <PinnedAction className="cx-pin-gap">{action}</PinnedAction> : null}
-        <div className="cx-actions">
+        {fixBar ? null : action ? <PinnedAction className="cx-pin-gap">{action}</PinnedAction> : null}
+        {fixBar ? null : <div className="cx-actions">
           {next ? <PinnedAction><Link to={p(next)} className="ap-btn primary">{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link></PinnedAction> : null}
           <Link to={p(back)} className="cx-back">{t("Back", "Atrás")}</Link>
-        </div>
+        </div>}
       </section>
+      {fixBar}
       <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />
       <p className="cx-note">{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.")}</p>
     </AppPage>

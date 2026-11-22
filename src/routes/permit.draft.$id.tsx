@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { PhotoViewer } from "../components/photo-viewer";
 import { useCaptured } from "../lib/captured";
-import { activeType, captureSummary, DUCT_LABEL, fieldSets, READING_UNIT_KEY, readingUnit, uncategorized } from "../lib/capture-fields";
+import { activeType, captureSummary, DUCT_LABEL, fieldSets, FIX_INPUT_ID, READING_UNIT_KEY, readingUnit, STEP_ROUTES, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
 import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
 import { CopyRequest } from "../components/copy-request";
 import { copyRequest } from "../lib/copy-requests";
-import { CorrectionControls } from "../components/correction";
+import { CorrectionControls, CorrectionStatus } from "../components/correction";
 
 export const Route = createFileRoute("/permit/draft/$id")({
   head: () => ({ meta: [{ title: "Review draft — PermitDraft" }, { name: "description", content: "Review draft built from what was captured on the job, each value with where it came from." }] }),
@@ -52,6 +52,18 @@ export function Review() {
     return () => { dead = true; made.forEach((u) => URL.revokeObjectURL(u)); };
   }, [id, !!cap]);
 
+  // Opened by the capture screen's return: scroll to and highlight the NEEDED row it came from.
+  const [hl, setHl] = useState("");
+  useEffect(() => {
+    if (!cap || typeof window === "undefined") return;
+    const h = window.location.hash.replace(/^#/, "");
+    if (!h.startsWith("need-")) return;
+    const el = document.getElementById(h);
+    if (!el) return;
+    setHl(h);
+    el.scrollIntoView({ block: "center" });
+    el.focus({ preventScroll: true });
+  }, [!!cap]);
   if (!cap) {
     return (
       <AppPage bottom>
@@ -108,8 +120,22 @@ export function Review() {
         <h2 className="ap-h2">{t("Checks", "Verificaciones")}</h2>
         <p className="ap-muted">{t("Documentation checks from PermitDraft's own checklist. They are not legal or code checks.", "Verificaciones de documentación de la lista propia de PermitDraft. No son verificaciones legales ni de código.")}</p>
         {ev.results.map((r) => (
-          <div key={r.ruleId} className="rd-item" data-testid={`check-${r.ruleId}`}>
+          <div key={r.ruleId} id={`need-${r.ruleId}`} tabIndex={-1} className={`rd-item${hl === `need-${r.ruleId}` ? " rd-focus" : ""}`} data-testid={`check-${r.ruleId}`}>
             <strong>{t(...r.text)} · {r.status === "met" ? t("Captured", "Capturado") : t("NEEDED", "NECESARIO")}</strong>
+            {r.status === "missing" && (() => {
+              const fk = r.evidence.startsWith("field:") ? r.evidence.slice(6) : "";
+              const f = fk ? fieldSets(cap).find((x) => x.key === fk) : undefined;
+              if (!f || !FIX_INPUT_ID[f.key]) return null;
+              const c1 = corr[f.key];
+              return (
+                <>
+                  {c1 && <CorrectionStatus c={c1} testId={`need-corr-${f.key}`} original="" />}
+                  <Link to={p(STEP_ROUTES[f.step - 1])} search={{ fix: cap.id, field: f.key, rule: r.ruleId } as never} className="ap-btn primary rd-capture" data-testid={`capture-${f.key}`}>
+                    {c1 ? t(`Edit ${f.label[0]} in capture`, `Editar ${f.label[1]} en la captura`) : t(`Capture ${f.label[0]}`, `Capturar ${f.label[1]}`)}
+                  </Link>
+                </>
+              );
+            })()}
             {r.status === "missing" && <span className="ap-next">{t(...r.todo)}</span>}
             {r.status === "missing" && <CopyRequest text={copyRequest(r.ruleId.replace(/^app-doc-/, ""), fieldLabel(r), jobCtx)} field={t(...fieldLabel(r))} testId={`copy-${r.ruleId}`} />}
             <WhyDetails r={r} />

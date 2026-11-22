@@ -4,18 +4,21 @@ import { StepShell, selectCls } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
-import { useDraft } from "../lib/job-draft";
+import { FixBar } from "../components/fix-bar";
+import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { usePhotos } from "../lib/photos";
 import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/equipment")({
+  validateSearch: fixSearch,
   head: () => ({ meta: [{ title: "Equipment — PermitDraft" }, { name: "description", content: "Step 2 of 5: equipment from the data plate." }] }),
   component: () => <CoreGate><Equipment /></CoreGate>,
 });
 
 export function Equipment() {
   const { t } = useLang();
-  const d = useDraft(2);
+  const d = useStepDraft(2);
+  useFixFocus(d.fix, d.fix?.value ?? "");
   const { photos } = usePhotos();
   const on = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => d.set(k, e.target.value);
   const type = d.get("type");
@@ -28,7 +31,7 @@ export function Equipment() {
     <div className="cx-field" key={k}><Label htmlFor={id}>{t(l[0], l[1])}</Label><Input id={id} value={val(k)} onChange={on(k)} /></div>
   );
   return (
-    <StepShell n={2} title={["Equipment", "Equipo"]} sub={["Step 2 of 5 · Equipment from the data plate", "Paso 2 de 5 · Equipo según la placa de datos"]} back="/new" next="/new/work">
+    <StepShell n={2} title={["Equipment", "Equipo"]} sub={["Step 2 of 5 · Equipment from the data plate", "Paso 2 de 5 · Equipo según la placa de datos"]} back="/new" next="/new/work" fixBar={d.fixState === "off" ? undefined : <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}>
       <div className="cx-field"><Label htmlFor="et">{t("Equipment type", "Tipo de equipo")}</Label>
         <select id="et" className={selectCls} value={d.get("type")} onChange={on("type")}>
           <option value="Heat pump change-out">{t("Heat pump change-out", "Cambio de bomba de calor")}</option>

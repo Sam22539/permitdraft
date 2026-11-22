@@ -82,3 +82,17 @@ export function captureSummary(c: Captured, lang: "en" | "es") {
     equip: type || (lang === "es" ? "Tipo de equipo no capturado" : "Equipment type not captured"),
   };
 }
+
+/** Capture screens in step order (Core paths; the demo prefixes /demo). */
+export const STEP_ROUTES = ["/new", "/new/equipment", "/new/work", "/new/checks", "/new/photos"] as const;
+/**
+ * The exact input (its element id on the capture step) that captures each draft field. Used by the review draft's
+ * capture action to open the right step and highlight the right input. Checks and photos have no text input here.
+ */
+export const FIX_INPUT_ID: Record<string, string> = {
+  name: "n", phone: "p", addr: "a", city: "c", type: "et",
+  maker: "mf", model: "mo", serial: "se", refrig: "rf", loc: "ol",
+  ac_maker: "mf", ac_model: "mo", ac_serial: "se", ac_refrig: "rf", ac_loc: "ol",
+  fu_maker: "fmf", fu_model: "fmo", fu_serial: "fse", coil_maker: "cmf", coil_model: "cmo", coil_serial: "cse",
+  work: "wk", panel: "pa", duct: "ds", ductReason: "dr", sub: "sub", sup: "sup",
+};

@@ -6,19 +6,22 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import { useLang } from "../lib/lang";
-import { useDraft } from "../lib/job-draft";
+import { FixBar } from "../components/fix-bar";
+import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 
 export const Route = createFileRoute("/new/work")({
+  validateSearch: fixSearch,
   head: () => ({ meta: [{ title: "Work performed — PermitDraft" }, { name: "description", content: "Step 3 of 5: what the crew did." }] }),
   component: () => <CoreGate><Work /></CoreGate>,
 });
 
 export function Work() {
   const { t } = useLang();
-  const d = useDraft(3);
+  const d = useStepDraft(3);
+  useFixFocus(d.fix, d.fix?.value ?? "");
   const needed = t("NEEDED", "NECESARIO");
   return (
-    <StepShell n={3} title={["Work performed", "Trabajo realizado"]} sub={["Step 3 of 5 · What the crew did", "Paso 3 de 5 · Lo que hizo el equipo"]} back="/new/equipment" next="/new/checks">
+    <StepShell n={3} title={["Work performed", "Trabajo realizado"]} sub={["Step 3 of 5 · What the crew did", "Paso 3 de 5 · Lo que hizo el equipo"]} back="/new/equipment" next="/new/checks" fixBar={d.fixState === "off" ? undefined : <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}>
       <div className="cx-field"><Label htmlFor="wk">{t("Work performed", "Trabajo realizado")}</Label>
         <Textarea id="wk" rows={4} className="text-lg bg-white" value={d.get("work")} onChange={(e) => d.set("work", e.target.value)} /></div>
       <Dictation notes={d.get("work")} onSave={(v) => d.set("work", v)} />

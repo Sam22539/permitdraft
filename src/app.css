@@ -296,3 +296,9 @@ a.ap-job{border-left:6px solid #c2410c}
 .fh-option button[role="radio"],.fh-option button[role="checkbox"]{width:1.4rem;height:1.4rem;border:2px solid #12264a;background:#fff}
 .fh-option button[role="checkbox"][data-state="checked"]{background:#12264a;color:#fff}
 .fh-out{display:grid;gap:.3rem}
+
+/* Capture from a draft: the targeted input is highlighted, the rest of the step is dimmed and locked */
+.cx-target{outline:3px solid #c2410c;outline-offset:6px;border-radius:12px;background:#fff7ed}
+.cx-dim{opacity:.55}
+.rd-capture{min-height:48px;width:fit-content}
+.rd-item.rd-focus{outline:3px solid #c2410c;outline-offset:2px;border-radius:8px;background:#fff7ed}

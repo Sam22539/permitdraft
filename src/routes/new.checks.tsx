@@ -4,11 +4,13 @@ import { StepShell } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
-import { useDraft } from "../lib/job-draft";
+import { FixBar } from "../components/fix-bar";
+import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { READING_UNIT_KEY, UNIT_LABEL } from "../lib/capture-fields";
 
 export const Route = createFileRoute("/new/checks")({
+  validateSearch: fixSearch,
   head: () => ({ meta: [{ title: "Compliance checks — PermitDraft" }, { name: "description", content: "Step 4 of 5: readings and checks." }] }),
   component: () => <CoreGate><Checks /></CoreGate>,
 });
@@ -22,7 +24,8 @@ const ITEMS: [string, string, string][] = [
 
 export function Checks() {
   const { t } = useLang();
-  const d = useDraft(4);
+  const d = useStepDraft(4);
+  useFixFocus(d.fix, d.fix?.value ?? "");
   const unitChoice = (reading: string) => {
     const k = READING_UNIT_KEY[reading];
     return (
@@ -40,7 +43,7 @@ export function Checks() {
     );
   };
   return (
-    <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos">
+    <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos" fixBar={d.fixState === "off" ? undefined : <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}>
       {ITEMS.map(([k, en, es]) => {
         const ok = d.get(k) === "1";
         return (
