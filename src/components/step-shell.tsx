@@ -85,12 +85,14 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
   );
 }
 
-export function StepShell({ n, title, sub, back, children, next, nextLabel, action, fixBar }: {
+export function StepShell({ n, title, sub, back, children, next, nextLabel, action, fixBar, onNext }: {
   n: number; title: [string, string]; sub: [string, string]; back: string; next?: string; nextLabel?: [string, string]; children: React.ReactNode;
   /** A step's own final action (and its feedback), pinned on a phone in place of a Next link. */
   action?: React.ReactNode;
   /** Set when the step was opened from a review draft: replaces Next and Back with Save to draft and Back to draft. */
   fixBar?: React.ReactNode;
+  /** Return false to stop Next from leaving this step (the step shows its own message). */
+  onNext?: () => boolean;
 }) {
   const { t } = useLang();
   const p = useCorePath();
@@ -102,7 +104,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
         {children}
         {fixBar ? null : action ? <PinnedAction className="cx-pin-gap">{action}</PinnedAction> : null}
         {fixBar ? null : <div className="cx-actions">
-          {next ? <PinnedAction><Link to={p(next)} className="ap-btn primary">{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link></PinnedAction> : null}
+          {next ? <PinnedAction><Link to={p(next)} className="ap-btn primary" onClick={(e) => { if (onNext && !onNext()) e.preventDefault(); }}>{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link></PinnedAction> : null}
           <Link to={p(back)} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>}
       </section>

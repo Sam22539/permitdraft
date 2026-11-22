@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useState } from "react";
 import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
@@ -26,6 +27,13 @@ export function Checks() {
   const { t } = useLang();
   const d = useStepDraft(4);
   useFixFocus(d.fix, d.fix?.value ?? "");
+  const [err, setErr] = useState("");
+  const normal = d.fixState === "off";
+  const guard = () => {
+    if (!normal) return true;
+    if (!d.get("addr").trim() || !d.get("city").trim()) { setErr(t("Fill in the job address and city.", "Complete la dirección del trabajo y la ciudad.")); return false; }
+    return true;
+  };
   const unitChoice = (reading: string) => {
     const k = READING_UNIT_KEY[reading];
     return (
@@ -43,7 +51,16 @@ export function Checks() {
     );
   };
   return (
-    <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos" fixBar={d.fixState === "off" ? undefined : <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}>
+    <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos" onNext={guard} fixBar={d.fixState === "off" ? undefined : <FixBar fix={d.fix} capId={d.fixParams.fix} rule={d.fixParams.rule} />}>
+      {normal && (
+        <div className="grid gap-3" data-testid="job-address">
+          <h2 className="cx-label text-sm font-semibold">{t("Job address", "Dirección del trabajo")}</h2>
+          <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label><Input id="a" value={d.get("addr")} onChange={(e) => { setErr(""); d.set("addr", e.target.value); }} autoComplete="off" /></div>
+          <div className="cx-field"><Label htmlFor="c">{t("City *", "Ciudad *")}</Label><Input id="c" value={d.get("city")} onChange={(e) => { setErr(""); d.set("city", e.target.value); }} /></div>
+          {err && <p role="alert" className="cx-err">{err}</p>}
+          <h2 className="cx-label text-sm font-semibold">{t("Final checks", "Verificaciones finales")}</h2>
+        </div>
+      )}
       {ITEMS.map(([k, en, es]) => {
         const ok = d.get(k) === "1";
         return (
