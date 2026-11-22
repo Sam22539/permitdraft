@@ -75,7 +75,7 @@ export function DemoBar() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("Reset the demo?", "¿Reiniciar la demo?")}</DialogTitle>
-              <DialogDescription>{t("This clears your practice jobs, photos and dates and starts the sample job again. Real jobs are not touched.", "Esto borra sus trabajos, fotos y fechas de práctica y vuelve a empezar el trabajo de muestra. Los trabajos reales no se tocan.")}</DialogDescription>
+              <DialogDescription>{t("This clears your PermitDraft Demo jobs, photos and dates and starts the sample job again. Real jobs are not touched.", "Esto borra los trabajos, fotos y fechas de PermitDraft Demo y vuelve a empezar el trabajo de muestra. Los trabajos reales no se tocan.")}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild><button type="button" className="ap-btn ghost">{t("Cancel", "Cancelar")}</button></DialogClose>

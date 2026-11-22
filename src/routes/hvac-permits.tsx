@@ -73,7 +73,7 @@ function Landing() {
             <span className="lp-value">—</span>
           </div>
         </div>
-        <p className="ap-muted">{t("Sample data from a practice job.", "Datos de muestra de un trabajo de práctica.")} <Link to="/sample-job" className="lp-link">{t("Open the full sample draft", "Abrir el borrador de muestra completo")}</Link></p>
+        <p className="ap-muted">{t("Sample data from the PermitDraft Demo.", "Datos de muestra de la demo de PermitDraft.")} <Link to="/sample-job" className="lp-link">{t("Open the full sample draft", "Abrir el borrador de muestra completo")}</Link></p>
       </section>
 
       <section className="lp-sec" aria-labelledby="lp-what">
