@@ -4,7 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useDraft } from "../lib/job-draft";
 import { AppPage } from "../components/app-shell";
-import { StepHead } from "../components/step-shell";
+import { PinnedAction, StepHead } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
@@ -43,9 +43,11 @@ export function NewJob() {
         <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label><Input id="a" value={f.addr} onChange={set("addr")} /></div>
         <div className="cx-field"><Label htmlFor="c">{t("City *", "Ciudad *")}</Label><Input id="c" value={f.city} onChange={set("city")} /></div>
         <p className="cx-note">{t("County: set in Settings", "Condado: se define en Ajustes")}</p>
-        {err && <p role="alert" className="cx-err">{err}</p>}
         <div className="cx-actions">
-          <button type="submit" className="ap-btn primary">{t("Next", "Siguiente")}</button>
+          <PinnedAction className="cx-pin-err">
+            {err && <p role="alert" className="cx-err">{err}</p>}
+            <button type="submit" className="ap-btn primary">{t("Next", "Siguiente")}</button>
+          </PinnedAction>
           <Link to={p("/jobs")} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>
       </form>

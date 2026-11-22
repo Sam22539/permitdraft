@@ -260,3 +260,20 @@ a.ap-job{border-left:6px solid #c2410c}
 .ck-list{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
 .ck-list li{position:relative;background:#fff;border:1px solid #d6dce8;border-radius:.75rem;padding:.8rem .9rem .8rem 3rem}
 .ck-list li::before{content:"";position:absolute;left:.95rem;top:.95rem;width:1.25rem;height:1.25rem;border:2px solid #12264a;border-radius:.3rem}
+
+/* Capture steps: the step's own Next or Finish button. In the card on a computer; pinned above the bottom menu
+   (or the keyboard) on a phone, with its message above it, and the page given room so nothing hides behind it. */
+.cx-pin{display:grid;gap:8px}
+.cx-pin-gap{gap:16px}
+.cx-pin-err{gap:20px}
+.cx-pin-err>.cx-err{margin-top:-4px}
+@media (max-width:899px){
+  .cx-pin{position:fixed;z-index:29;left:50%;transform:translateX(-50%);width:100%;max-width:560px;bottom:calc(72px + env(safe-area-inset-bottom));gap:8px;padding:12px 16px;background:#fff;border-top:1px solid #d6dce8;box-shadow:0 -6px 16px rgba(18,38,74,.12);max-height:calc(100dvh - 180px);overflow-y:auto}
+  .cx-pin-err>.cx-err{margin-top:0}
+  .cx-pin>.cx-err{font-size:.95rem}
+  .ap:has(.cx-pin) .ap-foot.has-bottom{padding-bottom:calc(6rem + var(--cx-pin-h,80px) + env(safe-area-inset-bottom))}
+  html:has(.cx-pin){scroll-padding-bottom:calc(72px + var(--cx-pin-h,80px) + 16px + env(safe-area-inset-bottom))}
+  html[data-cx-kb] .ap-bottom{display:none}
+  html[data-cx-kb] .cx-pin{bottom:var(--cx-kb,0px);padding-bottom:12px}
+  html[data-cx-kb]:has(.cx-pin){scroll-padding-bottom:calc(var(--cx-kb,0px) + var(--cx-pin-h,80px) + 16px)}
+}
