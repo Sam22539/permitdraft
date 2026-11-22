@@ -64,17 +64,15 @@ export function PinnedAction({ children, className = "" }: { children: React.Rea
   return <div ref={ref} className={`cx-pin ${className}`} data-testid="pinned-action">{children}</div>;
 }
 
-const STEP_NAMES: [string, string][] = [["Site", "Sitio"], ["Equipment", "Equipo"], ["Work", "Trabajo"], ["Checks", "Revisión"], ["Photos", "Fotos"]];
+const STEP_NAMES: [string, string][] = [["Job site", "Sitio del trabajo"], ["Equipment", "Equipo"], ["Work done", "Trabajo hecho"], ["Checks", "Revisiones"], ["Photos", "Fotos"]];
 
 export function StepHead({ n, title }: { n: number; title: [string, string] }) {
   const { t } = useLang();
   return (
     <header className="cx-head">
-      <h1>{t(...title)}</h1>
       <div>
-        <p className="cx-stepline">
-          <strong>{t(`Step ${n} of 5`, `Paso ${n} de 5`)}</strong>
-          <span>{t(...STEP_NAMES[n - 1])}</span>
+        <p className="cx-stepline" data-testid="step-label">
+          <strong>{t(`Step ${n} of 5: ${STEP_NAMES[n - 1][0]}`, `Paso ${n} de 5: ${STEP_NAMES[n - 1][1]}`)}</strong>
         </p>
         <div role="progressbar" aria-label={t(`Step ${n} of 5`, `Paso ${n} de 5`)} aria-valuenow={n} aria-valuemin={0} aria-valuemax={5} className="mt-2">
           <ol className="cx-dots" aria-hidden>
@@ -82,6 +80,7 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
           </ol>
         </div>
       </div>
+      <h1>{t(...title)}</h1>
     </header>
   );
 }
