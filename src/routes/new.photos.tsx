@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { useLang } from "../lib/lang";
 import { usePhotos, type Slot } from "../lib/photos";
+import { useDraft, finishDraft } from "../lib/job-draft";
 import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/photos")({
@@ -17,6 +18,7 @@ const SLOTS: [Slot, string, string][] = [
 
 function Photos() {
   const { t } = useLang();
+  useDraft(5);
   const { photos, pending, loadError } = usePhotos();
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks">
@@ -35,7 +37,7 @@ function Photos() {
       {loadError && <p role="alert" className="ph-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
       <p className="ap-muted">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>
-      <Link to="/jobs/hp-1187" search={{ saved: "1" }} className="ap-btn primary">{t("Finish", "Finalizar")}</Link>
+      <Link to="/jobs/hp-1187" search={{ saved: "1" }} onClick={finishDraft} className="ap-btn primary">{t("Finish", "Finalizar")}</Link>
     </StepShell>
   );
 }

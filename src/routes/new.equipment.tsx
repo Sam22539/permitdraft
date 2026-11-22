@@ -14,7 +14,7 @@ export const Route = createFileRoute("/new/equipment")({
 
 function Equipment() {
   const { t } = useLang();
-  const d = useDraft();
+  const d = useDraft(2);
   const { photos } = usePhotos();
   const on = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => d.set(k, e.target.value);
   return (

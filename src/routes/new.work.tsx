@@ -14,7 +14,7 @@ export const Route = createFileRoute("/new/work")({
 
 function Work() {
   const { t } = useLang();
-  const d = useDraft();
+  const d = useDraft(3);
   const [dict, setDict] = useState(false);
   const needed = t("NEEDED", "NECESARIO");
   return (

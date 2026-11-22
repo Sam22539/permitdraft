@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useDraft } from "../lib/job-draft";
 import { AppPage } from "../components/app-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -13,10 +14,11 @@ export const Route = createFileRoute("/new/")({
 function NewJob() {
   const { t } = useLang();
   const nav = useNavigate();
-  const [f, setF] = useState({ name: "", phone: "", addr: "", city: "" });
+  const d = useDraft(1);
+  const f = { name: d.get("name"), phone: d.get("phone"), addr: d.get("addr"), city: d.get("city") };
   const [draft, setDraft] = useState<typeof f | null>(null);
   const [err, setErr] = useState("");
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => d.set(k, e.target.value);
 
   function next(e: React.FormEvent) {
     e.preventDefault();

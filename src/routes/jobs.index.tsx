@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { STATE_LABEL, fmtDate } from "../components/inspection-timeline";
 import { todayIso, urgentAction, useInsp } from "../lib/inspection";
+import { STEP_PATHS, useResumeStep } from "../lib/job-draft";
 import { useLang } from "../lib/lang";
 import { usePhotos } from "../lib/photos";
 
@@ -28,6 +29,7 @@ const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["M
 function Jobs() {
   const { t, lang } = useLang();
   const insp = useInsp();
+  const resume = useResumeStep();
   const { pending } = usePhotos();
   const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("All");
@@ -45,6 +47,11 @@ function Jobs() {
         </div>
         <p className="jb-trial">{t("14 days left in your free trial · See plan", "Quedan 14 días de su prueba gratis · Ver plan")}</p>
       </header>
+      {resume > 0 && (
+        <Link to={STEP_PATHS[resume - 1]} className="ap-btn primary" data-testid="resume-job">
+          {t("Resume job", "Reanudar trabajo")} · {t(`Step ${resume} of 5`, `Paso ${resume} de 5`)}
+        </Link>
+      )}
       <div className="jb-counts">
         <div className="jb-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
         <div className="jb-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>

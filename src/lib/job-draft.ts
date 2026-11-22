@@ -1,16 +1,65 @@
-import { useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
-// In-page practice draft shared by the capture steps (lives until the page is reloaded).
-const store: Record<string, string> = {
-  type: "Heat pump change-out", maker: "", model: "", serial: "", refrig: "", loc: "",
-  work: "Heat-pump change-out, same pad, left side yard", panel: "", duct: "", ductReason: "",
-  c1: "", c2: "", c3: "", c4: "", sub: "", sup: "", p1: "", p2: "", p3: "", plate: "",
+// Practice job draft, autosaved in this browser (localStorage, works offline). Only keys the person has edited are
+// stored, so defaults never overwrite saved answers (blank and unchecked values are kept as saved).
+const DEFAULTS: Record<string, string> = {
+  type: "Heat pump change-out", work: "Heat-pump change-out, same pad, left side yard",
 };
+const KEY = "permitdraft-job-draft-v1";
+export const STEP_PATHS = ["/new", "/new/equipment", "/new/work", "/new/checks", "/new/photos"] as const;
 
-export function useDraft() {
-  const [, bump] = useState(0);
+type Saved = { values: Record<string, string>; step: number };
+const EMPTY: Saved = { values: {}, step: 0 };
+let raw: string | null | undefined;
+let cache: Saved = EMPTY;
+const subs = new Set<() => void>();
+
+function read(): Saved {
+  if (typeof localStorage === "undefined") return EMPTY;
+  let r: string | null = null;
+  try { r = localStorage.getItem(KEY); } catch { return cache; }
+  if (r === raw) return cache;
+  raw = r;
+  try {
+    const p = r ? JSON.parse(r) : null;
+    cache = p && typeof p === "object" ? { values: typeof p.values === "object" && p.values ? p.values : {}, step: Number(p.step) || 0 } : EMPTY;
+  } catch { cache = EMPTY; }
+  return cache;
+}
+function write(s: Saved) {
+  const r = JSON.stringify(s);
+  try { localStorage.setItem(KEY, r); } catch { /* storage full or blocked: keep in memory */ }
+  raw = r; cache = s;
+  subs.forEach((f) => f());
+}
+function subscribe(f: () => void) {
+  subs.add(f);
+  const on = (e: StorageEvent) => { if (e.key === KEY) f(); };
+  window.addEventListener("storage", on);
+  return () => { subs.delete(f); window.removeEventListener("storage", on); };
+}
+const snap = () => read();
+const serverSnap = () => EMPTY;
+
+export function finishDraft() {
+  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+  raw = null; cache = EMPTY;
+  subs.forEach((f) => f());
+}
+
+/** Unfinished saved draft: the step to reopen (1–5), or 0 when none. */
+export function useResumeStep(): number {
+  const s = useSyncExternalStore(subscribe, snap, serverSnap);
+  return s.step >= 1 && s.step <= 5 ? s.step : 0;
+}
+
+export function useDraft(step?: number) {
+  const s = useSyncExternalStore(subscribe, snap, serverSnap);
+  useEffect(() => {
+    if (step && read().step !== step) write({ ...read(), step });
+  }, [step]);
   return {
-    get: (k: string) => store[k] ?? "",
-    set: (k: string, v: string) => { store[k] = v; bump((n) => n + 1); },
+    get: (k: string) => (k in s.values ? s.values[k] : DEFAULTS[k] ?? ""),
+    set: (k: string, v: string) => { const c = read(); write({ ...c, values: { ...c.values, [k]: v } }); },
   };
 }

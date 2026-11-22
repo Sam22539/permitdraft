@@ -19,7 +19,7 @@ const ITEMS: [string, string, string][] = [
 
 function Checks() {
   const { t } = useLang();
-  const d = useDraft();
+  const d = useDraft(4);
   return (
     <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos">
       {ITEMS.map(([k, en, es]) => {
