@@ -1,7 +1,7 @@
 import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { useCorePath } from "../components/demo";
+import { useCorePath, useDemo } from "../components/demo";
 import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { PhotoViewer } from "../components/photo-viewer";
@@ -32,6 +32,7 @@ const t0 = (x: readonly [string, string]) => x[0].toLowerCase();
 export function Review() {
   const { id } = useParams({ strict: false }) as { id: string };
   const { t, lang } = useLang();
+  const isDemoReview = useDemo();
   const p = useCorePath();
   const all = useCaptured();
   const [mounted, setMounted] = useState(false);
@@ -219,6 +220,13 @@ export function Review() {
       )}
 
       <Link to={p("/jobs")} className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
+      {isDemoReview && (
+        <section className="ap-card" data-testid="demo-early-access" aria-labelledby="dea-h">
+          <h2 className="ap-h2" id="dea-h">{t("Want this for your crew?", "¿Quiere esto para su equipo?")}</h2>
+          <p className="ap-muted">{t("Optional: ask for a spot in the pilot. You can keep exploring the demo either way.", "Opcional: pida un lugar en el piloto. Puede seguir explorando la demo de cualquier forma.")}</p>
+          <Link to="/" hash="pilot" className="ap-btn primary" data-testid="demo-early-access-link">{t("Get Early Access", "Obtener acceso anticipado")}</Link>
+        </section>
+      )}
     </AppPage>
   );
 }
