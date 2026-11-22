@@ -134,7 +134,7 @@ export const FEDERAL_RECORDS: Rec[] = [
   { key: "fed_energycodes_state_portal", url: null, page_title: null, agency: "U.S. Department of Energy", source_type: "official_gov", status: "unverified", checked_on: null, volatile: false,
     notes: "energycodes.gov home opened, but its state status page returned HTTP 403 to our check, so no state-portal address is confirmed yet." },
 ];
-// Archival evidence for states outside the rollout (e.g. FL) stays here but is never shown publicly.
+// Archival evidence for states outside the rollout is not kept here.
 export const STATE_RECORDS: Record<string, Rec[]> = {
   AZ: [
     { key: "lic_agency", url: "https://roc.az.gov/", page_title: "Home | Arizona Registrar of Contractors", agency: "Arizona Registrar of Contractors",
@@ -143,14 +143,6 @@ export const STATE_RECORDS: Record<string, Rec[]> = {
   CA: [
     { key: "lic_lookup", url: "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx", page_title: "Check A License - CSLB", agency: "Contractors State License Board",
       source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; HTTP 200, no redirect." },
-  ],
-  FL: [
-    { key: "lic_agency", url: "https://www2.myfloridalicense.com/construction-industry/", page_title: "Construction Industry – MyFloridaLicense.com",
-      agency: "Florida Department of Business and Professional Regulation (Construction Industry Licensing Board)", source_type: "official_gov", status: "verified", checked_on: D, volatile: false,
-      notes: "Opened; HTTP 200, no redirect. Page describes the air-conditioning contractor (Class A, B, C) and mechanical contractor licenses." },
-    { key: "lic_lookup", url: "https://www.myfloridalicense.com/portalsearches/VerifyLicensee", page_title: "Licensee Search Options – DBPR Online Services",
-      agency: "Florida Department of Business and Professional Regulation", source_type: "official_gov", status: "verified", checked_on: D, volatile: false,
-      notes: "Followed the 'Verify a License' button on www2.myfloridalicense.com; destination opened with HTTP 200, no redirect, and shows search by name, license number, city/county and license type. The page's HTML title is blank, so its visible heading is recorded." },
   ],
   TX: [
     { key: "lic_agency", url: "https://www.tdlr.texas.gov/acr/", page_title: "Air Conditioning and Refrigeration Contractors Homepage", agency: "Texas Department of Licensing and Regulation",
