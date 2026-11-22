@@ -41,7 +41,7 @@ test("Arizona is selectable; only its licensing link is verified", () => {
 test("outside-state research stays archived, never public", () => {
   assert.equal(R.STATE_LINKS.FL, undefined);
   assert.equal(R.isStateCode("FL"), false);
-  assert.equal(R.STATE_RECORDS.FL.length, 2);
+  assert.equal(R.STATE_RECORDS.FL, undefined);
   assert.ok(R.ARCHIVE_STATES.some(([c]) => c === "FL"));
   assert.ok(R.validateDataset(R.FEDERAL, { ...R.STATE_LINKS, FL: R.STATE_LINKS.CA }).length > 0);
   assert.deepEqual(R.resourcesSearch("permit", "fl"), { stage: "permit" });

@@ -43,6 +43,13 @@
       "when": 1795380542302,
       "tag": "0005_add_optional_paperwork_delay_column_to_pilot_sig",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795386165835,
+      "tag": "0006_demo_feedback_table",
+      "breakpoints": true
     }
   ]
 }

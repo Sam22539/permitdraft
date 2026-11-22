@@ -1,7 +1,8 @@
 import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { useCorePath } from "../components/demo";
+import { useCorePath, useDemo } from "../components/demo";
+import { DemoFeedback } from "../components/demo-feedback";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Checkbox } from "../components/ui/checkbox";
@@ -38,6 +39,7 @@ const CHECKS: [string, string, "g" | "a" | "r"][] = [
 export function Detail() {
   const { t } = useLang();
   const p = useCorePath();
+  const demo = useDemo();
   const { saved, done: doneId } = useSearch({ strict: false }) as { saved?: "1"; done?: string };
   const [done, setDone] = useState<boolean[]>(STEPS.map(() => false));
   const [warranty, setWarranty] = useState(false);
@@ -60,6 +62,7 @@ export function Detail() {
         <div role="status" className="cx-card calm">
           <p className="font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>
           {doneId && <Link to={p("/permit/draft/$id")} params={{ id: doneId } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
+          {demo && doneId && <DemoFeedback />}
         </div>
       )}
       <h1 className="cx-h1">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
