@@ -20,7 +20,7 @@ type Status = "Draft" | "Missing info" | "Done" | "Blocked";
 type Job = { id: string; addr: string; who?: [string, string]; equip: string; date: string; status: Status; next?: string; sample?: boolean; href?: boolean };
 
 const JOBS: Job[] = [
-  { id: "hp-1187", addr: "Job #HP-1187 · 4412 Alder Court, Sacramento", who: ["MR", "Marcus Reyes"], equip: "Heat pump change-out", date: "Nov 18, 2026", status: "Missing info", next: "Next: fix 2 missing items", href: true },
+  { id: "hp-1187", addr: "4412 Alder Court, Sacramento", who: ["MR", "Marcus Reyes"], equip: "Heat pump change-out", date: "Nov 18, 2026", status: "Missing info", next: "Next: fix 2 missing items", href: true },
   { id: "s1", addr: "7 Demo Lane", equip: "Gas furnace", date: "Nov 17, 2026", status: "Draft", next: "Next: finish job details (7 left)", sample: true },
   { id: "s2", addr: "33 Sample Rd", equip: "Heat pump AC", date: "Nov 16, 2026", status: "Blocked", next: "Refrigerant type to confirm with the office", sample: true },
   { id: "s3", addr: "92 Placeholder Ct", equip: "Ductless mini-split", date: "Nov 15, 2026", status: "Draft", sample: true },
@@ -113,9 +113,9 @@ function Jobs() {
         }
         return j.href ? (
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>
-            <Link to="/jobs/hp-1187" className="grid gap-[inherit]">{body}</Link>
+            <Link to="/jobs/sample-job" className="grid gap-[inherit]" aria-label={t("View sample job details", "Ver detalles del trabajo de muestra")}>{body}</Link>
             {pending > 0 && <p className="ph-pend" data-testid="jobs-pending">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>}
-            <Link to="/jobs/hp-1187" hash="inspection-timeline" className="jb-next" data-testid="jobs-insp-action">
+            <Link to="/jobs/sample-job" hash="inspection-timeline" aria-label={t("View inspection timeline", "Ver cronología de inspección")} className="jb-next" data-testid="jobs-insp-action">
               {t("Inspection: ", "Inspección: ")}{t(act.en, act.es)}
               {act.date && <> · {fmtDate(act.date, lang)}</>}
               {act.state !== "confirm" && <> · {t(...STATE_LABEL[act.state])}</>}

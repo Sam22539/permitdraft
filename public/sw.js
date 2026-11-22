@@ -1,6 +1,6 @@
 // Offline shell: public app pages and static assets only. Never caches server functions or non-200 / no-store responses.
 const CACHE = "pd-shell-v1";
-const ROUTES = ["/", "/jobs", "/jobs/hp-1187", "/new", "/new/work", "/new/equipment", "/new/checks", "/new/photos", "/permit/hp-1187"];
+const ROUTES = ["/", "/jobs", "/jobs/sample-job", "/sample-job", "/new", "/new/work", "/new/equipment", "/new/checks", "/new/photos"];
 const okToCache = (res) => res && res.status === 200 && res.type === "basic" && !/no-store|private/i.test(res.headers.get("cache-control") || "");
 
 async function precache() {

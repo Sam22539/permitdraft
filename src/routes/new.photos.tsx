@@ -33,7 +33,7 @@ function Photos() {
     const id = await finishCapture();
     setBusy(false);
     if (!id) return setFailed(true);
-    nav({ to: "/jobs/hp-1187", search: { saved: "1", done: id } });
+    nav({ to: "/jobs/sample-job", search: { saved: "1", done: id } });
   }
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks">
