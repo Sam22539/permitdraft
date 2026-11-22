@@ -79,14 +79,14 @@ if (bc && typeof bc.addEventListener === "function") bc.addEventListener("messag
 
 export type PhotoView = { unit?: Unit; url: string; name: string; savedAt: number; uploaded: boolean };
 
-export function usePhotos() {
+export function usePhotos(job = JOB_ID) {
   const [map, setMap] = useState<Partial<Record<Slot, PhotoView>>>({});
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const urls = useRef<string[]>([]);
   const refresh = useCallback(async () => {
     try {
-      const recs = await loadPhotos();
+      const recs = await loadPhotos(job);
       urls.current.forEach((u) => URL.revokeObjectURL(u));
       urls.current = [];
       const m: Partial<Record<Slot, PhotoView>> = {};
@@ -98,7 +98,7 @@ export function usePhotos() {
       setMap(m); setLoadError(false);
     } catch { setLoadError(true); }
     setReady(true);
-  }, []);
+  }, [job]);
   useEffect(() => {
     refresh();
     listeners.add(refresh);

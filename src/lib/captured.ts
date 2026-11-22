@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { copyPhotos, deleteJobPhotos, JOB_ID, type Slot, type Unit } from "./photos";
+import { copyPhotos, deleteJobPhotos, JOB_ID, loadPhotos, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
 import { nsKey } from "./demo-mode";
 
@@ -144,4 +144,19 @@ export function returnCorrection(capId: string, field: string, reason: string): 
   const c = read().find((x) => x.id === capId)?.corrections?.[field];
   if (!c || !c.flaggedAt || c.decision) return false;
   return updateCorrections(capId, (m) => ({ ...m, [field]: { ...c, decision: { status: "returned", reason: r, at: Date.now(), reviewer: REVIEWER } } }));
+}
+
+/**
+ * Attach the photos stored under a saved job's own scoped keys (`<captureId>:<slot>`) to that saved job, so the review
+ * re-evaluates from them. Captured values, corrections and decisions are left exactly as they are.
+ */
+export async function syncCapturePhotos(capId: string): Promise<boolean> {
+  try {
+    const recs = await loadPhotos(capId);
+    const list = read();
+    if (!list.some((c) => c.id === capId)) return false;
+    const photos: CapturedPhoto[] = recs.map((c) => ({ ...(c.unit ? { unit: c.unit } : {}), slot: c.slot, key: c.key, name: c.name, type: c.type, savedAt: c.savedAt, uploaded: c.uploaded }));
+    writeAll(list.map((c) => (c.id === capId ? { ...c, photos } : c)));
+    return true;
+  } catch { return false; }
 }

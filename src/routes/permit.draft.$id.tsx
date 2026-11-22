@@ -27,6 +27,8 @@ const SLOT_LABEL: Record<Slot, [string, string]> = {
   gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 };
 
+const t0 = (x: readonly [string, string]) => x[0].toLowerCase();
+
 export function Review() {
   const { id } = useParams({ strict: false }) as { id: string };
   const { t, lang } = useLang();
@@ -136,6 +138,11 @@ export function Review() {
                 </>
               );
             })()}
+            {r.status === "missing" && r.evidence.startsWith("photo:") && (
+              <Link to={p("/new/photos")} search={{ fix: cap.id, slot: r.evidence.slice(6), rule: r.ruleId } as never} className="ap-btn primary rd-capture" data-testid={`capture-photo-${r.evidence.slice(6)}`}>
+                {t(`Add ${t0(r.text)}`, `Agregar ${r.text[1].toLowerCase()}`)}
+              </Link>
+            )}
             {r.status === "missing" && <span className="ap-next">{t(...r.todo)}</span>}
             {r.status === "missing" && <CopyRequest text={copyRequest(r.ruleId.replace(/^app-doc-/, ""), fieldLabel(r), jobCtx)} field={t(...fieldLabel(r))} testId={`copy-${r.ruleId}`} />}
             <WhyDetails r={r} />

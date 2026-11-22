@@ -8,7 +8,7 @@ export function PendingLabel({ p }: { p: PhotoView }) {
   return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Waiting to upload", "Esperando para subir")}</span>;
 }
 
-export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit }: { tagUnit?: boolean; slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
+export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit, job, onChanged }: { job?: string; onChanged?: () => void | Promise<void>; tagUnit?: boolean; slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
   const { t, lang } = useLang();
   const cam = useRef<HTMLInputElement>(null);
   const file = useRef<HTMLInputElement>(null);
@@ -21,7 +21,7 @@ export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit }: { tagUnit?
     e.target.value = "";
     if (!f) return;
     setBusy(true); setErr(""); setOk(false);
-    try { await savePhoto(slot, f); setOk(true); }
+    try { await savePhoto(slot, f, job); await onChanged?.(); setOk(true); }
     catch (x) {
       const bad = x instanceof Error && x.message === "not-image";
       setErr(bad
@@ -32,7 +32,7 @@ export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit }: { tagUnit?
   }
   async function remove() {
     setErr(""); setOk(false);
-    try { await removePhoto(slot); } catch { setErr(t("Could not remove the photo. It is still saved.", "No se pudo quitar la foto. Sigue guardada.")); }
+    try { await removePhoto(slot, job); await onChanged?.(); } catch { setErr(t("Could not remove the photo. It is still saved.", "No se pudo quitar la foto. Sigue guardada.")); }
   }
   const lbl = t(...label);
   return (
@@ -52,7 +52,7 @@ export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit }: { tagUnit?
           {(["indoor", "outdoor"] as Unit[]).map((u) => (
             <label key={u} style={{ display: "inline-flex", gap: ".4rem", alignItems: "center", minHeight: 44 }}>
               <input type="radio" name={`unit-${slot}`} value={u} checked={photo.unit === u} data-testid={`unit-${slot}-${u}`}
-                onChange={() => { setPhotoUnit(slot, u).catch(() => setErr(t("Could not save the unit tag.", "No se pudo guardar la etiqueta de unidad."))); }} />
+                onChange={() => { setPhotoUnit(slot, u, job).then(() => onChanged?.()).catch(() => setErr(t("Could not save the unit tag.", "No se pudo guardar la etiqueta de unidad."))); }} />
               {u === "indoor" ? t("Indoor unit", "Unidad interior") : t("Outdoor unit", "Unidad exterior")}
             </label>
           ))}
