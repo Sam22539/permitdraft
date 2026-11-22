@@ -9,6 +9,7 @@ import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
 import { startCoreTrial } from "../lib/trial";
 import { sessionHeaders } from "../lib/payments/buy";
+import { Link } from "@tanstack/react-router";
 
 const PRICE = "permitdraft_core_4900_usd_monthly";
 
@@ -160,6 +161,7 @@ export function CoreOffer({ heading = "h2" }: { heading?: "h2" | "h3" }) {
         )}
         <ManageSubscriptionButton priceHandle={PRICE} className="ap-btn ghost">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
       </div>
+      <p className="ap-muted" data-testid="offer-demo">{t("Want to see it first?", "¿Quiere verlo primero?")} <Link to="/demo" className="underline font-semibold">{t("Try the free demo", "Probar la demo gratis")}</Link>{t(": every step, no sign-in or card.", ": todos los pasos, sin iniciar sesión ni tarjeta.")}</p>
       {err && <p role="alert" className="ap-muted">{err}</p>}
       {email === null && asked && <SignInForm />}
       {email === null && !asked && (

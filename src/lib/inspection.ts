@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { nsKey } from "./demo-mode";
 
 export const RULE_SOURCE = "PDS 807 Part 2";
 export const RULE_CHECKED = "2026-11-22";
@@ -9,17 +10,20 @@ export type Insp = {
   renewExpiry: string; renewSource: string; renewChecked: string;
 };
 const EMPTY: Insp = { juris: "", issue: "", lastPassed: "", next: "", gapConfirmed: false, renewExpiry: "", renewSource: "", renewChecked: "" };
-const KEY = "permitdraft-inspection-hp-1187";
+const BASE_KEY = "permitdraft-inspection-hp-1187";
+const key = () => nsKey(BASE_KEY);
+let loadedKey = "";
 
 let cache: Insp = EMPTY;
 let loaded = false;
 const subs = new Set<() => void>();
 
 function load() {
-  if (loaded || typeof window === "undefined") return;
-  loaded = true;
+  if (typeof window === "undefined") return;
+  if (loaded && loadedKey === key()) return;
+  loaded = true; loadedKey = key(); cache = EMPTY;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(loadedKey);
     if (raw) cache = { ...EMPTY, ...JSON.parse(raw) };
   } catch { /* ignore */ }
 }
@@ -27,14 +31,14 @@ function emit() { subs.forEach((f) => f()); }
 export function setInsp(patch: Partial<Insp>) {
   load();
   cache = { ...cache, ...patch };
-  try { window.localStorage.setItem(KEY, JSON.stringify(cache)); } catch { /* ignore */ }
+  try { window.localStorage.setItem(key(), JSON.stringify(cache)); } catch { /* ignore */ }
   emit();
 }
 export function useInsp(): Insp {
   return useSyncExternalStore(
     (cb) => {
       subs.add(cb);
-      const onStorage = (e: StorageEvent) => { if (e.key === KEY) { loaded = false; load(); emit(); } };
+      const onStorage = (e: StorageEvent) => { if (e.key === key()) { loaded = false; load(); emit(); } };
       window.addEventListener("storage", onStorage);
       // first client subscribe: pick up saved values after hydration
       load(); cb();

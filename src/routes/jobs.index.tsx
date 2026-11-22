@@ -6,6 +6,7 @@ import { STATE_LABEL, fmtDate } from "../components/inspection-timeline";
 import { todayIso, urgentAction, useInsp } from "../lib/inspection";
 import { STEP_PATHS, useResumeStep } from "../lib/job-draft";
 import { useLang } from "../lib/lang";
+import { useCorePath } from "../components/demo";
 import { usePhotos } from "../lib/photos";
 import { useCaptured, type Captured } from "../lib/captured";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
@@ -30,8 +31,9 @@ const esStatus: Record<Status, string> = { Draft: "Borrador", "Missing info": "F
 type Chip = "All" | "Drafts" | "Missing info" | "In progress";
 const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["Missing info", "Falta información"], ["In progress", "En curso"]];
 
-function Jobs() {
+export function Jobs() {
   const { t, lang } = useLang();
+  const p = useCorePath();
   const trial = useCoreTrial();
   const insp = useInsp();
   const resume = useResumeStep();
@@ -63,7 +65,7 @@ function Jobs() {
         ); })()}
       </header>
       {resume > 0 && (
-        <Link to={STEP_PATHS[resume - 1]} className="ap-btn primary" data-testid="resume-job">
+        <Link to={p(STEP_PATHS[resume - 1])} className="ap-btn primary" data-testid="resume-job">
           {t("Resume job", "Reanudar trabajo")} · {t(`Step ${resume} of 5`, `Paso ${resume} de 5`)}
         </Link>
       )}
@@ -107,15 +109,15 @@ function Jobs() {
                   </>
                 );
               })()}
-              <Link to="/permit/draft/$id" params={{ id: cap.id }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+              <Link to={p("/permit/draft/$id")} params={{ id: cap.id } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
             </div>
           );
         }
         return j.href ? (
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>
-            <Link to="/jobs/sample-job" className="grid gap-[inherit]" aria-label={t("View sample job details", "Ver detalles del trabajo de muestra")}>{body}</Link>
+            <Link to={p("/jobs/sample-job")} className="grid gap-[inherit]" aria-label={t("View sample job details", "Ver detalles del trabajo de muestra")}>{body}</Link>
             {pending > 0 && <p className="ph-pend" data-testid="jobs-pending">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>}
-            <Link to="/jobs/sample-job" hash="inspection-timeline" aria-label={t("View inspection timeline", "Ver cronología de inspección")} className="jb-next" data-testid="jobs-insp-action">
+            <Link to={p("/jobs/sample-job")} hash="inspection-timeline" aria-label={t("View inspection timeline", "Ver cronología de inspección")} className="jb-next" data-testid="jobs-insp-action">
               {t("Inspection: ", "Inspección: ")}{t(act.en, act.es)}
               {act.date && <> · {fmtDate(act.date, lang)}</>}
               {act.state !== "confirm" && <> · {t(...STATE_LABEL[act.state])}</>}

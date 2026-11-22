@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isDemo } from "./demo-mode";
 
 // Device-local photo store: real image blobs in IndexedDB, keyed by job + slot. Nothing is uploaded; every photo stays
 // "waiting to upload" because no server ever acknowledges it in this practice build.
@@ -10,14 +11,16 @@ export const ALL_SLOTS: Slot[] = [...SLOTS, "wide"];
 export type Unit = "indoor" | "outdoor";
 export type PhotoRec = { unit?: Unit; key: string; job: string; slot: Slot; blob: Blob; name: string; type: string; savedAt: number; uploaded: boolean };
 
-const DB = "permitdraft-photos";
+const REAL_DB = "permitdraft-photos";
+export const DEMO_PHOTO_DB = "permitdraft-demo-photos";
+const dbName = () => (isDemo() ? DEMO_PHOTO_DB : REAL_DB);
 const STORE = "photos";
 const keyOf = (job: string, slot: Slot) => `${job}:${slot}`;
 
 function open(): Promise<IDBDatabase> {
   return new Promise((res, rej) => {
     if (typeof indexedDB === "undefined") return rej(new Error("IndexedDB unavailable"));
-    const r = indexedDB.open(DB, 1);
+    const r = indexedDB.open(dbName(), 1);
     r.onupgradeneeded = () => { r.result.createObjectStore(STORE, { keyPath: "key" }); };
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error ?? new Error("open failed"));
@@ -70,9 +73,9 @@ export async function removePhoto(slot: Slot, job = JOB_ID): Promise<void> {
 }
 
 const listeners = new Set<() => void>();
-const bc = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("pd-photos") : null;
+const bc = typeof window !== "undefined" && typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("pd-photos") : null;
 function notify() { listeners.forEach((l) => l()); bc?.postMessage("changed"); }
-bc?.addEventListener("message", () => listeners.forEach((l) => l()));
+if (bc && typeof bc.addEventListener === "function") bc.addEventListener("message", () => listeners.forEach((l) => l()));
 
 export type PhotoView = { unit?: Unit; url: string; name: string; savedAt: number; uploaded: boolean };
 

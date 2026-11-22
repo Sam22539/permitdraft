@@ -194,3 +194,4 @@ a.ap-job{border-left:6px solid #c2410c}
 .ap-subscribe{display:grid;gap:.6rem}
 .ap-subscribe-actions{display:flex;flex-direction:column;gap:.6rem}
 @media (min-width:640px){.ap-subscribe-actions{flex-direction:row;flex-wrap:wrap}}
+.ap-demo{background:#fff7ed;border:1.5px solid #c2410c;border-radius:.9rem;padding:.75rem 1rem;display:grid;gap:.35rem;font-size:1rem;color:#14213d}

@@ -7,14 +7,16 @@ import { StepHead } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
+import { useCorePath } from "../components/demo";
 
 export const Route = createFileRoute("/new/")({
   head: () => ({ meta: [{ title: "New job — PermitDraft" }, { name: "description", content: "Step 1 of 5: homeowner and job site." }] }),
   component: () => <CoreGate><NewJob /></CoreGate>,
 });
 
-function NewJob() {
+export function NewJob() {
   const { t } = useLang();
+  const p = useCorePath();
   const nav = useNavigate();
   const d = useDraft(1);
   const f = { name: d.get("name"), phone: d.get("phone"), addr: d.get("addr"), city: d.get("city") };
@@ -26,7 +28,7 @@ function NewJob() {
     e.preventDefault();
     if (!f.name.trim() || !f.addr.trim() || !f.city.trim()) return setErr(t("Fill in the fields marked *.", "Complete los campos marcados con *."));
     setDraft(f);
-    nav({ to: "/new/equipment" });
+    nav({ to: p("/new/equipment") });
   }
 
   return (
@@ -43,7 +45,7 @@ function NewJob() {
         {err && <p role="alert" className="cx-err">{err}</p>}
         <div className="cx-actions">
           <button type="submit" className="ap-btn primary">{t("Next", "Siguiente")}</button>
-          <Link to="/jobs" className="cx-back">{t("Back", "Atrás")}</Link>
+          <Link to={p("/jobs")} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>
       </form>
     </AppPage>

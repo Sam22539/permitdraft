@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Briefcase, Settings } from "lucide-react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
+import { DemoBar, useCorePath, useDemo } from "./demo";
 import "../app.css";
 
 export function AppTop() {
@@ -27,14 +28,15 @@ export function AppTop() {
 
 export function BottomBar({ current }: { current?: "jobs" }) {
   const { t } = useLang();
+  const p = useCorePath();
   return (
     <nav className="ap-bottom" aria-label="Main">
-      <Link to="/jobs" activeProps={{ "aria-current": undefined } as never} className={`ap-tab${current === "jobs" ? " is-active" : ""}`}>
+      <Link to={p("/jobs")} activeProps={{ "aria-current": undefined } as never} className={`ap-tab${current === "jobs" ? " is-active" : ""}`}>
         <Briefcase size={22} aria-hidden />
         {t("Jobs", "Trabajos")}
       </Link>
-      <Link to="/new" className="ap-new">{t("+ New job", "+ Nuevo trabajo")}</Link>
-      <Link to="/jobs" activeProps={{ "aria-current": undefined } as never} className="ap-tab">
+      <Link to={p("/new")} className="ap-new">{t("+ New job", "+ Nuevo trabajo")}</Link>
+      <Link to={p("/jobs")} activeProps={{ "aria-current": undefined } as never} className="ap-tab">
         <Settings size={22} aria-hidden />
         {t("Settings", "Ajustes")}
       </Link>
@@ -44,10 +46,11 @@ export function BottomBar({ current }: { current?: "jobs" }) {
 
 export function AppPage({ children, bottom, wide, capture }: { children: React.ReactNode; bottom?: boolean; wide?: boolean; capture?: boolean }) {
   const { t } = useLang();
+  const demo = useDemo();
   return (
     <div className="ap">
       <AppTop />
-      <main className={`ap-main ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{children}</main>
+      <main className={`ap-main ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{demo && <DemoBar />}{children}</main>
       <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
         <p>{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
         <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>

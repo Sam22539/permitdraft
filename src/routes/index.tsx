@@ -89,8 +89,8 @@ function Start() {
         ))}
       </ol>
       <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to HVAC contractors in all 50 US states. PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant.", "Cobertura honesta: el flujo de documentación está abierto a contratistas de HVAC en los 50 estados de EE. UU. PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple.")}</p>
-      <Link to="/sample-job" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
-      <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
+      <Link to="/demo" className="ap-btn primary" data-testid="try-demo">{t("Try the free demo", "Probar la demo gratis")}</Link>
+      <Link to="/sample-job" className="ap-btn ghost">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link>
       <div className="ap-signup"><PilotForm /><CoreOffer /></div>
     </AppPage>
   );

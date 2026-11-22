@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
+import { useCorePath } from "./demo";
 
 const STEP_NAMES: [string, string][] = [["Site", "Sitio"], ["Equipment", "Equipo"], ["Work", "Trabajo"], ["Checks", "Revisión"], ["Photos", "Fotos"]];
 
@@ -28,6 +29,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel }: {
   n: number; title: [string, string]; sub: [string, string]; back: string; next?: string; nextLabel?: [string, string]; children: React.ReactNode;
 }) {
   const { t } = useLang();
+  const p = useCorePath();
   return (
     <AppPage bottom capture>
       <StepHead n={n} title={title} />
@@ -35,8 +37,8 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel }: {
       <section className="cx-card">
         {children}
         <div className="cx-actions">
-          {next ? <Link to={next} className="ap-btn primary">{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link> : null}
-          <Link to={back} className="cx-back">{t("Back", "Atrás")}</Link>
+          {next ? <Link to={p(next)} className="ap-btn primary">{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link> : null}
+          <Link to={p(back)} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>
       </section>
       <p className="cx-note">{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.")}</p>

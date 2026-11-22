@@ -13,7 +13,7 @@ export const Route = createFileRoute("/new/work")({
   component: () => <CoreGate><Work /></CoreGate>,
 });
 
-function Work() {
+export function Work() {
   const { t } = useLang();
   const d = useDraft(3);
   const needed = t("NEEDED", "NECESARIO");

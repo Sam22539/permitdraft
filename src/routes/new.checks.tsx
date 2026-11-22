@@ -18,7 +18,7 @@ const ITEMS: [string, string, string][] = [
   ["c4", "Equipment label photo readable", "Foto de la etiqueta del equipo legible"],
 ];
 
-function Checks() {
+export function Checks() {
   const { t } = useLang();
   const d = useDraft(4);
   return (

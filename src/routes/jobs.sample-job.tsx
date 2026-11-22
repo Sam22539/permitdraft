@@ -1,5 +1,6 @@
 import { CoreGate } from "../components/core-offer";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { useCorePath } from "../components/demo";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Checkbox } from "../components/ui/checkbox";
@@ -33,9 +34,10 @@ const CHECKS: [string, string, "g" | "a" | "r"][] = [
   ["Refrigerant charge reading", "Lectura de carga de refrigerante", "g"],
 ];
 
-function Detail() {
+export function Detail() {
   const { t } = useLang();
-  const { saved, done: doneId } = Route.useSearch();
+  const p = useCorePath();
+  const { saved, done: doneId } = useSearch({ strict: false }) as { saved?: "1"; done?: string };
   const [done, setDone] = useState<boolean[]>(STEPS.map(() => false));
   const [warranty, setWarranty] = useState(false);
   const { photos, pending } = usePhotos();
@@ -47,7 +49,7 @@ function Detail() {
     <section className="cx-card calm">
       <h2 className="cx-h">{t(title, es)}</h2>
       <p>{text}</p>
-      <Link to="/new" className="ap-edit">{t("Edit", "Editar")}</Link>
+      <Link to={p("/new")} className="ap-edit">{t("Edit", "Editar")}</Link>
     </section>
   );
 
@@ -56,7 +58,7 @@ function Detail() {
       {saved && (
         <div role="status" className="cx-card calm">
           <p className="font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>
-          {doneId && <Link to="/permit/draft/$id" params={{ id: doneId }} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
+          {doneId && <Link to={p("/permit/draft/$id")} params={{ id: doneId } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
         </div>
       )}
       <h1 className="cx-h1">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
@@ -119,7 +121,7 @@ function Detail() {
         {SLOTS.filter((k) => photos[k]).map((k) => (
           <div key={k} className="ph-thumb"><Image src={photos[k]!.url} alt={k} width={96} height={96} /><PendingLabel p={photos[k]!} /></div>
         ))}
-        <Link to="/new/photos" className="ap-edit">{t("Add or change photos", "Agregar o cambiar fotos")}</Link>
+        <Link to={p("/new/photos")} className="ap-edit">{t("Add or change photos", "Agregar o cambiar fotos")}</Link>
       </section>
 
       {summary("Homeowner & site", "Propietario y sitio", "4412 Alder Court, Sacramento")}

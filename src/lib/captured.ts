@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { copyPhotos, deleteJobPhotos, JOB_ID, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
+import { nsKey } from "./demo-mode";
 
 // Finished practice captures, kept in this browser (localStorage). Photos stay in the existing IndexedDB photo store:
 // each capture gets its own `job` id, so its photos live under `<captureId>:<slot>` like every other photo.
@@ -12,25 +13,28 @@ export type Captured = {
   photos: CapturedPhoto[];
 };
 export const CAPTURED_KEY = "permitdraft-captured-jobs-v1";
+const key = () => nsKey(CAPTURED_KEY);
 const DEFAULT_SHOWN: Record<string, string> = { type: "Heat pump change-out", work: "Heat-pump change-out, same pad, left side yard" };
 
 const EMPTY: Captured[] = [];
 let raw: string | null | undefined;
+let rawKey = "";
 let cache: Captured[] = EMPTY;
 const subs = new Set<() => void>();
 
 function read(): Captured[] {
   if (typeof localStorage === "undefined") return EMPTY;
+  const k = key();
   let r: string | null = null;
-  try { r = localStorage.getItem(CAPTURED_KEY); } catch { return cache; }
-  if (r === raw) return cache;
-  raw = r;
+  try { r = localStorage.getItem(k); } catch { return cache; }
+  if (r === raw && k === rawKey) return cache;
+  raw = r; rawKey = k;
   try { const p = r ? JSON.parse(r) : []; cache = Array.isArray(p) ? p : EMPTY; } catch { cache = EMPTY; }
   return cache;
 }
 function subscribe(f: () => void) {
   subs.add(f);
-  const on = (e: StorageEvent) => { if (e.key === CAPTURED_KEY) f(); };
+  const on = (e: StorageEvent) => { if (e.key === key()) f(); };
   window.addEventListener("storage", on);
   return () => { subs.delete(f); window.removeEventListener("storage", on); };
 }
@@ -54,8 +58,8 @@ export async function finishCapture(): Promise<string | null> {
     const prev = read();
     const next = JSON.stringify([rec, ...prev]);
     try {
-      localStorage.setItem(CAPTURED_KEY, next);
-      if (localStorage.getItem(CAPTURED_KEY) !== next) throw new Error("readback mismatch");
+      localStorage.setItem(key(), next);
+      if (localStorage.getItem(key()) !== next) throw new Error("readback mismatch");
     } catch (e) { await deleteJobPhotos(id); throw e; }
     read(); subs.forEach((f) => f());
     finishDraft();

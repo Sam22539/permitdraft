@@ -1,5 +1,6 @@
 import { CoreGate } from "../components/core-offer";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { useCorePath } from "../components/demo";
 import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Image } from "../image";
@@ -22,9 +23,10 @@ const SLOT_LABEL: Record<Slot, [string, string]> = {
   gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 };
 
-function Review() {
-  const { id } = Route.useParams();
+export function Review() {
+  const { id } = useParams({ strict: false }) as { id: string };
   const { t, lang } = useLang();
+  const p = useCorePath();
   const all = useCaptured();
   const [mounted, setMounted] = useState(false);
   const [urls, setUrls] = useState<Partial<Record<Slot, string>>>({});
@@ -51,7 +53,7 @@ function Review() {
       <AppPage bottom>
         <h1 className="text-3xl">{t("Review draft", "Borrador de revisión")}</h1>
         <p className="ap-muted">{mounted ? t("This captured job is not saved on this device.", "Este trabajo capturado no está guardado en este dispositivo.") : t("Loading…", "Cargando…")}</p>
-        <Link to="/jobs" className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
+        <Link to={p("/jobs")} className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
       </AppPage>
     );
   }
@@ -159,7 +161,7 @@ function Review() {
         </section>
       )}
 
-      <Link to="/jobs" className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
+      <Link to={p("/jobs")} className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
     </AppPage>
   );
 }

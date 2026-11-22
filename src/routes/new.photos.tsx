@@ -2,6 +2,7 @@ import { CoreGate } from "../components/core-offer";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { useLang } from "../lib/lang";
+import { useCorePath } from "../components/demo";
 import { usePhotos, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
 import { finishCapture } from "../lib/captured";
@@ -21,8 +22,9 @@ const SLOTS: [Slot, string, string][] = [
 
 const WIDE: [string, string] = ["Whole unit, wide shot", "Unidad completa, foto general"];
 
-function Photos() {
+export function Photos() {
   const { t } = useLang();
+  const p = useCorePath();
   useDraft(5);
   const { photos, pending, loadError } = usePhotos();
   const nav = useNavigate();
@@ -33,7 +35,7 @@ function Photos() {
     const id = await finishCapture();
     setBusy(false);
     if (!id) return setFailed(true);
-    nav({ to: "/jobs/sample-job", search: { saved: "1", done: id } });
+    nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
   }
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks">
