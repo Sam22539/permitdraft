@@ -44,6 +44,7 @@ function PilotForm() {
         <li>{t("Reviewing how job evidence supports permit drafts before filing.", "Revisar cómo la evidencia del trabajo respalda los borradores de permiso antes de presentar.")}</li>
       </ul>
       <p className="ap-muted">{t("The pilot is for trying this out. It doesn’t give automatic access, and nothing is filed for you.", "El piloto es para probar esta herramienta. No da acceso automático y no se presenta nada por usted.")}</p>
+      <p className="ap-muted">{t("Before you join, try the free PermitDraft Demo, with no sign-in needed. Then tell us in the form below which missing equipment detail sends a job back to your crew most often.", "Antes de unirse, pruebe la demo gratuita de PermitDraft, sin registrarse. Luego díganos en el formulario de abajo qué dato de equipo que falta devuelve más trabajos a su equipo.")} <Link to="/demo" className="underline font-semibold">{t("Try the free PermitDraft Demo", "Probar la demo gratuita de PermitDraft")}</Link></p>
     </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
       <h2 id="pilot-h">{t("Join the pilot", "Únase al piloto")}</h2>
