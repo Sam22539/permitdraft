@@ -45,6 +45,16 @@ export function equipFields(type: string): CapField[] {
   ];
 }
 
+/** Which unit each equipment reading was taken at, stored beside the reading as the tech chose it. Never inferred. */
+export const READING_UNIT_KEY: Record<string, string> = { sub: "sub_unit", sup: "sup_unit" };
+export const UNIT_LABEL: Record<string, L> = { indoor: ["Indoor unit", "Unidad interior"], outdoor: ["Outdoor unit", "Unidad exterior"] };
+export const UNIT_NONE: L = ["Unit not specified", "Unidad no especificada"];
+export function readingUnit(values: Record<string, string>, reading: string): L {
+  const k = READING_UNIT_KEY[reading];
+  const v = k ? values[k] : undefined;
+  return v && UNIT_LABEL[v] ? UNIT_LABEL[v] : UNIT_NONE;
+}
+
 export function activeType(c: Captured): string { return c.values.type ?? c.formDefaults.type ?? ""; }
 export function fieldSets(c: Captured): CapField[] {
   const type = activeType(c);
@@ -55,7 +65,7 @@ export const DUCT_LABEL: Record<string, L> = {
 };
 /** Captured details that belong to no field of this capture (kept as evidence). Blank strings are kept only when non-empty. */
 export function uncategorized(c: Captured): [string, string][] {
-  const known = new Set(fieldSets(c).map((f) => f.key));
+  const known = new Set([...fieldSets(c).map((f) => f.key), ...Object.values(READING_UNIT_KEY)]);
   return Object.entries(c.values).filter(([k, v]) => !known.has(k) && String(v).trim() !== "") as [string, string][];
 }
 

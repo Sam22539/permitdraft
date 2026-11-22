@@ -187,6 +187,10 @@ a.ap-job{border-left:6px solid #c2410c}
 .cx-sep{border-top:1px solid #d6dce8;padding-top:16px;display:grid;gap:16px}
 .ap-main:has(.cx-head){grid-template-columns:minmax(0,1fr)}
 @media(max-width:380px){.cx-head h1{font-size:1.9rem}}
+.cx-unit{display:grid;gap:8px;margin-top:4px}
+.cx-unit-opt{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 14px;border:1.5px solid #12264a;border-radius:12px;background:#fff;cursor:pointer;font-weight:600;color:#12264a}
+.cx-unit-opt.on{background:#eef4ff}
+.cx-unit-opt [data-slot=radio-group-item]{width:22px;height:22px;border-color:#12264a}
 .cx-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:420px){.cx-two{grid-template-columns:1fr}}
 .cx-h{font-family:var(--font-heading);font-size:1.2rem;font-weight:700;color:#12264a;margin-top:4px}
 .cx-h1{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.1}.cx-card:is(a){border-left-color:#c2410c}

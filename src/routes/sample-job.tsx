@@ -316,7 +316,7 @@ function Page() {
                     <span className="pd-label">{fl(f)}</span>
                     <span className="pd-value">{fv(f.value) || "—"}</span>
                     <span className={`pd-badge ${f.status === "NEEDED" ? "needed" : "conf"}`}>{f.status === "NEEDED" ? t("NEEDED", "NECESARIO") : t("Confirmed", "Confirmado")}</span>
-                    <span className="pd-src">{t("Source", "Fuente")}: {fs_(f.source)}</span>
+                    <span className="pd-src">{t("Source", "Fuente")}: {fs_(f.source)}{f.id === "charge" && <> · <span data-testid="sample-unit-charge">{t("Unit not specified", "Unidad no especificada")}</span></>}</span>
                   </button>
                   {f.status === "NEEDED" && (
                     <div className="pd-copy">
@@ -335,6 +335,7 @@ function Page() {
               <p className="pd-ev-value">{fv(sel.value) || t("No value yet", "Sin valor todavía")}</p>
               <p className="pd-ev-text">{fe(sel)}</p>
               <p className="pd-ev-src">{t("Source", "Fuente")}: {fs_(sel.source)}</p>
+              {sel.id === "charge" && <p className="pd-ev-src">{t("Unit not specified", "Unidad no especificada")}</p>}
               {sel.source === "Equipment photo" && photos.plate && (
                 <div className="ph-ev" data-testid="permit-plate">
                   <Image src={photos.plate.url} alt="Saved data plate photo" width={240} height={240} />

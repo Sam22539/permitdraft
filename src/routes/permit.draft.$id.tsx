@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Image } from "../image";
 import { useCaptured } from "../lib/captured";
-import { activeType, captureSummary, DUCT_LABEL, fieldSets, uncategorized } from "../lib/capture-fields";
+import { activeType, captureSummary, DUCT_LABEL, fieldSets, READING_UNIT_KEY, readingUnit, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
 import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
@@ -128,6 +128,7 @@ export function Review() {
               <li key={f.key} className="ap-chk" style={{ display: "grid", gap: ".15rem" }} data-testid={`rv-${f.key}`}>
                 <span className="ap-muted">{t(...f.label)}</span>
                 <strong>{shown || dash}</strong>
+                {READING_UNIT_KEY[f.key] && <span className="font-semibold" data-testid={`rv-unit-${f.key}`}>{t(...readingUnit(cap.values, f.key))}</span>}
                 <span className="ap-muted text-sm">{prov}</span>
               </li>
             );

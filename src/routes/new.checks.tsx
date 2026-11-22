@@ -5,6 +5,8 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
 import { useDraft } from "../lib/job-draft";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import { READING_UNIT_KEY, UNIT_LABEL } from "../lib/capture-fields";
 
 export const Route = createFileRoute("/new/checks")({
   head: () => ({ meta: [{ title: "Compliance checks — PermitDraft" }, { name: "description", content: "Step 4 of 5: readings and checks." }] }),
@@ -21,6 +23,22 @@ const ITEMS: [string, string, string][] = [
 export function Checks() {
   const { t } = useLang();
   const d = useDraft(4);
+  const unitChoice = (reading: string) => {
+    const k = READING_UNIT_KEY[reading];
+    return (
+      <div className="cx-unit">
+        <span id={`${k}-l`} className="cx-label text-sm">{t("Reading taken at", "Lectura tomada en")}</span>
+        <RadioGroup value={d.get(k)} onValueChange={(v) => d.set(k, v)} aria-labelledby={`${k}-l`} data-testid={`unit-${reading}`}>
+          {(["indoor", "outdoor"] as const).map((u) => (
+            <label key={u} className={`cx-unit-opt${d.get(k) === u ? " on" : ""}`}>
+              <RadioGroupItem value={u} data-testid={`unit-${reading}-${u}`} />
+              <span>{t(...UNIT_LABEL[u])}</span>
+            </label>
+          ))}
+        </RadioGroup>
+      </div>
+    );
+  };
   return (
     <StepShell n={4} title={["Compliance checks", "Verificaciones de cumplimiento"]} sub={["Step 4 of 5 · Readings and checks", "Paso 4 de 5 · Lecturas y verificaciones"]} back="/new/work" next="/new/photos">
       {ITEMS.map(([k, en, es]) => {
@@ -34,8 +52,8 @@ export function Checks() {
             </label>
             {k === "c2" && (
               <div className="cx-two">
-                <div className="cx-field"><Label htmlFor="sub">{t("Subcooling (optional)", "Subenfriamiento (opcional)")}</Label><Input id="sub" type="number" inputMode="decimal" value={d.get("sub")} onChange={(e) => d.set("sub", e.target.value)} /></div>
-                <div className="cx-field"><Label htmlFor="sup">{t("Superheat (optional)", "Sobrecalentamiento (opcional)")}</Label><Input id="sup" type="number" inputMode="decimal" value={d.get("sup")} onChange={(e) => d.set("sup", e.target.value)} /></div>
+                <div className="cx-field"><Label htmlFor="sub">{t("Subcooling (optional)", "Subenfriamiento (opcional)")}</Label><Input id="sub" type="number" inputMode="decimal" value={d.get("sub")} onChange={(e) => d.set("sub", e.target.value)} />{unitChoice("sub")}</div>
+                <div className="cx-field"><Label htmlFor="sup">{t("Superheat (optional)", "Sobrecalentamiento (opcional)")}</Label><Input id="sup" type="number" inputMode="decimal" value={d.get("sup")} onChange={(e) => d.set("sup", e.target.value)} />{unitChoice("sup")}</div>
               </div>
             )}
           </div>
