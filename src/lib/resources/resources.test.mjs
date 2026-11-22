@@ -2,9 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import * as R from "./data.ts";
 
-test("dataset is valid and covers 50 states + DC with every key", () => {
+test("dataset is valid and covers only the CA, AZ, TX rollout with every key", () => {
   assert.deepEqual(R.validateDataset(), []);
-  assert.equal(R.STATES.length, 51);
+  assert.deepEqual(R.STATES.map(([c]) => c), ["CA", "AZ", "TX"]);
+  assert.deepEqual(Object.keys(R.STATE_LINKS).sort(), ["AZ", "CA", "TX"]);
   for (const [c] of R.STATES) assert.equal(R.STATE_LINKS[c].length, R.STATE_KEYS.length);
 });
 test("unverified, absent and not-applicable entries are never outbound", () => {
@@ -21,21 +22,32 @@ test("unverified, absent and not-applicable entries are never outbound", () => {
 });
 test("counts separate actual coverage from selector coverage", () => {
   const c = R.completeness();
-  assert.equal(c.selectorStates, 51);
-  assert.equal(c.statesWithVerified, 3);
-  assert.equal(c.stateVerified, 5);
-  assert.equal(c.federal.verified, 1);
+  assert.equal(c.selectorStates, 3);
+  assert.equal(c.statesWithVerified, 2);
+  assert.equal(c.stateLinksTotal, 3 * R.STATE_KEYS.length);
+  assert.equal(c.stateVerified, 3);
+  assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 3);
+  assert.equal(c.federal.verified, 2);
+  assert.equal(c.federal.total, 17);
   assert.equal(c.stateVerified + c.stateNotApplicable + c.stateNotFound + c.statePending, c.stateLinksTotal);
 });
-test("Florida DBPR licensing links are verified references in their slots", () => {
-  const fl = R.STATE_LINKS.FL;
-  const agency = fl.find((l) => l.key === "lic_agency");
-  const lookup = fl.find((l) => l.key === "lic_lookup");
-  assert.equal(agency.url, "https://www2.myfloridalicense.com/construction-industry/");
-  assert.equal(lookup.url, "https://www.myfloridalicense.com/portalsearches/VerifyLicensee");
-  for (const l of [agency, lookup]) { assert.ok(R.isOutbound(l)); assert.equal(l.category, "licensing"); assert.equal(l.checked_on, "2026-11-22"); assert.match(l.agency, /Business and Professional Regulation/); }
-  assert.equal(R.outboundOnly(fl).length, 2);
-  assert.deepEqual(R.validateDataset(), []);
+test("Arizona is selectable with every entry pending; no source is assumed", () => {
+  const az = R.STATE_LINKS.AZ;
+  assert.equal(az.length, R.STATE_KEYS.length);
+  assert.equal(R.outboundOnly(az).length, 0);
+  for (const l of az) { assert.equal(l.status, "unverified"); assert.equal(l.url, null); }
+});
+test("outside-state research stays archived, never public", () => {
+  assert.equal(R.STATE_LINKS.FL, undefined);
+  assert.equal(R.isStateCode("FL"), false);
+  assert.equal(R.STATE_RECORDS.FL.length, 2);
+  assert.ok(R.ARCHIVE_STATES.some(([c]) => c === "FL"));
+  assert.ok(R.validateDataset(R.FEDERAL, { ...R.STATE_LINKS, FL: R.STATE_LINKS.CA }).length > 0);
+  assert.deepEqual(R.resourcesSearch("permit", "fl"), { stage: "permit" });
+});
+test("in-scope verified entries are kept", () => {
+  assert.equal(R.STATE_LINKS.CA.find((l) => l.key === "lic_lookup").url, "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx");
+  assert.equal(R.outboundOnly(R.STATE_LINKS.TX).length, 2);
 });
 test("deep links pass only an explicit valid state", () => {
   assert.deepEqual(R.resourcesSearch("permit"), { stage: "permit" });

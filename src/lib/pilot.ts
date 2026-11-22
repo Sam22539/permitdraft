@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"] as const;
+// Rollout: residential HVAC contractors in California, Arizona and Texas only. Rows saved earlier with other states are kept as they are.
+export const US_STATES = ["California","Arizona","Texas"] as const;
 
 type Input = { company: string; contact: string; email: string; state: string; paperworkDelay?: string };
 

@@ -84,7 +84,7 @@ function Landing() {
 
       <section className="lp-sec" aria-labelledby="lp-what">
         <h2 id="lp-what" className="lp-h2">{t("Documentation, not filing", "Documentación, no presentación")}</h2>
-        <p className="rd-cov">{t("PermitDraft helps you put the paperwork together for HVAC jobs in all 50 US states. It checks that details and photos are captured. It does not file permits, it does not yet check any law or local rule, and it never says a job is compliant. Your office reviews and signs.", "PermitDraft le ayuda a preparar el papeleo de trabajos de HVAC en los 50 estados de EE. UU. Verifica que se capturen los datos y fotos. No presenta permisos, todavía no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. Su oficina revisa y firma.")} <Link to="/coverage" className="lp-link">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
+        <p className="rd-cov">{t("PermitDraft helps residential HVAC contractors in California, Arizona and Texas put the paperwork together. It checks that details and photos are captured. It does not file permits, it does not yet check any law or local rule, and it never says a job is compliant. Your office reviews and signs.", "PermitDraft ayuda a contratistas residenciales de HVAC en California, Arizona y Texas a preparar el papeleo. Verifica que se capturen los datos y fotos. No presenta permisos, todavía no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. Su oficina revisa y firma.")} <Link to="/coverage" className="lp-link">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
       </section>
 
       <section className="lp-close" aria-labelledby="lp-end">

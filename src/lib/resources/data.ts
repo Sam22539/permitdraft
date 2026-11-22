@@ -103,7 +103,8 @@ export const STAGES: { id: Stage; en: string; es: string }[] = [
   { id: "money", en: "Money & incentives", es: "Dinero e incentivos" },
 ];
 
-export const STATES: [string, string][] = [
+// Archive: every state researched so far. Kept for the record; only ROLLOUT states are public.
+export const ARCHIVE_STATES: [string, string][] = [
   ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"],
   ["DE", "Delaware"], ["DC", "District of Columbia"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"],
   ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"],
@@ -113,6 +114,10 @@ export const STATES: [string, string][] = [
   ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"],
   ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"],
 ];
+
+/** Public rollout: residential HVAC contractors in California, Arizona and Texas only. */
+export const ROLLOUT_STATE_CODES = ["CA", "AZ", "TX"] as const;
+export const STATES: [string, string][] = ROLLOUT_STATE_CODES.map((c) => ARCHIVE_STATES.find(([code]) => code === c)!);
 
 // Records actually read and opened (curl + page fetch, 2026-11-22). Everything not listed here is pending research.
 type Rec = Partial<ResourceLink> & { key: string; status: LinkStatus };
@@ -129,6 +134,7 @@ export const FEDERAL_RECORDS: Rec[] = [
   { key: "fed_energycodes_state_portal", url: null, page_title: null, agency: "U.S. Department of Energy", source_type: "official_gov", status: "unverified", checked_on: null, volatile: false,
     notes: "energycodes.gov home opened, but its state status page returned HTTP 403 to our check, so no state-portal address is confirmed yet." },
 ];
+// Archival evidence for states outside the rollout (e.g. FL) stays here but is never shown publicly.
 export const STATE_RECORDS: Record<string, Rec[]> = {
   CA: [
     { key: "lic_lookup", url: "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx", page_title: "Check A License - CSLB", agency: "Contractors State License Board",
@@ -181,7 +187,7 @@ export function countLinks(links: ResourceLink[]): Counts {
   return c;
 }
 
-/** Selector coverage = states you can pick (all 51). Actual coverage = states with at least one verified outbound link. */
+/** Selector coverage = rollout states you can pick (CA, AZ, TX). Actual coverage = states with at least one verified outbound link. */
 export function completeness() {
   const all = STATES.map(([code]) => ({ code, c: countLinks(STATE_LINKS[code]) }));
   const sum = (f: (c: Counts) => number) => all.reduce((n, x) => n + f(x.c), 0);
@@ -209,7 +215,7 @@ export function validateDataset(fed: ResourceLink[] = FEDERAL, states: Record<st
     if (ls.length !== STATE_KEYS.length) errs.push(`${code}: expected ${STATE_KEYS.length} keys, found ${ls.length}`);
     ls.forEach((l) => check(code, l));
   }
-  if (Object.keys(states).length !== 51) errs.push("expected 50 states plus DC");
+  if (Object.keys(states).some((c) => !(ROLLOUT_STATE_CODES as readonly string[]).includes(c))) errs.push("a state outside the CA, AZ, TX rollout is public");
   return errs;
 }
 

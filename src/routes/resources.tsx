@@ -7,7 +7,7 @@ import {
 
 type Search = { state?: string; stage?: Stage; cat?: Category };
 export const Route = createFileRoute("/resources")({
-  head: () => ({ meta: [{ title: "Official resources — PermitDraft" }, { name: "description", content: "Public official links for HVAC contractors by state: licensing, codes, refrigerant, consumer rules and incentives. Only pages PermitDraft actually opened are marked verified." }] }),
+  head: () => ({ meta: [{ title: "Official resources — PermitDraft" }, { name: "description", content: "Public official links for residential HVAC contractors in California, Arizona and Texas, plus federal references. Only pages PermitDraft actually opened are marked verified." }] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     state: isStateCode(s.state) ? s.state : undefined,
     stage: STAGES.some((x) => x.id === s.stage) ? (s.stage as Stage) : undefined,
@@ -44,7 +44,7 @@ function Resources() {
   return (
     <AppPage>
       <h1 className="text-3xl">{t("Official resources", "Recursos oficiales")}</h1>
-      <p className="ap-muted">{t("Public links to official agencies for HVAC work, by state. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo de HVAC, por estado. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
+      <p className="ap-muted">{t("Public links to official agencies for residential HVAC work in California, Arizona and Texas, plus federal references. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo residencial de HVAC en California, Arizona y Texas, más referencias federales. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
 
       <section className="ap-card" aria-labelledby="rs-checklist" data-testid="resources-checklist">
@@ -88,7 +88,7 @@ function Resources() {
       <section className="ap-card" data-testid="resources-counts">
         <h2 className="ap-h2">{t("How complete is this directory?", "¿Qué tan completo está este directorio?")}</h2>
         <dl className="rs-count">
-          <dt>{t("States you can select (50 + DC)", "Estados seleccionables (50 + DC)")}</dt><dd>{c.selectorStates}</dd>
+          <dt>{t("States you can select (CA, AZ, TX)", "Estados seleccionables (CA, AZ, TX)")}</dt><dd>{c.selectorStates}</dd>
           <dt>{t("States with at least one verified link", "Estados con al menos un enlace verificado")}</dt><dd>{c.statesWithVerified}</dd>
           <dt>{t("State link types tracked", "Tipos de enlace estatal rastreados")}</dt><dd>{c.stateLinksTotal}</dd>
           <dt>{t("State links verified", "Enlaces estatales verificados")}</dt><dd>{c.stateVerified}</dd>

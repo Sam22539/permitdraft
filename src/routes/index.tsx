@@ -8,7 +8,7 @@ import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "PermitDraft — permit paperwork before you leave the driveway" }, { name: "description", content: "Add job details, take the checklist photos, review the draft and export. A documentation workflow for HVAC contractors in all 50 US states." }] }),
+  head: () => ({ meta: [{ title: "PermitDraft — permit paperwork before you leave the driveway" }, { name: "description", content: "Add job details, take the checklist photos, review the draft and export. A documentation workflow for residential HVAC contractors in California, Arizona and Texas." }] }),
   component: Start,
 });
 
@@ -36,7 +36,7 @@ function PilotForm() {
     <div className="ap-signup-col">
     <section className="ap-card" aria-labelledby="pe-h" data-testid="pilot-info">
       <h2 id="pe-h">{t("Who qualifies for the pilot", "Quién califica para el piloto")}</h2>
-      <p className="ap-muted">{t("Licensed residential HVAC contractors in any of the 50 US states with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs.", "Contratistas residenciales de HVAC con licencia en cualquiera de los 50 estados de EE. UU. y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales.")}</p>
+      <p className="ap-muted">{t("Licensed residential HVAC contractors in California, Arizona or Texas with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs.", "Contratistas residenciales de HVAC con licencia en California, Arizona o Texas y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales.")}</p>
       <h2 id="pw-h">{t("What you’ll try", "Qué probará")}</h2>
       <ul className="ap-list">
         <li>{t("Capturing job photos and notes.", "Capturar fotos y notas del trabajo.")}</li>
@@ -47,7 +47,7 @@ function PilotForm() {
     </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
       <h2 id="pilot-h">{t("Join the pilot", "Únase al piloto")}</h2>
-      <p className="ap-muted">{t("HVAC companies in any US state: tell us who you are.", "Empresas de HVAC de cualquier estado de EE. UU.: díganos quién es.")}</p>
+      <p className="ap-muted">{t("Residential HVAC companies in California, Arizona or Texas: tell us who you are.", "Empresas residenciales de HVAC en California, Arizona o Texas: díganos quién es.")}</p>
       <form onSubmit={submit} className="ap-form" noValidate>
         <div className="ap-field"><Label htmlFor="pc">{t("HVAC company name *", "Nombre de la empresa de HVAC *")}</Label><Input id="pc" name="company" value={f.company} onChange={set("company")} maxLength={150} autoComplete="organization" /></div>
         <div className="ap-field"><Label htmlFor="pn">{t("Contact name *", "Nombre de contacto *")}</Label><Input id="pn" name="contact" value={f.contact} onChange={set("contact")} maxLength={100} autoComplete="name" /></div>
@@ -89,7 +89,7 @@ function Start() {
           <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
         ))}
       </ol>
-      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to HVAC contractors in all 50 US states. PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant.", "Cobertura honesta: el flujo de documentación está abierto a contratistas de HVAC en los 50 estados de EE. UU. PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple.")}</p>
+      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to residential HVAC contractors in California, Arizona and Texas only. PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant.", "Cobertura honesta: el flujo de documentación está abierto solo a contratistas residenciales de HVAC en California, Arizona y Texas. PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple.")}</p>
       <Link to="/demo" className="ap-btn primary" data-testid="try-demo">{t("Try the free demo", "Probar la demo gratis")}</Link>
       <a href="#core-offer" className="ap-core-jump" data-testid="see-core-pricing">{t("See Core pricing", "Ver precio de Core")}</a>
       <Link to="/sample-job" className="ap-btn ghost">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link>
