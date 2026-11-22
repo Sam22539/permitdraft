@@ -17,8 +17,8 @@ export function FilingHandoff() {
     <section id="filing-handoff" className="ap-card fh" aria-labelledby="fh-h" data-testid="filing-handoff">
       <h2 id="fh-h" className="ap-h2">{t("Official HVAC filing handoff", "Entrega para presentar el permiso de HVAC")}</h2>
       <p className="ap-muted">{t(
-        "For the initial shortlist of nine permitting authorities below. PermitDraft does not file permits, does not check local rules and sends nothing: you file through the authority's own channel.",
-        "Para la lista inicial de nueve autoridades de permisos de abajo. PermitDraft no presenta permisos, no verifica reglas locales y no envía nada: usted presenta por el canal propio de la autoridad.",
+        "For the initial shortlist of ten permitting authorities below. PermitDraft does not file permits, does not check local rules and sends nothing: you file through the authority's own channel.",
+        "Para la lista inicial de diez autoridades de permisos de abajo. PermitDraft no presenta permisos, no verifica reglas locales y no envía nada: usted presenta por el canal propio de la autoridad.",
       )}</p>
 
       <h3 className="fh-step">{t("1. Check the exact address and its authority", "1. Verifique la dirección exacta y su autoridad")}</h3>
@@ -61,7 +61,19 @@ export function FilingHandoff() {
       ) : (
         <div className="fh-out" data-testid="fh-out">
           <span className="rs-badge" data-testid="fh-kind">{t(...KIND_LABEL[a.kind])}</span>
-          <p className="ap-muted">{t(`${name}:`, `${name}:`)} <a href={a.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{a.pageTitle}</a></p>
+          {a.links ? (
+            <>
+              <p className="ap-muted">{name}:</p>
+              <ul className="rs-list" data-testid="fh-links">
+                {a.links.map((l) => <li key={l.url}><a href={l.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{t(...l.label)}</a></li>)}
+              </ul>
+              <ul className="rs-list" data-testid="fh-scope">
+                {a.scope?.map((x) => <li key={x[0]} className="ap-muted">{t(...x)}</li>)}
+              </ul>
+            </>
+          ) : (
+            <p className="ap-muted">{t(`${name}:`, `${name}:`)} <a href={a.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{a.pageTitle}</a></p>
+          )}
           <p className="ap-muted">{t(
             `Opens the official page in a new tab (opened ${HANDOFF_CHECKED_ON}). Nothing about the job or customer is sent, and opening it does not file anything. Follow that authority's instructions for how and where to file.`,
             `Abre la página oficial en una pestaña nueva (abierta el ${HANDOFF_CHECKED_ON}). No se envía nada del trabajo ni del cliente, y abrirla no presenta nada. Siga las instrucciones de esa autoridad sobre cómo y dónde presentar.`,

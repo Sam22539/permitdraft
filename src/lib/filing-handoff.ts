@@ -14,12 +14,26 @@ export type Authority = {
   kind: HandoffKind;
   pageTitle: string;
   url: string;
+  /** Extra official links shown after the address is confirmed (this authority only). */
+  links?: { label: [string, string]; url: string }[];
+  /** Scope notes shown with the links. */
+  scope?: [string, string][];
 };
 
 export const HANDOFF_CHECKED_ON = "2026-11-22";
 
 export const AUTHORITIES: Authority[] = [
   { id: "sacramento-county", state: "CA", name: ["Sacramento County", "Condado de Sacramento"], area: "county", kind: "guidance", pageTitle: "Building permits & inspection: Frequently Asked Questions", url: "https://development.saccounty.gov/us/en/building-permits-inspection/frequently-asked-questions.html" },
+  { id: "sacramento-city", state: "CA", name: ["City of Sacramento", "Ciudad de Sacramento"], area: "city", kind: "guidance", pageTitle: "Minor Permits | City of Sacramento", url: "https://www.cityofsacramento.gov/community-development/building/permit-services/minor-permits",
+    links: [
+      { label: ["City of Sacramento Minor Permits (HVAC guidance)", "Permisos menores de la Ciudad de Sacramento (orientación de HVAC)"], url: "https://www.cityofsacramento.gov/community-development/building/permit-services/minor-permits" },
+      { label: ["City of Sacramento Public Permit Portal (apply online)", "Portal público de permisos de la Ciudad de Sacramento (solicitar en línea)"], url: "https://aca-prod.accela.com/sacramento/Default.aspx" },
+    ],
+    scope: [
+      ["City limits only: these links apply to addresses inside the City of Sacramento, not to unincorporated Sacramento County.", "Solo dentro de los límites de la ciudad: estos enlaces aplican a direcciones dentro de la Ciudad de Sacramento, no al condado de Sacramento no incorporado."],
+      ["Residential HVAC for one- and two-family dwellings only.", "Solo HVAC residencial para viviendas de una y dos familias."],
+      ["California licensed contractors must register to obtain permits online.", "Los contratistas con licencia de California deben registrarse para obtener permisos en línea."],
+    ] },
   { id: "el-dorado-county", state: "CA", name: ["El Dorado County", "Condado de El Dorado"], area: "county", kind: "guidance", pageTitle: "Building Division - El Dorado County", url: "https://www.eldoradocounty.ca.gov/Land-Use/Planning-and-Building/Building-Division" },
   { id: "los-angeles-county", state: "CA", name: ["Los Angeles County", "Condado de Los Ángeles"], area: "county", kind: "permit_center", pageTitle: "Permits Overview - LA County Public Works Permits", url: "https://permits.lacounty.gov/" },
   { id: "houston", state: "TX", name: ["City of Houston", "Ciudad de Houston"], area: "city", kind: "guidance", pageTitle: "Mechanical Inspections | Houston Permitting Center", url: "https://www.houstonpermittingcenter.org/building-code-enforcement/mechanical-inspections" },
