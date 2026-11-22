@@ -1,4 +1,4 @@
-import { CoreGate } from "../components/core-offer";
+import { CoreGate, daysLeft, useCoreTrial } from "../components/core-offer";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
@@ -32,6 +32,7 @@ const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["M
 
 function Jobs() {
   const { t, lang } = useLang();
+  const trial = useCoreTrial();
   const insp = useInsp();
   const resume = useResumeStep();
   const { pending } = usePhotos();
@@ -57,7 +58,9 @@ function Jobs() {
           <h1>{t("Jobs", "Trabajos")}</h1>
           <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
         </div>
-        <p className="jb-trial">{t("14 days left in your free trial · See plan", "Quedan 14 días de su prueba gratis · Ver plan")}</p>
+        {trial.state === "active" && (() => { const d = daysLeft(trial.expiresAt); return (
+          <p className="jb-trial" data-testid="trial-banner">{t(`${d} ${d === 1 ? "day" : "days"} left in your free trial`, `Quedan ${d} ${d === 1 ? "día" : "días"} de su prueba gratis`)} · <Link to="/" hash="core-offer" className="underline font-semibold">{t("See plan", "Ver plan")}</Link></p>
+        ); })()}
       </header>
       {resume > 0 && (
         <Link to={STEP_PATHS[resume - 1]} className="ap-btn primary" data-testid="resume-job">
