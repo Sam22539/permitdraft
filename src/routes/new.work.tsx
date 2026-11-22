@@ -22,7 +22,7 @@ export function Work() {
       <div className="cx-field"><Label htmlFor="wk">{t("Work performed", "Trabajo realizado")}</Label>
         <Textarea id="wk" rows={4} className="text-lg bg-white" value={d.get("work")} onChange={(e) => d.set("work", e.target.value)} /></div>
       <Dictation notes={d.get("work")} onSave={(v) => d.set("work", v)} />
-      <div className="cx-field"><Label htmlFor="pa">{t("Panel size amps * (needed for paperwork)", "Amperios del panel * (necesario para el papeleo)")}</Label>
+      <div className="cx-field"><Label htmlFor="pa">{t("Panel size amps * (needed for paperwork). Add the panel's available capacity and a clear photo of its label.", "Amperios del panel * (necesario para el papeleo). Agregue la capacidad disponible del panel y una foto clara de su etiqueta.")}</Label>
         <Input id="pa" type="number" inputMode="numeric" min={0} value={d.get("panel")} onChange={(e) => d.set("panel", e.target.value)} />
         {!d.get("panel") && <strong className="cx-need">{needed}</strong>}</div>
       <div className="cx-field"><Label htmlFor="ds">{t("Duct sealing answer *", "Respuesta de sellado de ductos *")}</Label>
