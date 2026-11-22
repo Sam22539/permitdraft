@@ -32,6 +32,18 @@ function PilotForm() {
       </section>
     );
   return (
+    <>
+    <section className="ap-card" aria-labelledby="pe-h" data-testid="pilot-info">
+      <h2 id="pe-h">{t("Who qualifies for the pilot", "Quién califica para el piloto")}</h2>
+      <p className="ap-muted">{t("California-licensed C-20 residential HVAC contractors with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs in Sacramento or San Diego County.", "Contratistas residenciales de HVAC con licencia C-20 de California y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales en los condados de Sacramento o San Diego.")}</p>
+      <h2 id="pw-h">{t("What you’ll try", "Qué probará")}</h2>
+      <ul className="ap-list">
+        <li>{t("Capturing job photos and notes.", "Capturar fotos y notas del trabajo.")}</li>
+        <li>{t("Spotting missing paperwork details.", "Detectar detalles faltantes en el papeleo.")}</li>
+        <li>{t("Reviewing how job evidence supports permit and Title 24 drafts before filing.", "Revisar cómo la evidencia del trabajo respalda los borradores de permiso y Title 24 antes de presentar.")}</li>
+      </ul>
+      <p className="ap-muted">{t("The pilot is for trying this out. It doesn’t give automatic access, and nothing is filed for you.", "El piloto es para probar esta herramienta. No da acceso automático y no se presenta nada por usted.")}</p>
+    </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
       <h2 id="pilot-h">{t("Join the pilot", "Únase al piloto")}</h2>
       <p className="ap-muted">{t("Sacramento and San Diego HVAC companies: tell us who you are.", "Empresas de HVAC de Sacramento y San Diego: díganos quién es.")}</p>
@@ -54,6 +66,7 @@ function PilotForm() {
         </button>
       </form>
     </section>
+    </>
   );
 }
 
