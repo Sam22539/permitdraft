@@ -23,19 +23,20 @@ test("unverified, absent and not-applicable entries are never outbound", () => {
 test("counts separate actual coverage from selector coverage", () => {
   const c = R.completeness();
   assert.equal(c.selectorStates, 3);
-  assert.equal(c.statesWithVerified, 2);
+  assert.equal(c.statesWithVerified, 3);
   assert.equal(c.stateLinksTotal, 3 * R.STATE_KEYS.length);
-  assert.equal(c.stateVerified, 3);
-  assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 3);
+  assert.equal(c.stateVerified, 4);
+  assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 4);
   assert.equal(c.federal.verified, 2);
   assert.equal(c.federal.total, 17);
   assert.equal(c.stateVerified + c.stateNotApplicable + c.stateNotFound + c.statePending, c.stateLinksTotal);
 });
-test("Arizona is selectable with every entry pending; no source is assumed", () => {
+test("Arizona is selectable; only its licensing link is verified", () => {
   const az = R.STATE_LINKS.AZ;
   assert.equal(az.length, R.STATE_KEYS.length);
-  assert.equal(R.outboundOnly(az).length, 0);
-  for (const l of az) { assert.equal(l.status, "unverified"); assert.equal(l.url, null); }
+  assert.equal(R.outboundOnly(az).length, 1);
+  assert.equal(R.outboundOnly(az)[0].key, "lic_agency");
+  for (const l of az.filter((x) => x.key !== "lic_agency")) { assert.equal(l.status, "unverified"); assert.equal(l.url, null); }
 });
 test("outside-state research stays archived, never public", () => {
   assert.equal(R.STATE_LINKS.FL, undefined);

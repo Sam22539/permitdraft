@@ -136,6 +136,10 @@ export const FEDERAL_RECORDS: Rec[] = [
 ];
 // Archival evidence for states outside the rollout (e.g. FL) stays here but is never shown publicly.
 export const STATE_RECORDS: Record<string, Rec[]> = {
+  AZ: [
+    { key: "lic_agency", url: "https://roc.az.gov/", page_title: "Home | Arizona Registrar of Contractors", agency: "Arizona Registrar of Contractors",
+      source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened on 2026-11-22; the homepage loads and offers license search, applying and complaints. Office at 1700 W. Washington St., Phoenix." },
+  ],
   CA: [
     { key: "lic_lookup", url: "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx", page_title: "Check A License - CSLB", agency: "Contractors State License Board",
       source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; HTTP 200, no redirect." },
