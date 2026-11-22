@@ -19,10 +19,19 @@ const COLOR: Record<State, string> = { overdue: "#b91c1c", due: "#c2410c", upcom
 const JURIS: [Juris, string, string][] = [
   ["", "Not confirmed", "Sin confirmar"],
   ["county", "Unincorporated San Diego County", "Condado de San Diego no incorporado"],
-  ["city", "City of San Diego", "Ciudad de San Diego"],
-  ["sacramento", "Sacramento", "Sacramento"],
+  ["sandiego-city", "City of San Diego", "Ciudad de San Diego"],
+  ["sacramento-city", "City of Sacramento", "Ciudad de Sacramento"],
+  ["city", "City (not specific, saved earlier)", "Ciudad (no específica, guardada antes)"],
+  ["sacramento", "Sacramento (not specific, saved earlier)", "Sacramento (no específica, guardada antes)"],
   ["unknown", "Unknown", "Desconocida"],
 ];
+
+const OFFICE: Partial<Record<Juris, string>> = {
+  county: "https://www.sandiegocounty.gov/content/sdc/pds/pdsonlineservices.html/",
+  "sandiego-city": "https://www.sandiego.gov/development-services/permits/mechanical-permit",
+  "sacramento-city": "https://www.cityofsacramento.gov/community-development/building/permit-services/minor-permits",
+};
+const isCity = (j: Juris) => j === "city" || j === "sacramento" || j === "sandiego-city" || j === "sacramento-city";
 
 export function InspectionTimeline() {
   const { t, lang } = useLang();
@@ -49,8 +58,15 @@ export function InspectionTimeline() {
         <div className="grid gap-1">
           <label htmlFor="insp-juris" className="font-semibold">{t("Jurisdiction (office confirms)", "Jurisdicción (la oficina confirma)")}</label>
           <select id="insp-juris" value={v.juris} onChange={(e) => setInsp({ juris: e.target.value as Juris })} className="h-12 rounded-md border border-input bg-white px-3 text-base">
-            {JURIS.map(([k, en, es]) => <option key={k} value={k}>{t(en, es)}</option>)}
+            {JURIS.filter(([k]) => (k !== "city" && k !== "sacramento") || k === v.juris).map(([k, en, es]) => <option key={k} value={k}>{t(en, es)}</option>)}
           </select>
+          {v.juris && OFFICE[v.juris] ? (
+            <p className="text-sm" data-testid="office-link">
+              <a href={OFFICE[v.juris]} target="_blank" rel="noopener noreferrer" className="underline font-semibold">{t("Official permit office", "Oficina oficial de permisos")}</a>
+            </p>
+          ) : v.juris ? (
+            <p className="ap-next text-sm" role="status" data-testid="office-followup">{t("OFFICE TO CONFIRM: exact permit office. No link shown.", "LA OFICINA DEBE CONFIRMAR: la oficina de permisos exacta. No se muestra enlace.")}</p>
+          ) : null}
         </div>
         {field("insp-issue", "Permit issue date", "Fecha de emisión del permiso", "issue")}
         {field("insp-last", "Last passed inspection", "Última inspección aprobada", "lastPassed")}
@@ -63,7 +79,7 @@ export function InspectionTimeline() {
 
       {!v.juris && <p className="ap-next" role="status">{t("NEEDED: confirm jurisdiction. No dates are calculated until the office confirms it.", "FALTA: confirme la jurisdicción. No se calculan fechas hasta que la oficina la confirme.")}</p>}
       {v.juris === "unknown" && <p className="ap-next" role="status">{t("OFFICE TO CONFIRM: jurisdiction unknown. No county dates shown.", "LA OFICINA DEBE CONFIRMAR: jurisdicción desconocida. No se muestran fechas del condado.")}</p>}
-      {(v.juris === "city" || v.juris === "sacramento") && <p className="ap-next" role="status">{t("County PDS 807 dates do not apply to a city address. OFFICE TO CONFIRM the city's own rule. No county dates shown.", "Las fechas del condado (PDS 807) no aplican a una dirección en la ciudad. LA OFICINA DEBE CONFIRMAR la regla de la ciudad. No se muestran fechas del condado.")}</p>}
+      {isCity(v.juris) && <p className="ap-next" role="status">{t("County PDS 807 dates do not apply to a city address. OFFICE TO CONFIRM the city's own rule. No county dates shown.", "Las fechas del condado (PDS 807) no aplican a una dirección en la ciudad. LA OFICINA DEBE CONFIRMAR la regla de la ciudad. No se muestran fechas del condado.")}</p>}
       {v.juris === "county" && !v.issue && <p className="ap-next" role="status">{t("NEEDED: enter the permit issue date.", "FALTA: ingrese la fecha de emisión del permiso.")}</p>}
 
       {v.juris === "county" && (

@@ -3,7 +3,7 @@ import { useSyncExternalStore } from "react";
 export const RULE_SOURCE = "PDS 807 Part 2";
 export const RULE_CHECKED = "2026-11-22";
 
-export type Juris = "" | "county" | "city" | "sacramento" | "unknown";
+export type Juris = "" | "county" | "city" | "sacramento" | "sandiego-city" | "sacramento-city" | "unknown";
 export type Insp = {
   juris: Juris; issue: string; lastPassed: string; next: string; gapConfirmed: boolean;
   renewExpiry: string; renewSource: string; renewChecked: string;
