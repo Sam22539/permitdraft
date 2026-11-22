@@ -10,6 +10,8 @@ import "../permit.css";
 import { usePhotos } from "../lib/photos";
 import { useInsp } from "../lib/inspection";
 import { useLang } from "../lib/lang";
+import { CopyRequest } from "../components/copy-request";
+import { copyRequest } from "../lib/copy-requests";
 
 const BUNDLE = "https://www.cityofsacramento.gov/community-development/building/building-forms/minor-permit-application-form-bundles";
 const FORM_NOTE_ES: Record<string, string> = {
@@ -316,6 +318,11 @@ function Page() {
                     <span className={`pd-badge ${f.status === "NEEDED" ? "needed" : "conf"}`}>{f.status === "NEEDED" ? t("NEEDED", "NECESARIO") : t("Confirmed", "Confirmado")}</span>
                     <span className="pd-src">{t("Source", "Fuente")}: {fs_(f.source)}</span>
                   </button>
+                  {f.status === "NEEDED" && (
+                    <div className="pd-copy">
+                      <CopyRequest text={copyRequest(f.id, [f.label, ES_LABEL[f.id] ?? f.label], ["Job #HP-1187, heat-pump change-out", "Trabajo #HP-1187, cambio de bomba de calor"], !!f.conflict)} field={fl(f)} testId={`copy-${f.id}`} />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

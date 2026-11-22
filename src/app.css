@@ -201,3 +201,9 @@ a.ap-job{border-left:6px solid #c2410c}
 .ap-core-jump:focus-visible{outline:3px solid #c2410c;outline-offset:2px;border-radius:.375rem}
 #core-offer{scroll-margin-top:116px}
 @media (min-width:900px){.ap-core-jump{display:none}}
+/* Copy request: a NEEDED field's plain-text follow-up for the office to paste by hand */
+.cr-wrap{display:grid;gap:.35rem;justify-items:start}
+.cr-btn{min-height:44px;padding:0 1rem}
+.cr-status{font-size:.95rem;color:#12264a;font-weight:600}
+.cr-status:empty{display:none}
+.cr-fallback{display:grid;gap:.35rem;width:100%}

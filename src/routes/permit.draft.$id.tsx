@@ -10,6 +10,8 @@ import { useLang } from "../lib/lang";
 import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
+import { CopyRequest } from "../components/copy-request";
+import { copyRequest } from "../lib/copy-requests";
 
 export const Route = createFileRoute("/permit/draft/$id")({
   head: () => ({ meta: [{ title: "Review draft — PermitDraft" }, { name: "description", content: "Review draft built from what was captured on the job, each value with where it came from." }] }),
@@ -69,6 +71,12 @@ export function Review() {
     return unit ? `${unit} · ${kind}` : `${t("Unit not specified", "Unidad no especificada")} · ${kind}`;
   };
   const dash = t("Not captured", "No capturado");
+  const fieldLabel = (r: { evidence: string; text: readonly [string, string] }): [string, string] => {
+    const key = r.evidence.startsWith("field:") ? r.evidence.slice(6) : "";
+    const f = key ? fieldSets(cap).find((x) => x.key === key) : undefined;
+    return f ? f.label : [r.text[0], r.text[1]];
+  };
+  const jobCtx: [string, string] = ev.workflow ? [ev.workflow.name[0], ev.workflow.name[1]] : ["", ""];
 
   return (
     <AppPage bottom>
@@ -90,6 +98,7 @@ export function Review() {
           <div key={r.ruleId} className="rd-item" data-testid={`check-${r.ruleId}`}>
             <strong>{t(...r.text)} · {r.status === "met" ? t("Captured", "Capturado") : t("NEEDED", "NECESARIO")}</strong>
             {r.status === "missing" && <span className="ap-next">{t(...r.todo)}</span>}
+            {r.status === "missing" && <CopyRequest text={copyRequest(r.ruleId.replace(/^app-doc-/, ""), fieldLabel(r), jobCtx)} field={t(...fieldLabel(r))} testId={`copy-${r.ruleId}`} />}
             <WhyDetails r={r} />
           </div>
         ))}
