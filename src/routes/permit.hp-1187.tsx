@@ -8,6 +8,15 @@ import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import "../permit.css";
 import { usePhotos } from "../lib/photos";
+import { useInsp } from "../lib/inspection";
+
+const BUNDLE = "https://www.cityofsacramento.gov/community-development/building/building-forms/minor-permit-application-form-bundles";
+const FORMS = [
+  { code: "CDD-0200", name: "Building Permit Application", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0200_Application-for-Building-Permit_Part-I.pdf", note: "Project address and scope. The address is in the job header above; this draft has no address or scope field." },
+  { code: "CDD-0184", name: "Smoke/Carbon Monoxide Detector Installation Guidelines and Owner Certification of Compliance", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0184_Smoke-and-Carbon-Monoxide-Detector-Installation-Guidelines-Owner-Cert-of-Compliance.pdf", note: "Owner signs if used when the inspector has not obtained normal interior access. This draft has no smoke/CO field." },
+  { code: "CDD-0035", name: "Planning Exemption Form - Express", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Planning/planning-forms/CDD-0035_Planning-Exemption-Form-Express.pdf", note: "Like-for-like replacement; non-historic property per the city bundle. Relates to the Outdoor unit location field. Property status is not recorded in this draft, so this is a conditional reference." },
+  { code: "CDD-0031", name: "HVAC/Electrical/Solar Equipment for Historic Properties", url: "https://www.cityofsacramento.gov/content/dam/portal/cdd/Planning/planning-forms/CDD-0031-Exemption-HVAC-Equipment-Historic-Properties.pdf", note: "Historic properties only. Relates to the Outdoor unit location field. Property status is not recorded in this draft, so this is a conditional reference; neither form is picked." },
+];
 
 export const Route = createFileRoute("/permit/hp-1187")({
   head: () => ({ meta: [{ title: "Heat-pump change-out permit draft" }, { name: "description", content: "Heat-pump change-out permit draft for Job #HP-1187 with every value traced to its source." }] }),
@@ -71,6 +80,8 @@ function Page() {
   const [loaded, setLoaded] = useState(false);
   const [pid, setPid] = useState("");
   const { photos } = usePhotos();
+  const insp = useInsp();
+  const isSac = insp.juris === "sacramento-city";
 
   useEffect(() => {
     try {
@@ -295,6 +306,9 @@ function Page() {
                   <p className="pd-ev-text">Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.</p>
                 </div>
               )}
+              {isSac && sel.id === "location" && (
+                <p className="pd-ev-text" data-testid="loc-forms">City of Sacramento forms that may relate (conditional on property status): <a className="underline font-semibold" href={FORMS[2].url} target="_blank" rel="noopener noreferrer">Planning Exemption Form - Express – CDD-0035</a> or <a className="underline font-semibold" href={FORMS[3].url} target="_blank" rel="noopener noreferrer">HVAC/Electrical/Solar Equipment for Historic Properties – CDD-0031</a>.</p>
+              )}
               {sel.conflict && (
                 <div className="pd-conflict" role="alert">
                   <p className="pd-ev-label">Conflict: resolve before Ready</p>
@@ -366,6 +380,22 @@ function Page() {
             )}
           </aside>
         </div>
+
+        {isSac && (
+          <section className="pd-card" aria-labelledby="sacf" data-testid="sac-forms">
+            <h2 id="sacf">City of Sacramento forms</h2>
+            <p className="pd-ev-text">Reference only. Nothing is submitted or filled in from this draft. See the <a className="underline font-semibold" href={BUNDLE} target="_blank" rel="noopener noreferrer">city's Minor Permit Application Form Bundles</a>.</p>
+            <ul className="pd-fu-list">
+              {FORMS.map((f) => (
+                <li key={f.code}>
+                  <p><a className="underline font-semibold" href={f.url} target="_blank" rel="noopener noreferrer">{f.name} – {f.code}</a></p>
+                  <p className="pd-ev-text">{f.note}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="pd-ev-text">The city lists the CF1R Residential HVAC Form as obtained from a third party; no code cycle is selected here.</p>
+          </section>
+        )}
       </main>
 
       <footer className="pd-foot">
