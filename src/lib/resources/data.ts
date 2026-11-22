@@ -128,6 +128,14 @@ export const STATE_RECORDS: Record<string, Rec[]> = {
     { key: "lic_lookup", url: "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx", page_title: "Check A License - CSLB", agency: "Contractors State License Board",
       source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; HTTP 200, no redirect." },
   ],
+  FL: [
+    { key: "lic_agency", url: "https://www2.myfloridalicense.com/construction-industry/", page_title: "Construction Industry – MyFloridaLicense.com",
+      agency: "Florida Department of Business and Professional Regulation (Construction Industry Licensing Board)", source_type: "official_gov", status: "verified", checked_on: D, volatile: false,
+      notes: "Opened; HTTP 200, no redirect. Page describes the air-conditioning contractor (Class A, B, C) and mechanical contractor licenses." },
+    { key: "lic_lookup", url: "https://www.myfloridalicense.com/portalsearches/VerifyLicensee", page_title: "Licensee Search Options – DBPR Online Services",
+      agency: "Florida Department of Business and Professional Regulation", source_type: "official_gov", status: "verified", checked_on: D, volatile: false,
+      notes: "Followed the 'Verify a License' button on www2.myfloridalicense.com; destination opened with HTTP 200, no redirect, and shows search by name, license number, city/county and license type. The page's HTML title is blank, so its visible heading is recorded." },
+  ],
   TX: [
     { key: "lic_agency", url: "https://www.tdlr.texas.gov/acr/", page_title: "Air Conditioning and Refrigeration Contractors Homepage", agency: "Texas Department of Licensing and Regulation",
       source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; the older /acr/acr.htm address redirected here." },
