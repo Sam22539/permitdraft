@@ -6,6 +6,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import "../styles.css";
+import { LangProvider } from "../lib/lang";
 
 // Link previews read the Open Graph and X tags below; og:title and og:description repeat the page's own title and description.
 const title = "PermitDraft — traceable permit drafts for HVAC offices";
@@ -48,7 +49,7 @@ function WebsiteDocument() {
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <LangProvider><Outlet /></LangProvider>
         <Scripts />
       </body>
     </html>
