@@ -47,7 +47,7 @@ function PilotForm() {
       <p className="ap-muted">{t("Before you join, try the free PermitDraft Demo, with no sign-in needed. Then tell us in the form below which missing equipment detail sends a job back to your crew most often.", "Antes de unirse, pruebe la demo gratuita de PermitDraft, sin registrarse. Luego díganos en el formulario de abajo qué dato de equipo que falta devuelve más trabajos a su equipo.")} <Link to="/demo" className="underline font-semibold">{t("Try the free PermitDraft Demo", "Probar la demo gratuita de PermitDraft")}</Link></p>
     </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
-      <h2 id="pilot-h">{t("Join the pilot", "Únase al piloto")}</h2>
+      <h2 id="pilot-h">{t("Get Early Access", "Obtenga acceso anticipado")}</h2>
       <p className="ap-muted">{t("Residential HVAC companies in California, Arizona or Texas: tell us who you are.", "Empresas residenciales de HVAC en California, Arizona o Texas: díganos quién es.")}</p>
       <form onSubmit={submit} className="ap-form" noValidate>
         <div className="ap-field"><Label htmlFor="pc">{t("HVAC company name *", "Nombre de la empresa de HVAC *")}</Label><Input id="pc" name="company" value={f.company} onChange={set("company")} maxLength={150} autoComplete="organization" /></div>
@@ -64,7 +64,7 @@ function PilotForm() {
         {state === "invalid" && <p role="alert" className="ap-muted">{t("Please fill in every field with a valid email.", "Complete todos los campos con un correo válido.")}</p>}
         {state === "fail" && <p role="alert" className="ap-muted">{t("Something went wrong and nothing was saved. Please try again.", "Algo salió mal y no se guardó nada. Inténtelo de nuevo.")}</p>}
         <button type="submit" className="ap-btn primary" disabled={!ready || state === "busy"}>
-          {state === "busy" ? t("Sending…", "Enviando…") : state === "fail" ? t("Try again", "Reintentar") : t("Join the pilot", "Unirme al piloto")}
+          {state === "busy" ? t("Sending…", "Enviando…") : state === "fail" ? t("Try again", "Reintentar") : t("Get Early Access", "Obtener acceso anticipado")}
         </button>
       </form>
     </section>
