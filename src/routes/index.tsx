@@ -74,7 +74,7 @@ function Start() {
           <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
         ))}
       </ol>
-      <Link to="/jobs" className="ap-btn primary">{t("Start 14-day free trial", "Comenzar prueba gratis de 14 días")}</Link>
+      <Link to="/jobs" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
       <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
       <PilotForm />
     </AppPage>
