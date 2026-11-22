@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
 import { useLang } from "../lib/lang";
+import { FilingHandoff } from "../components/filing-handoff";
 import {
   CATEGORIES, DATASET_VERSION, FEDERAL, GENERATED_ON, STAGES, STATES, STATE_LINKS, completeness, isOutbound, isStateCode, type Category, type ResourceLink, type Stage,
 } from "../lib/resources/data";
@@ -52,6 +53,8 @@ function Resources() {
         <p className="ap-muted">{t("The photos, readings and office checks a residential heat pump permit draft needs. Free, no sign-in.", "Las fotos, lecturas y revisiones de oficina que necesita un borrador de permiso de bomba de calor residencial. Gratis, sin iniciar sesión.")}</p>
         <Link to="/heat-pump-paperwork-checklist" className="ap-btn ghost" data-testid="rs-open-checklist">{t("Open the checklist", "Abrir la lista")}</Link>
       </section>
+
+      <FilingHandoff />
 
       <section className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>
         <label htmlFor="rs-state" className="font-semibold">{t("State", "Estado")}</label>

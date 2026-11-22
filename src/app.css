@@ -288,3 +288,11 @@ a.ap-job{border-left:6px solid #c2410c}
 .cr-actions .ap-btn{min-height:48px;font-size:1rem;width:auto;flex:1 1 12rem}
 @media (min-width:640px){.cr-actions .ap-btn{flex:0 1 auto}}
 .cr-list{display:grid;gap:.5rem}
+/* Official filing handoff (Resources) */
+.fh-step{font-size:1.05rem;font-weight:700;color:#12264a;margin-top:1rem}
+.fh-groups{display:grid;gap:.9rem}
+.fh-group{display:grid;gap:.1rem}
+.fh-option{display:flex;align-items:center;gap:.75rem;min-height:48px;font-weight:500;font-size:1rem;line-height:1.4;color:#12264a;cursor:pointer}
+.fh-option button[role="radio"],.fh-option button[role="checkbox"]{width:1.4rem;height:1.4rem;border:2px solid #12264a;background:#fff}
+.fh-option button[role="checkbox"][data-state="checked"]{background:#12264a;color:#fff}
+.fh-out{display:grid;gap:.3rem}
