@@ -4,7 +4,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { joinPilot, US_STATES } from "../lib/pilot";
 import { AppPage } from "../components/app-shell";
-import { BuyButton, ManageSubscriptionButton } from "../lib/payments/buy";
+import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/")({
@@ -27,13 +27,13 @@ function PilotForm() {
   };
   if (state === "done")
     return (
-      <section className="ap-card" id="pilot" data-testid="pilot-done" role="status">
+      <div className="ap-signup-col"><section className="ap-card" id="pilot" data-testid="pilot-done" role="status">
         <h2>{t("Thanks — we got your interest.", "Gracias: recibimos su interés.")}</h2>
         <p className="ap-muted">{t("We'll email you at", "Le escribiremos a")} {f.email} {t("about the pilot.", "sobre el piloto.")}</p>
-      </section>
+      </section></div>
     );
   return (
-    <div className="ap-signup">
+    <div className="ap-signup-col">
     <section className="ap-card" aria-labelledby="pe-h" data-testid="pilot-info">
       <h2 id="pe-h">{t("Who qualifies for the pilot", "Quién califica para el piloto")}</h2>
       <p className="ap-muted">{t("Licensed residential HVAC contractors in any of the 50 US states with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs.", "Contratistas residenciales de HVAC con licencia en cualquiera de los 50 estados de EE. UU. y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales.")}</p>
@@ -91,16 +91,7 @@ function Start() {
       <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to HVAC contractors in all 50 US states. PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant.", "Cobertura honesta: el flujo de documentación está abierto a contratistas de HVAC en los 50 estados de EE. UU. PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple.")}</p>
       <Link to="/permit/hp-1187" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
       <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
-      <PilotForm />
-      <section className="ap-card ap-subscribe" aria-labelledby="sub-h" data-testid="subscribe">
-        <h2 id="sub-h">PermitDraft Core</h2>
-        <p><strong>{t("US$49/month", "US$49/mes")}</strong> · {t("renews monthly", "se renueva mensualmente")}</p>
-        <p className="ap-muted">{t("Paid access to the PermitDraft documentation workflow. It does not verify permit rules and does not file anything for you.", "Acceso de pago al flujo de documentación de PermitDraft. No verifica reglas de permisos ni presenta nada por usted.")}</p>
-        <div className="ap-subscribe-actions">
-          <BuyButton priceHandle="permitdraft_core_4900_usd_monthly" className="ap-btn primary">{t("Subscribe to PermitDraft Core", "Suscribirse a PermitDraft Core")}</BuyButton>
-          <ManageSubscriptionButton priceHandle="permitdraft_core_4900_usd_monthly" className="ap-btn ghost">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
-        </div>
-      </section>
+      <div className="ap-signup"><PilotForm /><CoreOffer /></div>
     </AppPage>
   );
 }

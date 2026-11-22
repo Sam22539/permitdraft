@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { useLang } from "../lib/lang";
@@ -9,7 +10,7 @@ import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/photos")({
   head: () => ({ meta: [{ title: "Photos — PermitDraft" }, { name: "description", content: "Step 5 of 5: evidence photos." }] }),
-  component: Photos,
+  component: () => <CoreGate><Photos /></CoreGate>,
 });
 
 const SLOTS: [Slot, string, string][] = [

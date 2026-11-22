@@ -15,6 +15,13 @@
       "when": 1795376547719,
       "tag": "0001_drop_county_only_check_add_state_column",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795376862956,
+      "tag": "0002_foundable_purchases_2",
+      "breakpoints": true
     }
   ]
 }

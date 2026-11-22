@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { Input } from "../components/ui/input";
@@ -7,7 +8,7 @@ import { useDraft } from "../lib/job-draft";
 
 export const Route = createFileRoute("/new/checks")({
   head: () => ({ meta: [{ title: "Compliance checks — PermitDraft" }, { name: "description", content: "Step 4 of 5: readings and checks." }] }),
-  component: Checks,
+  component: () => <CoreGate><Checks /></CoreGate>,
 });
 
 const ITEMS: [string, string, string][] = [

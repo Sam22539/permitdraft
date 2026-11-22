@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
@@ -11,7 +12,7 @@ import { PendingLabel } from "../components/photo-slot";
 export const Route = createFileRoute("/jobs/hp-1187")({
   head: () => ({ meta: [{ title: "Job #HP-1187 · 4412 Alder Court, Sacramento" }, { name: "description", content: "Next step, paperwork timeline and compliance checks for job HP-1187." }] }),
   validateSearch: (s: Record<string, unknown>): { saved?: "1"; done?: string } => ({ saved: s.saved === "1" || s.saved === 1 ? "1" : undefined, done: typeof s.done === "string" && s.done ? s.done : undefined }),
-  component: Detail,
+  component: () => <CoreGate><Detail /></CoreGate>,
 });
 
 const STEPS: [string, string][] = [

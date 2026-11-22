@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppPage } from "../components/app-shell";
@@ -12,7 +13,7 @@ import { captureSummary } from "../lib/capture-fields";
 
 export const Route = createFileRoute("/jobs/")({
   head: () => ({ meta: [{ title: "Jobs — PermitDraft" }, { name: "description", content: "Your jobs, their status and the next step for each." }] }),
-  component: Jobs,
+  component: () => <CoreGate><Jobs /></CoreGate>,
 });
 
 type Status = "Draft" | "Missing info" | "Done" | "Blocked";

@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute } from "@tanstack/react-router";
 import { StepShell, selectCls } from "../components/step-shell";
 import { Input } from "../components/ui/input";
@@ -9,7 +10,7 @@ import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/equipment")({
   head: () => ({ meta: [{ title: "Equipment — PermitDraft" }, { name: "description", content: "Step 2 of 5: equipment from the data plate." }] }),
-  component: Equipment,
+  component: () => <CoreGate><Equipment /></CoreGate>,
 });
 
 function Equipment() {

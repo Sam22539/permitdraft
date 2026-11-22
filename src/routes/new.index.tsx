@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useDraft } from "../lib/job-draft";
@@ -9,7 +10,7 @@ import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/new/")({
   head: () => ({ meta: [{ title: "New job — PermitDraft" }, { name: "description", content: "Step 1 of 5: homeowner and job site." }] }),
-  component: NewJob,
+  component: () => <CoreGate><NewJob /></CoreGate>,
 });
 
 function NewJob() {

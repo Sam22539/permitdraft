@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
@@ -11,7 +12,7 @@ import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
 
 export const Route = createFileRoute("/permit/draft/$id")({
   head: () => ({ meta: [{ title: "Review draft — PermitDraft" }, { name: "description", content: "Review draft built from what was captured on the job, each value with where it came from." }] }),
-  component: Review,
+  component: () => <CoreGate><Review /></CoreGate>,
 });
 
 const SLOT_LABEL: Record<Slot, [string, string]> = {

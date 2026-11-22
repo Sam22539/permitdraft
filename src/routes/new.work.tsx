@@ -1,3 +1,4 @@
+import { CoreGate } from "../components/core-offer";
 import { createFileRoute } from "@tanstack/react-router";
 import { Dictation } from "../components/dictation";
 import { StepShell, selectCls } from "../components/step-shell";
@@ -9,7 +10,7 @@ import { useDraft } from "../lib/job-draft";
 
 export const Route = createFileRoute("/new/work")({
   head: () => ({ meta: [{ title: "Work performed — PermitDraft" }, { name: "description", content: "Step 3 of 5: what the crew did." }] }),
-  component: Work,
+  component: () => <CoreGate><Work /></CoreGate>,
 });
 
 function Work() {
