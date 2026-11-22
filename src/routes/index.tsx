@@ -67,14 +67,15 @@ function Start() {
   return (
     <AppPage>
       <section className="ap-hero">
-        <h1>{t("Permit paperwork, done before you leave the driveway.", "El papeleo del permiso, listo antes de salir del camino de entrada.")}</h1>
+        <h1>{t("Review the evidence before you file", "Revise la evidencia antes de presentar")}</h1>
+        <p className="ap-muted">{t("In a sample heat-pump permit draft, the office can see the photo, note or reading behind each field and spot missing information before anything is filed.", "En un borrador de muestra de permiso para bomba de calor, la oficina puede ver la foto, la nota o la lectura detrás de cada campo y detectar la información que falta antes de presentar nada.")}</p>
       </section>
       <ol className="ap-steps">
         {steps.map((s, i) => (
           <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
         ))}
       </ol>
-      <Link to="/jobs" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
+      <Link to="/permit/hp-1187" className="ap-btn primary">{t("Try a sample job", "Probar un trabajo de muestra")}</Link>
       <Link to="/jobs" className="ap-btn ghost">{t("Explore with sample jobs", "Explorar con trabajos de muestra")}</Link>
       <PilotForm />
     </AppPage>
