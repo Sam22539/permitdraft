@@ -32,7 +32,7 @@ function PilotForm() {
       </section>
     );
   return (
-    <>
+    <div className="ap-signup">
     <section className="ap-card" aria-labelledby="pe-h" data-testid="pilot-info">
       <h2 id="pe-h">{t("Who qualifies for the pilot", "Quién califica para el piloto")}</h2>
       <p className="ap-muted">{t("California-licensed C-20 residential HVAC contractors with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs in Sacramento or San Diego County.", "Contratistas residenciales de HVAC con licencia C-20 de California y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales en los condados de Sacramento o San Diego.")}</p>
@@ -66,7 +66,7 @@ function PilotForm() {
         </button>
       </form>
     </section>
-    </>
+    </div>
   );
 }
 
