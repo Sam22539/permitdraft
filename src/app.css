@@ -105,6 +105,7 @@ a.ap-job{border-left:6px solid #c2410c}
 .jb-job.blocked .jb-next{color:#b91c1c}
 .jb-main{grid-template-columns:minmax(0,1fr)}
 .jb-main.has-bottom{padding-bottom:9rem}
+.oh-missing{list-style:disc;padding-left:1.25rem;color:#51607a;font-size:.95rem}
 .ap-form{display:grid;gap:1rem;margin-top:.5rem}
 .ap-form select{width:100%}
 .ph-slot{display:grid;gap:.6rem}

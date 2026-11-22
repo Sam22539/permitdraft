@@ -11,6 +11,7 @@ export function toDemoPath(path: string): string {
   if (path === "/jobs" || path === "/jobs/") return "/demo";
   if (path === "/jobs/sample-job") return "/demo/job";
   if (path === "/permit/draft/$id") return "/demo/draft/$id";
+  if (path === "/office-handoff") return "/demo/office-handoff";
   if (path === "/new" || path.startsWith("/new/")) return "/demo" + path;
   return path;
 }

@@ -71,7 +71,7 @@ export function Jobs() {
           {t("Resume job", "Reanudar trabajo")} · {t(`Step ${resume} of 5`, `Paso ${resume} de 5`)}
         </Link>
       )}
-      <p className="jb-meta"><Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
+      <p className="jb-meta"><Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link><Link to={p("/office-handoff")} className="underline font-semibold" data-testid="office-handoff-link">{t("Office handoff search", "Búsqueda de entrega a oficina")}</Link></p>
       <div className="jb-counts">
         <div className="jb-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
         <div className="jb-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>
