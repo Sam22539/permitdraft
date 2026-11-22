@@ -3,7 +3,10 @@ import { useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { Checkbox } from "../components/ui/checkbox";
 import { InspectionTimeline } from "../components/inspection-timeline";
+import { Image } from "../image";
 import { useLang } from "../lib/lang";
+import { usePhotos, SLOTS } from "../lib/photos";
+import { PendingLabel } from "../components/photo-slot";
 
 export const Route = createFileRoute("/jobs/hp-1187")({
   head: () => ({ meta: [{ title: "Job #HP-1187 · 4412 Alder Court, Sacramento" }, { name: "description", content: "Next step, paperwork timeline and compliance checks for job HP-1187." }] }),
@@ -34,6 +37,8 @@ function Detail() {
   const { saved } = Route.useSearch();
   const [done, setDone] = useState<boolean[]>(STEPS.map(() => false));
   const [warranty, setWarranty] = useState(false);
+  const { photos, pending } = usePhotos();
+  const have = SLOTS.filter((k) => photos[k]).length;
   const [sent, setSent] = useState(false);
   const marker = { g: ["Confirmed", "Confirmado"], a: ["NEEDED", "FALTA"], r: ["Blocked", "Bloqueado"] } as const;
 
@@ -103,7 +108,12 @@ function Detail() {
 
       <section className="ap-card">
         <h2 className="text-xl">{t("Photos", "Fotos")}</h2>
-        <p>{t("1 attached · 3 required", "1 adjunta · 3 requeridas")}</p>
+        <p>{t(`${have} attached · ${3 - have} required`, `${have} adjuntas · ${3 - have} requeridas`)}</p>
+        <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
+        {SLOTS.filter((k) => photos[k]).map((k) => (
+          <div key={k} className="ph-thumb"><Image src={photos[k]!.url} alt={k} width={96} height={96} /><PendingLabel p={photos[k]!} /></div>
+        ))}
+        <Link to="/new/photos" className="ap-edit">{t("Add or change photos", "Agregar o cambiar fotos")}</Link>
       </section>
 
       {summary("Homeowner & site", "Propietario y sitio", "4412 Alder Court, Sacramento")}

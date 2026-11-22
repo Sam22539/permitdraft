@@ -4,6 +4,7 @@ import { AppPage } from "../components/app-shell";
 import { STATE_LABEL, fmtDate } from "../components/inspection-timeline";
 import { todayIso, urgentAction, useInsp } from "../lib/inspection";
 import { useLang } from "../lib/lang";
+import { usePhotos } from "../lib/photos";
 
 export const Route = createFileRoute("/jobs/")({
   head: () => ({ meta: [{ title: "Jobs — PermitDraft" }, { name: "description", content: "Your jobs, their status and the next step for each." }] }),
@@ -27,6 +28,7 @@ const chips: [Chip, string][] = [["All", "Todos"], ["Drafts", "Borradores"], ["M
 function Jobs() {
   const { t, lang } = useLang();
   const insp = useInsp();
+  const { pending } = usePhotos();
   const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("All");
   const shown = JOBS.filter((j) =>
@@ -70,6 +72,7 @@ function Jobs() {
         return j.href ? (
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>
             <Link to="/jobs/hp-1187" className="grid gap-[inherit]">{body}</Link>
+            {pending > 0 && <p className="ph-pend" data-testid="jobs-pending">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>}
             <Link to="/jobs/hp-1187" hash="inspection-timeline" className="jb-next" data-testid="jobs-insp-action">
               {t("Inspection: ", "Inspección: ")}{t(act.en, act.es)}
               {act.date && <> · {fmtDate(act.date, lang)}</>}

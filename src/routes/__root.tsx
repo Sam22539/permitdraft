@@ -6,6 +6,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import "../styles.css";
+import { useEffect } from "react";
 import { LangProvider } from "../lib/lang";
 
 // Link previews read the Open Graph and X tags below; og:title and og:description repeat the page's own title and description.
@@ -43,6 +44,10 @@ export const Route = createRootRoute({
 });
 
 function WebsiteDocument() {
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready).then((r) => { if (navigator.onLine) r.active?.postMessage("precache"); }).catch(() => {});
+  }, []);
   return (
     <html lang="en">
       <head>

@@ -1,0 +1,93 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+
+// Device-local photo store: real image blobs in IndexedDB, keyed by job + slot. Nothing is uploaded; every photo stays
+// "waiting to upload" because no server ever acknowledges it in this practice build.
+export const JOB_ID = "hp-1187";
+export type Slot = "plate" | "outdoor" | "gauge";
+export const SLOTS: Slot[] = ["plate", "outdoor", "gauge"];
+export type PhotoRec = { key: string; job: string; slot: Slot; blob: Blob; name: string; type: string; savedAt: number; uploaded: boolean };
+
+const DB = "permitdraft-photos";
+const STORE = "photos";
+const keyOf = (job: string, slot: Slot) => `${job}:${slot}`;
+
+function open(): Promise<IDBDatabase> {
+  return new Promise((res, rej) => {
+    if (typeof indexedDB === "undefined") return rej(new Error("IndexedDB unavailable"));
+    const r = indexedDB.open(DB, 1);
+    r.onupgradeneeded = () => { r.result.createObjectStore(STORE, { keyPath: "key" }); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error ?? new Error("open failed"));
+    r.onblocked = () => rej(new Error("blocked"));
+  });
+}
+
+function run<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  return open().then((db) => new Promise<T>((res, rej) => {
+    const tx = db.transaction(STORE, mode);
+    let out: T;
+    const req = fn(tx.objectStore(STORE));
+    req.onsuccess = () => { out = req.result; };
+    // Resolve only once the transaction has committed, so "saved" means durably stored.
+    tx.oncomplete = () => { db.close(); res(out); };
+    tx.onerror = () => { db.close(); rej(tx.error ?? new Error("transaction failed")); };
+    tx.onabort = () => { db.close(); rej(tx.error ?? new Error("transaction aborted")); };
+  }));
+}
+
+export async function loadPhotos(job = JOB_ID): Promise<PhotoRec[]> {
+  const all = await run<PhotoRec[]>("readonly", (s) => s.getAll() as IDBRequest<PhotoRec[]>);
+  return all.filter((r) => r.job === job);
+}
+
+export async function savePhoto(slot: Slot, file: File, job = JOB_ID): Promise<void> {
+  if (!file.type.startsWith("image/")) throw new Error("not-image");
+  if (typeof createImageBitmap === "function") {
+    try { (await createImageBitmap(file)).close(); } catch { throw new Error("not-image"); }
+  }
+  const rec: PhotoRec = { key: keyOf(job, slot), job, slot, blob: file, name: file.name || `${slot}.jpg`, type: file.type, savedAt: Date.now(), uploaded: false };
+  await run("readwrite", (s) => s.put(rec)); // one put: a failure aborts and the previous photo stays
+  notify();
+}
+
+export async function removePhoto(slot: Slot, job = JOB_ID): Promise<void> {
+  await run("readwrite", (s) => s.delete(keyOf(job, slot)));
+  notify();
+}
+
+const listeners = new Set<() => void>();
+const bc = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("pd-photos") : null;
+function notify() { listeners.forEach((l) => l()); bc?.postMessage("changed"); }
+bc?.addEventListener("message", () => listeners.forEach((l) => l()));
+
+export type PhotoView = { url: string; name: string; savedAt: number; uploaded: boolean };
+
+export function usePhotos() {
+  const [map, setMap] = useState<Partial<Record<Slot, PhotoView>>>({});
+  const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const urls = useRef<string[]>([]);
+  const refresh = useCallback(async () => {
+    try {
+      const recs = await loadPhotos();
+      urls.current.forEach((u) => URL.revokeObjectURL(u));
+      urls.current = [];
+      const m: Partial<Record<Slot, PhotoView>> = {};
+      for (const r of recs) {
+        const url = URL.createObjectURL(r.blob);
+        urls.current.push(url);
+        m[r.slot] = { url, name: r.name, savedAt: r.savedAt, uploaded: r.uploaded };
+      }
+      setMap(m); setLoadError(false);
+    } catch { setLoadError(true); }
+    setReady(true);
+  }, []);
+  useEffect(() => {
+    refresh();
+    listeners.add(refresh);
+    return () => { listeners.delete(refresh); };
+  }, [refresh]);
+  useEffect(() => () => { urls.current.forEach((u) => URL.revokeObjectURL(u)); }, []);
+  const pending = Object.values(map).filter((p) => p && !p.uploaded).length;
+  return { photos: map, ready, loadError, pending };
+}

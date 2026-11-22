@@ -7,6 +7,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import "../permit.css";
+import { usePhotos } from "../lib/photos";
 
 export const Route = createFileRoute("/permit/hp-1187")({
   head: () => ({ meta: [{ title: "Heat-pump change-out permit draft" }, { name: "description", content: "Heat-pump change-out permit draft for Job #HP-1187 with every value traced to its source." }] }),
@@ -69,6 +70,7 @@ function Page() {
   const [history, setHistory] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [pid, setPid] = useState("");
+  const { photos } = usePhotos();
 
   useEffect(() => {
     try {
@@ -232,6 +234,12 @@ function Page() {
               <p className="pd-ev-value">{sel.value || "No value yet"}</p>
               <p className="pd-ev-text">{sel.evidence}</p>
               <p className="pd-ev-src">Source: {sel.source}</p>
+              {sel.source === "Equipment photo" && photos.plate && (
+                <div className="ph-ev" data-testid="permit-plate">
+                  <Image src={photos.plate.url} alt="Saved data plate photo" width={240} height={240} />
+                  <p className="pd-ev-text">Photo saved on this device · Waiting to upload. Shown for reference only; it does not confirm any value.</p>
+                </div>
+              )}
               {sel.conflict && (
                 <div className="pd-conflict" role="alert">
                   <p className="pd-ev-label">Conflict: resolve before Ready</p>
