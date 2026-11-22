@@ -11,6 +11,7 @@ export type ResourceLink = {
   key: string; category: Category; url: string | null; page_title: string | null; agency: string | null;
   source_type: SourceType | null; status: LinkStatus; checked_on: string | null; volatile: boolean; notes: string;
   label_en: string; label_es: string; show_in_app_stage: Stage;
+  note_en?: string; note_es?: string;
 };
 export type KeyDef = { key: string; category: Category; en: string; es: string; stage: Stage; volatile?: boolean };
 
@@ -139,6 +140,12 @@ export const STATE_RECORDS: Record<string, Rec[]> = {
   AZ: [
     { key: "lic_agency", url: "https://roc.az.gov/", page_title: "Home | Arizona Registrar of Contractors", agency: "Arizona Registrar of Contractors",
       source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened on 2026-11-22; the homepage loads and offers license search, applying and complaints. Office at 1700 W. Washington St., Phoenix." },
+    { key: "lic_lookup", url: "https://roc.az.gov/contractor-search", page_title: "Contractor Search | Arizona Registrar of Contractors", agency: "Arizona Registrar of Contractors",
+      source_type: "official_gov", status: "verified", checked_on: D, volatile: false,
+      label_en: "Arizona contractor license lookup", label_es: "Búsqueda de licencias de contratistas de Arizona",
+      note_en: "Check license status by name or six-digit ROC license number on the state site.",
+      note_es: "Consulte el estado de una licencia por nombre o por número de licencia ROC de seis dígitos en el sitio del estado.",
+      notes: "Source confirmed from the official published page and agency guide. The interactive search showed a human check to our reader, so search results were not tested." },
   ],
   CA: [
     { key: "lic_lookup", url: "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx", page_title: "Check A License - CSLB", agency: "Contractors State License Board",

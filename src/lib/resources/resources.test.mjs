@@ -25,18 +25,21 @@ test("counts separate actual coverage from selector coverage", () => {
   assert.equal(c.selectorStates, 3);
   assert.equal(c.statesWithVerified, 3);
   assert.equal(c.stateLinksTotal, 3 * R.STATE_KEYS.length);
-  assert.equal(c.stateVerified, 4);
-  assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 4);
+  assert.equal(c.stateVerified, 5);
+  assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 5);
   assert.equal(c.federal.verified, 2);
   assert.equal(c.federal.total, 17);
   assert.equal(c.stateVerified + c.stateNotApplicable + c.stateNotFound + c.statePending, c.stateLinksTotal);
 });
-test("Arizona is selectable; only its licensing link is verified", () => {
+test("Arizona is selectable; only its licensing agency and license lookup links are verified", () => {
   const az = R.STATE_LINKS.AZ;
   assert.equal(az.length, R.STATE_KEYS.length);
-  assert.equal(R.outboundOnly(az).length, 1);
-  assert.equal(R.outboundOnly(az)[0].key, "lic_agency");
-  for (const l of az.filter((x) => x.key !== "lic_agency")) { assert.equal(l.status, "unverified"); assert.equal(l.url, null); }
+  assert.equal(R.outboundOnly(az).length, 2);
+  assert.deepEqual(R.outboundOnly(az).map((x) => x.key).sort(), ["lic_agency", "lic_lookup"]);
+  const lk = az.find((x) => x.key === "lic_lookup");
+  assert.equal(lk.url, "https://roc.az.gov/contractor-search");
+  assert.equal(lk.label_en, "Arizona contractor license lookup");
+  for (const l of az.filter((x) => !["lic_agency", "lic_lookup"].includes(x.key))) { assert.equal(l.status, "unverified"); assert.equal(l.url, null); }
 });
 test("outside-state research stays archived, never public", () => {
   assert.equal(R.STATE_LINKS.FL, undefined);

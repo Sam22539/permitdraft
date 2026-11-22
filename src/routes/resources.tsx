@@ -26,6 +26,7 @@ function Item({ l }: { l: ResourceLink }) {
       <strong>{out ? <a href={l.url!} target="_blank" rel="noopener noreferrer" className="underline">{t(l.label_en, l.label_es)}</a> : t(l.label_en, l.label_es)}</strong>
       <span className={`rs-badge${out ? " ok" : ""}`}>{status}{l.volatile ? ` · ${t("changes often", "cambia seguido")}` : ""}</span>
       {out && <span className="ap-muted">{l.page_title} · {l.agency} · {t("checked", "revisado")} {l.checked_on}</span>}
+      {out && l.note_en && <span className="ap-muted">{t(l.note_en, l.note_es ?? l.note_en)}</span>}
       {!out && l.status !== "unverified" && <span className="ap-muted">{l.notes}</span>}
       {!out && l.status === "unverified" && l.notes && !l.notes.startsWith("Pending") && <span className="ap-muted">{l.notes}</span>}
     </li>
