@@ -23,6 +23,24 @@ type Field = {
   conflict?: { value: string; source: string; note: string; origValue: string; origSource: string };
 };
 
+type Entry = {
+  id: string;
+  fieldId: string;
+  action: "Flagged conflict" | "Confirmed value" | "Resolved conflict";
+  priorValue: string;
+  resultValue: string;
+  proposedValue?: string;
+  resultStatus: string;
+  editor: string;
+  at: string;
+};
+
+const EDITOR = "Practice reviewer (named practice role, not a verified identity)";
+
+function fmt(iso: string) {
+  return new Date(iso).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "medium" });
+}
+
 const SOURCES = ["Equipment photo", "Dictated note", "Meter reading", "Office entry"];
 
 const initial: Field[] = [
@@ -48,6 +66,39 @@ function Page() {
   const [cs, setCs] = useState(SOURCES[0]);
   const [cn, setCn] = useState("");
   const [cerr, setCerr] = useState("");
+  const [history, setHistory] = useState<Entry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [pid, setPid] = useState("");
+
+  useEffect(() => {
+    try {
+      let id = localStorage.getItem("pd-participant");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("pd-participant", id);
+      }
+      setPid(id);
+      const raw = localStorage.getItem(`pd-hp1187:${id}`);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (Array.isArray(d.fields)) setFields(d.fields);
+        if (Array.isArray(d.history)) setHistory(d.history);
+      }
+    } catch {}
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || !pid) return;
+    try {
+      localStorage.setItem(`pd-hp1187:${pid}`, JSON.stringify({ fields, history }));
+    } catch {}
+  }, [fields, history, loaded, pid]);
+
+  function log(e: Omit<Entry, "id" | "editor" | "at">) {
+    const at = new Date().toISOString();
+    setHistory((h) => [{ ...e, id: `${at}-${h.length}`, editor: EDITOR, at }, ...h]);
+  }
 
   useEffect(() => {
     if (window.location.hash === "#panel-size") {
@@ -75,6 +126,7 @@ function Page() {
     e.preventDefault();
     if (!cv.trim()) return setCerr("Enter the conflicting value.");
     if (!cs) return setCerr("Choose a source.");
+    log({ fieldId: sel.id, action: "Flagged conflict", priorValue: sel.value, resultValue: sel.value, proposedValue: cv.trim(), resultStatus: "NEEDED (blocks Ready)" });
     setFields((fs) =>
       fs.map((f) =>
         f.id === sel.id
@@ -93,6 +145,7 @@ function Page() {
     e.preventDefault();
     if (!value.trim()) return setErr("Enter the value.");
     if (!source) return setErr("Choose a source.");
+    log({ fieldId: sel.id, action: sel.conflict ? "Resolved conflict" : "Confirmed value", priorValue: sel.value, resultValue: value.trim(), proposedValue: sel.conflict?.value, resultStatus: "Confirmed" });
     const when = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
     setFields((fs) =>
       fs.map((f) =>
@@ -189,6 +242,26 @@ function Page() {
               )}
               {!sel.conflict && sel.value && !flagOpen && (
                 <Button type="button" variant="outline" size="sm" onClick={() => setFlagOpen(true)}>Flag a conflict</Button>
+              )}
+            </div>
+
+            <div className="pd-card" aria-labelledby="hist">
+              <h2 id="hist">History: {sel.label}</h2>
+              <p className="pd-ev-src">Newest first. Practice entries only, kept in this browser for this participant.</p>
+              {history.filter((h) => h.fieldId === sel.id).length === 0 ? (
+                <p className="pd-ev-text">No changes recorded for this field yet.</p>
+              ) : (
+                <ol className="pd-hist">
+                  {history.filter((h) => h.fieldId === sel.id).map((h) => (
+                    <li key={h.id}>
+                      <p><strong>{h.action}</strong> · <time dateTime={h.at}>{fmt(h.at)}</time></p>
+                      <p>Prior value: {h.priorValue || "No value yet"}</p>
+                      {h.proposedValue !== undefined && <p className="pd-prop">Proposed conflicting value (not the actual value): {h.proposedValue}</p>}
+                      <p>Resulting actual value: {h.resultValue || "No value yet"} · {h.resultStatus}</p>
+                      <p className="pd-ev-src">Editor: {h.editor}</p>
+                    </li>
+                  ))}
+                </ol>
               )}
             </div>
 
