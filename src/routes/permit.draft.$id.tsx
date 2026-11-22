@@ -54,6 +54,8 @@ function Review() {
   const sm = captureSummary(cap, lang);
   const when = new Date(cap.finishedAt).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "short" });
   const extra = uncategorized(cap);
+  const missingReq = fieldSets(cap).filter((f) => f.required && String(cap.values[f.key] ?? "").trim() === "");
+  const missNames = missingReq.map((f) => t(...f.label)).join(", ");
   const dash = t("Not captured", "No capturado");
 
   return (
@@ -62,6 +64,9 @@ function Review() {
       <p className="ap-muted">{sm.addr} · {activeType(cap) || sm.equip}</p>
       <p className="ap-muted">{t(`Finished ${when}. Practice job, not connected to real permit filing. Every value below is exactly what was captured; nothing here is confirmed by a reviewer yet.`, `Finalizado ${when}. Trabajo de práctica, no conectado a la presentación real de permisos. Cada valor es exactamente lo capturado; nada está confirmado por un revisor todavía.`)}</p>
       <p className="ap-next" data-testid="review-missing">{sm.missing > 0 ? t(`${sm.missing} item(s) not captured`, `${sm.missing} dato(s) sin capturar`) : t("Nothing missing from capture", "No falta nada de la captura")}</p>
+      <p className="ap-next" data-testid="review-status">{missingReq.length > 0
+        ? t(`Not ready for office review: ${missingReq.length} required detail(s) still missing: ${missNames}`, `No listo para revisión de oficina: faltan ${missingReq.length} dato(s) obligatorio(s): ${missNames}`)
+        : t("Ready to send to office review. Every required detail is captured, but nothing is confirmed by a reviewer yet.", "Listo para enviar a revisión de oficina. Cada dato obligatorio está capturado, pero ningún revisor ha confirmado nada todavía.")}</p>
 
       <section className="ap-card" data-testid="review-fields">
         <h2 className="ap-h2">{t("Captured details", "Datos capturados")}</h2>
