@@ -47,6 +47,12 @@ function Resources() {
       <p className="ap-muted">{t("Public links to official agencies for HVAC work, by state. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo de HVAC, por estado. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
 
+      <section className="ap-card" aria-labelledby="rs-checklist" data-testid="resources-checklist">
+        <h2 id="rs-checklist" className="ap-h2">{t("Heat pump change-out paperwork checklist", "Lista de papeleo para cambio de bomba de calor")}</h2>
+        <p className="ap-muted">{t("The photos, readings and office checks a residential heat pump permit draft needs. Free, no sign-in.", "Las fotos, lecturas y revisiones de oficina que necesita un borrador de permiso de bomba de calor residencial. Gratis, sin iniciar sesión.")}</p>
+        <Link to="/heat-pump-paperwork-checklist" className="ap-btn ghost" data-testid="rs-open-checklist">{t("Open the checklist", "Abrir la lista")}</Link>
+      </section>
+
       <section className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>
         <label htmlFor="rs-state" className="font-semibold">{t("State", "Estado")}</label>
         <select id="rs-state" className="rs-select" value={state ?? ""} onChange={(e) => set({ state: e.target.value || undefined })}>

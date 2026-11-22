@@ -38,6 +38,12 @@ function Landing() {
         <p className="lp-sub">{t("No sign-in or card.", "Sin iniciar sesión ni tarjeta.")} <Link to="/" hash="core-offer" className="lp-link" data-testid="lp-see-pricing">{t("See Core pricing", "Ver precio de Core")}</Link></p>
       </section>
 
+      <section className="lp-sec" aria-labelledby="lp-checklist" data-testid="lp-checklist">
+        <h2 id="lp-checklist" className="lp-h2">{t("Heat pump change-out paperwork checklist", "Lista de papeleo para cambio de bomba de calor")}</h2>
+        <p className="ap-muted">{t("What the tech should photograph and record on site, and what the office checks before a permit draft is ready. Free, no sign-in.", "Lo que el técnico debe fotografiar y anotar en el sitio, y lo que la oficina revisa antes de que un borrador de permiso esté listo. Gratis, sin iniciar sesión.")}</p>
+        <Link to="/heat-pump-paperwork-checklist" className="ap-btn ghost" data-testid="lp-open-checklist">{t("Open the checklist", "Abrir la lista")}</Link>
+      </section>
+
       <section className="lp-sec" aria-labelledby="lp-how">
         <h2 id="lp-how" className="lp-h2">{t("How the handoff works", "Cómo funciona la entrega")}</h2>
         <ol className="lp-steps">
