@@ -28,6 +28,7 @@ function useNavGroups(): { label: string; links: NavLink[] }[] {
       { label: t("Early Access", "Acceso anticipado"), to: "/early-access" },
     ] },
     { label: t("Resources", "Recursos"), links: [
+      { label: t("About PermitDraft", "Acerca de PermitDraft"), to: "/about" },
       { label: t("Official resources", "Recursos oficiales"), to: "/resources" },
       { label: t("HVAC permits", "Permisos de HVAC"), to: "/hvac-permits" },
       { label: t("Heat pump paperwork checklist", "Lista de papeleo de bomba de calor"), to: "/heat-pump-paperwork-checklist" },

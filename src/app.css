@@ -682,3 +682,17 @@ html:has(.pj){scroll-padding-top:10rem}
 .ea-card .ap-field{gap:.5rem;margin-top:.25rem}
 .ea-card h2+p{margin-top:.25rem}
 .hp-nav-trigger[data-current]{text-decoration:underline;text-underline-offset:8px;text-decoration-color:var(--pd-blue,#087EE8);text-decoration-thickness:2px}
+
+/* About page */
+.ap-main:has(.ab-page){max-width:1040px}
+.ab-page{display:grid;gap:2.5rem}
+.ab-page .lp-hero{padding:2rem 1.5rem}
+.ap .ab-page .lp-hero h1{font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(2.1rem,8vw,3.4rem)}
+.ab-page .lp-hero .ap-muted{max-width:60ch}
+.ab-sec{display:grid;gap:.75rem;max-width:68ch}
+.ab-sec .ap-muted{color:#334155;font-size:1.05rem;line-height:1.6}
+.ab-sec .lp-h2{margin-bottom:.1rem}
+.ab-values{max-width:none}
+.ab-values .lp-steps{grid-template-columns:minmax(0,1fr)}
+.ab-values .lp-steps .ap-muted{color:#334155}
+@media (min-width:900px){.ab-values .lp-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.ab-page .lp-hero{padding:3rem 2.5rem}}
