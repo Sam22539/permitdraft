@@ -10,6 +10,7 @@ import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
 import { JOB_ID, loadPhotos, usePhotos, SLOTS as REQUIRED, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
+import { cleanValues } from "../lib/capture-fields";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
 import { PhotoSlot } from "../components/photo-slot";
@@ -142,7 +143,8 @@ function NewPhotos() {
       const token = sess.session?.access_token;
       if (!token) throw new Error("auth");
       const local = await loadPhotos(JOB_ID);
-      const values = readDraftValues();
+      const raw0 = readDraftValues();
+      const values = cleanValues(raw0.type ?? "Heat pump change-out", raw0);
       const formDefaults: Record<string, string> = {};
       for (const k of ["type", "work"]) if (!(k in values)) formDefaults[k] = k === "type" ? "Heat pump change-out" : "Heat-pump change-out, same pad, left side yard";
       const r = await sendOfficePacket({ data: { token, jobId, employeeId, values, formDefaults, slots: local.map((x) => x.slot) } });

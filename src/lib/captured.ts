@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { copyPhotos, deleteJobPhotos, JOB_ID, loadPhotos, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
 import { nsKey } from "./demo-mode";
+import { cleanValues } from "./capture-fields";
 
 // Finished practice captures, kept in this browser (localStorage). Photos stay in the existing IndexedDB photo store:
 // each capture gets its own `job` id, so its photos live under `<captureId>:<slot>` like every other photo.
@@ -63,7 +64,8 @@ export function useCaptured(): Captured[] { return useSyncExternalStore(subscrib
 export async function finishCapture(idIn?: string, submittedBy?: string): Promise<string | null> {
   const id = idIn ?? `cap-${Date.now().toString(36)}`;
   try {
-    const values = readDraftValues();
+    const raw0 = readDraftValues();
+    const values = cleanValues(raw0.type ?? DEFAULT_SHOWN.type, raw0);
     const formDefaults: Record<string, string> = {};
     for (const k of Object.keys(DEFAULT_SHOWN)) if (!(k in values)) formDefaults[k] = DEFAULT_SHOWN[k];
     const copies = await copyPhotos(JOB_ID, id);

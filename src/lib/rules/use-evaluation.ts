@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { Captured } from "../captured";
-import { activeType, fieldSets } from "../capture-fields";
+import { activeType, applicableChecks, cleanValues, fieldSets } from "../capture-fields";
 import { SLOTS } from "../photos";
 import { evaluate, type CheckResult } from "./engine";
 import { PACK } from "./data";
@@ -33,7 +33,10 @@ export function useOfficeJurisdictions(): Record<string, string> {
 export function today() { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`; }
 export function evaluateCapture(c: Captured, jurisdictionCode: string | null) {
   // A saved job's shown defaults (never edited) are not captured values: only what the tech entered counts.
-  const ev = evaluate(PACK, { type: activeType(c), values: c.values, photoSlots: SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
+  const type0 = activeType(c);
+  const okChecks = applicableChecks(type0, c.values);
+  const pack = { ...PACK, rules: PACK.rules.filter((r) => { const m = /^app-doc-chk-(c\d)$/.exec(r.id); return !m || okChecks.includes(m[1]); }) };
+  const ev = evaluate(pack, { type: type0, values: cleanValues(type0, c.values), photoSlots: SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
   // A flagged correction with no decision is an unresolved conflict: it blocks Ready until the office accepts or returns it.
   const open = Object.entries(c.corrections ?? {}).filter(([, k]) => k.flaggedAt && !k.decision);
   if (open.length === 0) return ev;

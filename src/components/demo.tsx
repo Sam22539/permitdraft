@@ -8,7 +8,7 @@ import { setInsp } from "../lib/inspection";
 import { DEMO_PHOTO_DB, savePhoto, setPhotoUnit } from "../lib/photos";
 
 export const DEMO_PHOTO = "/generated-assets/95a552760ec65fbcb531b422ad4af9fdbf6083b01c75ac0a59a8e81d98040ca2.webp";
-const SEEDED = DEMO_KEY_PREFIX + "seeded-v1";
+const SEEDED = DEMO_KEY_PREFIX + "seeded-v2";
 
 // The demo's sample job: made-up homeowner and equipment. Panel size, duct sealing and two photos are left out on
 // purpose, so the review shows how missing details are flagged.
@@ -16,7 +16,6 @@ const DEMO_VALUES: Record<string, string> = {
   name: "Marcus Reyes", phone: "(555) 010-0142", addr: "4412 Alder Court", city: "Sacramento",
   type: "Heat pump change-out", maker: "Carrier", model: "25HPB536A003", serial: "1824E21045", refrig: "R-410A",
   loc: "Left side yard, same pad", work: "Heat-pump change-out, same pad, left side yard",
-  c1: "1", c3: "1", c4: "1",
 };
 
 const Ctx = createContext(false);

@@ -58,7 +58,7 @@ export function readingUnit(values: Record<string, string>, reading: string): L 
 export function activeType(c: Captured): string { return c.values.type ?? c.formDefaults.type ?? ""; }
 export function fieldSets(c: Captured): CapField[] {
   const type = activeType(c);
-  return [...SITE, { key: "type", label: ["Equipment type", "Tipo de equipo"], step: 2 }, ...equipFields(type), ...WORK, ...CHECKS];
+  return [...SITE, { key: "type", label: ["Equipment type", "Tipo de equipo"], step: 2 }, ...equipFields(type), ...WORK, ...CHECKS.filter((f) => { const ok = applicableChecks(type, c.values); return ok.includes(f.key) || (f.key === "sub" || f.key === "sup" ? ok.includes("c2") : false); })];
 }
 export const DUCT_LABEL: Record<string, L> = {
   sealed: ["Sealed and verified", "Sellado y verificado"], not: ["Not sealed", "No sellado"], exempt: ["Exempt, with reason", "Exento, con motivo"],
@@ -96,3 +96,24 @@ export const FIX_INPUT_ID: Record<string, string> = {
   fu_maker: "fmf", fu_model: "fmo", fu_serial: "fse", coil_maker: "cmf", coil_model: "cmo", coil_serial: "cse",
   work: "wk", panel: "pa", duct: "ds", ductReason: "dr", sub: "sub", sup: "sup",
 };
+
+const FURNACE = "Furnace + coil change-out";
+/**
+ * Final checks that apply to this job. The equipment label check always applies. Outdoor unit and refrigerant checks
+ * apply to a heat pump or central AC, and to a furnace job only once a cooling coil is in its scope (coil entered).
+ */
+export function applicableChecks(type: string | undefined, values: Record<string, string>): string[] {
+  if (type === FURNACE) {
+    const coil = String(values.coil_model ?? "").trim() !== "" || String(values.coil_serial ?? "").trim() !== "";
+    return coil ? ["c1", "c2", "c3", "c4"] : ["c4"];
+  }
+  return ["c1", "c2", "c3", "c4"];
+}
+const CHECK_DEPENDENTS: Record<string, string[]> = { c2: ["sub", "sup", "sub_unit", "sup_unit"] };
+/** Values with answers for checks (and readings) that do not apply to this job removed. */
+export function cleanValues(type: string | undefined, values: Record<string, string>): Record<string, string> {
+  const ok = new Set(applicableChecks(type, values));
+  const out = { ...values };
+  for (const k of ["c1", "c2", "c3", "c4"]) if (!ok.has(k)) { delete out[k]; for (const d of CHECK_DEPENDENTS[k] ?? []) delete out[d]; }
+  return out;
+}

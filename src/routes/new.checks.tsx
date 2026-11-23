@@ -8,7 +8,7 @@ import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { READING_UNIT_KEY, UNIT_LABEL } from "../lib/capture-fields";
+import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks } from "../lib/capture-fields";
 import { useDemo } from "../components/demo";
 
 export const Route = createFileRoute("/new/checks")({
@@ -16,9 +16,6 @@ export const Route = createFileRoute("/new/checks")({
   head: () => ({ meta: [{ title: "Compliance checks — PermitDraft" }, { name: "description", content: "Step 4 of 5: readings and checks." }] }),
   component: () => <CoreGate><Checks /></CoreGate>,
 });
-
-const COOL_TYPES = ["Heat pump change-out", "Central AC change-out"];
-const appliesCheck = (k: string, type: string | undefined) => (k !== "c2" && k !== "c3") || !type || COOL_TYPES.includes(type);
 
 const ITEMS: [string, string, string][] = [
   ["c1", "Outdoor unit location recorded", "Ubicación de la unidad exterior registrada"],
@@ -34,6 +31,7 @@ export function Checks() {
   const [err, setErr] = useState("");
   const normal = d.fixState === "off";
   const demo = useDemo();
+  const shown = applicableChecks(d.get("type") || undefined, { coil_model: d.get("coil_model"), coil_serial: d.get("coil_serial") });
   const guard = () => {
     if (!normal) return true;
     if (!d.get("addr").trim() || !d.get("city").trim()) { setErr(t("Fill in the job address and city.", "Complete la dirección del trabajo y la ciudad.")); return false; }
@@ -90,7 +88,7 @@ export function Checks() {
           <h2 className="cx-label text-sm font-semibold">{t("Final checks", "Verificaciones finales")}</h2>
         </div>
       )}
-      {ITEMS.filter(([k]) => appliesCheck(k, d.get("type") || undefined)).map(([k, en, es]) => {
+      {ITEMS.filter(([k]) => shown.includes(k)).map(([k, en, es]) => {
         const ok = d.get(k) === "1";
         return (
           <div key={k} className="grid gap-3">
