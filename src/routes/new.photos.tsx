@@ -2,8 +2,13 @@ import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { useLang } from "../lib/lang";
-import { useCorePath } from "../components/demo";
-import { usePhotos, type Slot } from "../lib/photos";
+import { useCorePath, useDemo } from "../components/demo";
+import { sendOfficePacket } from "../lib/packet";
+import { clearDraftJobId, draftJobId, syncPhotos } from "../lib/photo-sync";
+import { backend } from "../lib/backend";
+import { Input } from "../components/ui/input";
+import { readDraftValues } from "../lib/job-draft";
+import { JOB_ID, loadPhotos, usePhotos, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
@@ -76,15 +81,52 @@ function NewPhotos() {
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const demo = useDemo();
+  const [employeeId, setEmployeeId] = useState("");
+  const [sendErr, setSendErr] = useState(false);
+  const [stillUp, setStillUp] = useState<number | null>(null);
+  const waiting = demo ? pending : (stillUp ?? pending);
+  // Core: keep saving photos to the database in the background so Finish has nothing left to wait for.
+  useEffect(() => {
+    if (demo || pending === 0) return;
+    let live = true;
+    syncPhotos(draftJobId()).then((n) => { if (live) setStillUp(n); });
+    return () => { live = false; };
+  }, [demo, pending]);
+  useEffect(() => { if (!demo && pending === 0) setStillUp(null); }, [demo, pending]);
   async function finish() {
-    setBusy(true); setFailed(false);
-    const id = await finishCapture();
+    setBusy(true); setFailed(false); setSendErr(false);
+    if (demo) {
+      const id = await finishCapture();
+      setBusy(false);
+      if (!id) return setFailed(true);
+      nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
+      return;
+    }
+    const jobId = draftJobId();
+    const left = await syncPhotos(jobId);
+    setStillUp(left);
+    if (left > 0) { setBusy(false); return; }
+    try {
+      const { data: sess } = await backend.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) throw new Error("auth");
+      const local = await loadPhotos(JOB_ID);
+      const values = readDraftValues();
+      const formDefaults: Record<string, string> = {};
+      for (const k of ["type", "work"]) if (!(k in values)) formDefaults[k] = k === "type" ? "Heat pump change-out" : "Heat-pump change-out, same pad, left side yard";
+      const r = await sendOfficePacket({ data: { token, jobId, employeeId, values, formDefaults, slots: local.map((x) => x.slot) } });
+      if (!r.ok) { setStillUp(r.waiting); setBusy(false); return; }
+    } catch { setBusy(false); setSendErr(true); return; }
+    const id = await finishCapture(jobId);
     setBusy(false);
     if (!id) return setFailed(true);
+    clearDraftJobId();
     nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
   }
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" action={<>
+        {!demo && sendErr && <p role="alert" className="cx-err" data-testid="send-error">{t("Could not send the packet to the office. Your job is still editable: try Finish again.", "No se pudo enviar el paquete a la oficina. Su trabajo sigue editable: intente Finalizar de nuevo.")}</p>}
         {failed && <p role="alert" className="cx-err" data-testid="finish-error">{t("Could not save this job on this device. Nothing was cleared: your capture is still here. Try Finish again.", "No se pudo guardar este trabajo en este dispositivo. No se borró nada: su captura sigue aquí. Intente Finalizar de nuevo.")}</p>}
         <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : t("Finish", "Finalizar")}</button>
       </>}>
@@ -108,8 +150,23 @@ function NewPhotos() {
         <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} tagUnit />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
-      <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
-      <p className="cx-note">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>
+      {!demo && (
+        <div className="ap-field">
+          <label htmlFor="emp-id">{t("Company employee ID (optional)", "ID de empleado de la empresa (opcional)")}</label>
+          <Input id="emp-id" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} maxLength={40} autoComplete="off" data-testid="employee-id" />
+        </div>
+      )}
+      {demo ? (
+        <>
+          <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
+          <p className="cx-note">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>
+        </>
+      ) : (
+        <>
+          <p className="ph-pend" data-testid="pending-count" role="status">{waiting > 0 ? t(`${waiting} photo(s) still uploading`, `${waiting} foto(s) todavía subiendo`) : t("All photos are saved.", "Todas las fotos están guardadas.")}</p>
+          <p className="cx-note">{t("Finish sends one private packet to the office once every photo is saved. It is for office review only, not permit filing. Draft, not a guarantee of compliance. Contractor review and signature required.", "Finalizar envía un paquete privado a la oficina cuando todas las fotos estén guardadas. Es solo para revisión de oficina, no para presentar el permiso. Borrador, no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+        </>
+      )}
     </StepShell>
   );
 }

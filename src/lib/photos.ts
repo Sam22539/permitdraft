@@ -61,9 +61,17 @@ export async function savePhoto(slot: Slot, file: File, job = JOB_ID): Promise<v
 export async function setPhotoUnit(slot: Slot, unit: Unit | undefined, job = JOB_ID): Promise<void> {
   const rec = (await loadPhotos(job)).find((r) => r.slot === slot);
   if (!rec) return;
-  const next: PhotoRec = { ...rec };
+  const next: PhotoRec = { ...rec, uploaded: false };
   if (unit) next.unit = unit; else delete next.unit;
   await run("readwrite", (s) => s.put(next));
+  notify();
+}
+
+/** Mark one photo saved in the database, only if it is still the same photo that was uploaded. */
+export async function markUploaded(slot: Slot, savedAt: number, job = JOB_ID): Promise<void> {
+  const rec = (await loadPhotos(job)).find((r) => r.slot === slot);
+  if (!rec || rec.savedAt !== savedAt || rec.uploaded) return;
+  await run("readwrite", (s) => s.put({ ...rec, uploaded: true }));
   notify();
 }
 

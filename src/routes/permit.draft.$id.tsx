@@ -1,6 +1,7 @@
 import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { PacketInfo } from "../components/packet-info";
 import { useCorePath, useDemo } from "../components/demo";
 import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
@@ -112,6 +113,7 @@ export function Review() {
       <p className="ap-next" data-testid="review-status">{ev.officeReview.ready
         ? t("Ready for office review. Every required detail is captured, but nothing is confirmed by a reviewer yet.", "Listo para revisión de oficina. Cada dato obligatorio está capturado, pero ningún revisor ha confirmado nada todavía.")
         : t(`Not ready for office review: ${ev.missing.length} required item(s) still missing: ${ev.missing.map((m) => m.text[0]).join(", ")}`, `No listo para revisión de oficina: faltan ${ev.missing.length} dato(s) obligatorio(s): ${ev.missing.map((m) => m.text[1]).join(", ")}`)}</p>
+      <PacketInfo jobId={cap.id} />
       {Object.keys(corr).length > 0 && (
         <p className="ap-muted" data-testid="review-corrections">{t(
           `${Object.keys(corr).length} corrected item(s), ${flagged} awaiting office review. Corrections are shown beside the captured value in the office view below; they do not confirm, approve or ready anything for filing, and missing items stay missing until captured.`,

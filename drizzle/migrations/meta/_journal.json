@@ -50,6 +50,13 @@
       "when": 1795386165835,
       "tag": "0006_demo_feedback_table",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795396730148,
+      "tag": "0007_job_photos_and_office_packets_tables",
+      "breakpoints": true
     }
   ]
 }

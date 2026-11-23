@@ -7,6 +7,7 @@ import { Input } from "../components/ui/input";
 import { useCaptured } from "../lib/captured";
 import { captureSummary, fieldSets } from "../lib/capture-fields";
 import { CorrectionStatus } from "../components/correction";
+import { PacketInfo } from "../components/packet-info";
 import { useLang } from "../lib/lang";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 
@@ -97,6 +98,7 @@ export function OfficeHandoff() {
           <p className="jb-meta" data-testid="oh-ready">
             {ev.officeReview.ready ? t("Ready for office review", "Listo para revisión de oficina") : t("Not ready for office review", "No listo para revisión de oficina")} · {t("Not ready for filing", "No listo para presentar")}
           </p>
+          <PacketInfo jobId={c.id} />
           {ev.missing.length > 0 ? (
             <div data-testid="oh-missing">
               <p className="jb-next">{t(`${ev.missing.length} missing`, `Faltan ${ev.missing.length}`)}</p>

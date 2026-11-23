@@ -58,8 +58,8 @@ export function useCaptured(): Captured[] { return useSyncExternalStore(subscrib
  * Save a job-scoped snapshot of the unfinished capture, then clear the unfinished draft.
  * Returns the new id, or null when anything failed — in that case nothing is cleared and nothing half-saved is left.
  */
-export async function finishCapture(): Promise<string | null> {
-  const id = `cap-${Date.now().toString(36)}`;
+export async function finishCapture(idIn?: string): Promise<string | null> {
+  const id = idIn ?? `cap-${Date.now().toString(36)}`;
   try {
     const values = readDraftValues();
     const formDefaults: Record<string, string> = {};

@@ -1,0 +1,43 @@
+import { createServerFn } from "@tanstack/react-start";
+
+type In = { token: string; jobId: string; employeeId: string; values: Record<string, string>; formDefaults: Record<string, string>; slots: string[] };
+
+/**
+ * Creates the one private office packet for a job: captured fields, links to the job's saved photos, the signed-in
+ * technician's name and the database clock's sent time. Sending twice returns the same packet. Refused while any
+ * photo the device holds is not yet saved in the database.
+ */
+export const sendOfficePacket = createServerFn({ method: "POST" })
+  .inputValidator((d: In) => {
+    const token = String(d?.token ?? "");
+    const jobId = String(d?.jobId ?? "");
+    if (!token || token.length > 4000 || !jobId || jobId.length > 80) throw new Error("input");
+    const clean = (o: unknown) => Object.fromEntries(Object.entries((o && typeof o === "object" ? o : {}) as Record<string, unknown>).slice(0, 200).map(([k, v]) => [k.slice(0, 80), String(v ?? "").slice(0, 4000)]));
+    const slots = Array.isArray(d?.slots) ? d.slots.map(String).slice(0, 8) : [];
+    return { token, jobId, employeeId: String(d?.employeeId ?? "").trim().slice(0, 40), values: clean(d?.values), formDefaults: clean(d?.formDefaults), slots };
+  })
+  .handler(async ({ data }) => {
+    const { serverBackend } = await import("./backend.server");
+    const db = serverBackend();
+    const { data: u, error: ue } = await db.auth.getUser(data.token);
+    if (ue || !u.user) throw new Error("auth");
+    const uid = u.user.id;
+    const { data: photos, error: pe } = await db.from("job_photos").select("id, slot, unit, name, mime, taken_at").eq("user_id", uid).eq("job_id", data.jobId);
+    if (pe) throw new Error("save");
+    const have = new Set((photos ?? []).map((p) => p.slot));
+    const waiting = data.slots.filter((s) => !have.has(s)).length;
+    const existing = await db.from("office_packets").select("id, sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).maybeSingle();
+    if (existing.data) return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string };
+    if (waiting > 0) return { ok: false as const, waiting };
+    const md = (u.user.user_metadata ?? {}) as Record<string, unknown>;
+    const name = String(md.full_name ?? md.name ?? "").trim() || u.user.email || "Technician";
+    const row = {
+      user_id: uid, job_id: data.jobId, sent_by_name: name.slice(0, 200), employee_id: data.employeeId || null,
+      captured_fields: { values: data.values, formDefaults: data.formDefaults },
+      photo_links: (photos ?? []).map((p) => ({ photoId: p.id, slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),
+    };
+    const ins = await db.from("office_packets").upsert(row, { onConflict: "user_id,job_id", ignoreDuplicates: true });
+    if (ins.error) throw new Error("save");
+    const { data: made } = await db.from("office_packets").select("sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).single();
+    return { ok: true as const, created: true, sentBy: String(made?.sent_by_name ?? name), sentAt: String(made?.sent_at ?? new Date().toISOString()) };
+  });
