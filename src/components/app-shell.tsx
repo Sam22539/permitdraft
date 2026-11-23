@@ -99,12 +99,9 @@ function PublicNavPhone({ home }: { home?: boolean }) {
 }
 
 export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" } = {}) {
-  const { lang, setLang, t } = useLang();
+  const { lang, setLang } = useLang();
   return (
     <div className={`ap-top${mode ? " ap-top-app" : ""}`}>
-      {!mode && <div className="ap-banner" role="note">
-        {t("Prototype · sample data · nothing is sent anywhere", "Prototipo · datos de muestra · no se envía nada")}
-      </div>}
       <div className="ap-bar">
         <div className="ap-brand">
           <Link to="/" className="ap-logo">
