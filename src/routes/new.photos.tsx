@@ -10,7 +10,7 @@ import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
 import { JOB_ID, loadPhotos, usePhotos, SLOTS as REQUIRED, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
-import { cleanValues } from "../lib/capture-fields";
+import { applicableChecks, cleanValues } from "../lib/capture-fields";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
 import { PhotoSlot } from "../components/photo-slot";
@@ -33,6 +33,15 @@ const SLOTS: [Slot, string, string][] = [
 /** Demo handoff ID: letters, digits and hyphens, kept as text so leading zeros stay (e.g. TECH-007, 00412). */
 const TECH_ID = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
 const SAMPLE_TECH_ID = "TECH-007";
+
+/** Final checks left unticked at Finish are handed to the Final checks step to show. */
+export const CHECK_MSG_KEY = "permitdraft-unticked-checks";
+const CHECK_NAMES: Record<string, [string, string]> = {
+  c1: ["Outdoor unit location recorded", "Ubicación de la unidad exterior registrada"],
+  c2: ["Refrigerant charge reading taken", "Lectura de carga de refrigerante tomada"],
+  c3: ["Refrigerant type matches data plate", "El tipo de refrigerante coincide con la placa"],
+  c4: ["Equipment label photo readable", "Foto de la etiqueta del equipo legible"],
+};
 
 const WIDE: [string, string] = ["Whole unit, wide shot", "Unidad completa, foto general"];
 
@@ -112,6 +121,17 @@ function NewPhotos() {
   useEffect(() => { if (!demo && pending === 0) setStillUp(null); }, [demo, pending]);
   async function finish() {
     setBusy(true); setFailed(false); setSendErr(false);
+    {
+      const dv = readDraftValues();
+      const need = applicableChecks(dv.type || undefined, { coil_model: dv.coil_model ?? "", coil_serial: dv.coil_serial ?? "" }).filter((k) => dv[k] !== "1");
+      if (need.length > 0) {
+        setBusy(false);
+        const names = need.map((k) => CHECK_NAMES[k]);
+        try { sessionStorage.setItem(CHECK_MSG_KEY, JSON.stringify(names)); } catch { /* ignore */ }
+        nav({ to: p("/new/checks"), hash: "final-checks-msg" });
+        return;
+      }
+    }
     if (demo) {
       const tech = employeeId.trim();
       const problem = !tech ? "empty" : TECH_ID.test(tech) && tech.length <= 40 ? "" : "chars";

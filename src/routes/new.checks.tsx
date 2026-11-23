@@ -3,13 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { StepShell } from "../components/step-shell";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks } from "../lib/capture-fields";
 import { useDemo } from "../components/demo";
+import { CHECK_MSG_KEY } from "./new.photos";
 
 export const Route = createFileRoute("/new/checks")({
   validateSearch: fixSearch,
@@ -30,6 +31,18 @@ export function Checks() {
   useFixFocus(d.fix, d.fix?.value ?? "");
   const [err, setErr] = useState("");
   const normal = d.fixState === "off";
+  // Finish refused to save because Final checks were unticked: name them here and scroll to them.
+  const [unticked, setUnticked] = useState<[string, string][]>([]);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(CHECK_MSG_KEY);
+      if (!raw) return;
+      sessionStorage.removeItem(CHECK_MSG_KEY);
+      setUnticked(JSON.parse(raw));
+      setTimeout(() => document.getElementById("final-checks-msg")?.scrollIntoView({ block: "center" }), 50);
+    } catch { /* ignore */ }
+  }, []);
+  const stillUnticked = unticked.filter(([en]) => { const it = ITEMS.find((i) => i[1] === en); return it ? d.get(it[0]) !== "1" : false; });
   const demo = useDemo();
   const shown = applicableChecks(d.get("type") || undefined, { coil_model: d.get("coil_model"), coil_serial: d.get("coil_serial") });
   const guard = () => {
@@ -87,6 +100,11 @@ export function Checks() {
           {err && <p role="alert" className="cx-err">{err}</p>}
           <h2 className="cx-label text-sm font-semibold">{t("Final checks", "Verificaciones finales")}</h2>
         </div>
+      )}
+      {stillUnticked.length > 0 && (
+        <p id="final-checks-msg" role="alert" className="cx-err" data-testid="unticked-checks">
+          {t(`Not saved. Tick every Final check before finishing: ${stillUnticked.map((x) => x[0]).join("; ")}.`, `No se guardó. Marque todas las verificaciones finales antes de finalizar: ${stillUnticked.map((x) => x[1]).join("; ")}.`)}
+        </p>
       )}
       {ITEMS.filter(([k]) => shown.includes(k)).map(([k, en, es]) => {
         const ok = d.get(k) === "1";
