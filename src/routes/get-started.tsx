@@ -4,7 +4,7 @@ import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/get-started")({
-  head: () => ({ meta: [{ title: "Get started with PermitDraft Core" }, { name: "description", content: "Sign in, start your free 14-day PermitDraft Core trial, subscribe or manage your subscription." }] }),
+  head: () => ({ meta: [{ title: "Get started with PermitDraft" }, { name: "description", content: "Try the free PermitDraft demo with no sign-in, request Early Access, or manage an existing subscription." }] }),
   component: GetStarted,
 });
 
@@ -13,9 +13,9 @@ function GetStarted() {
   return (
     <AppPage>
       <div className="gs-wrap">
-        <p className="hp-eyebrow">{t("PermitDraft Core", "PermitDraft Core")}</p>
-        <h1 className="gs-h1">{t("Get started with", "Comience con")} <span>{t("Core.", "Core.")}</span></h1>
-        <p className="gs-lead">{t("Sign in, try Core free for 14 days, and subscribe only if it fits your crew.", "Inicie sesión, pruebe Core gratis por 14 días y suscríbase solo si le conviene.")}</p>
+        <p className="hp-eyebrow">{t("PermitDraft", "PermitDraft")}</p>
+        <h1 className="gs-h1">{t("Get started with", "Comience con")} <span>{t("the demo.", "la demo.")}</span></h1>
+        <p className="gs-lead">{t("Try every step on a sample job, free and with no sign-in. Existing subscribers can sign in at the bottom of the card.", "Pruebe cada paso con un trabajo de muestra, gratis y sin iniciar sesión. Los suscriptores actuales pueden iniciar sesión al final de la tarjeta.")}</p>
         <CoreOffer heading="h2" />
       </div>
     </AppPage>

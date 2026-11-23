@@ -23,8 +23,7 @@ function useNavGroups(): NavGroup[] {
       { label: t("Sample permit draft", "Borrador de permiso de muestra"), to: "/sample-job" },
       { label: t("Sample office handoff", "Entrega a oficina de muestra"), to: "/demo/office-handoff" },
     ] },
-    { label: t("Pricing", "Precio"), price: [t("PermitDraft Core", "PermitDraft Core"), t("US$49/month, renews monthly", "US$49/mes, se renueva mensualmente"), t("14-day free trial, no card needed", "Prueba gratis de 14 días, sin tarjeta")], note: t("PermitDraft Core: US$49/month, renews monthly. 14-day free trial, no card needed.", "PermitDraft Core: US$49/mes, se renueva mensualmente. Prueba gratis de 14 días, sin tarjeta."), links: [
-      { label: t("Start with PermitDraft Core", "Comenzar con PermitDraft Core"), to: "/get-started" },
+    { label: t("Try It", "Pruébelo"), links: [
       { label: t("Try Free Demo", "Probar la demo gratis"), to: "/demo" },
       { label: t("Early Access", "Acceso anticipado"), to: "/early-access" },
     ] },
@@ -48,7 +47,6 @@ function PublicNav({ home }: { home?: boolean }) {
         <DropdownMenu key={g.label} modal={false}>
           <DropdownMenuTrigger className="hp-nav-trigger" data-current={path === "/early-access" && g.links.some((l) => l.to === "/early-access") ? "true" : undefined}>{g.label}<ChevronDown size={16} aria-hidden /></DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="hp-nav-menu">
-            {g.note && <p className="hp-nav-note" data-testid="pricing-note">{g.note}</p>}
             {g.links.map((l) => (
               <DropdownMenuItem key={l.label} asChild><Link to={l.to as never} hash={l.hash}>{l.label}</Link></DropdownMenuItem>
             ))}
@@ -56,7 +54,7 @@ function PublicNav({ home }: { home?: boolean }) {
         </DropdownMenu>
       ))}
       <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
-      <Link to="/get-started" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+      <Link to="/demo" className="hp-nav-cta">{t("Try Free Demo", "Probar la demo gratis")}</Link>
     </nav>
   );
 }
@@ -74,7 +72,7 @@ function PublicNavPhone({ home }: { home?: boolean }) {
           {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}{t("Menu", "Menú")}
         </button>
         <Link to="/sign-in" className="hp-mnav-login">{t("Log In", "Iniciar sesión")}</Link>
-        <Link to="/get-started" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+        <Link to="/demo" className="hp-nav-cta">{t("Try Free Demo", "Probar la demo gratis")}</Link>
       </div>
       {open && (
         <nav id="hp-mnav-panel" className="hp-mnav-panel" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
@@ -84,7 +82,6 @@ function PublicNavPhone({ home }: { home?: boolean }) {
               <AccordionItem key={g.label} value={g.label}>
                 <AccordionTrigger className="hp-mnav-group">{g.label}</AccordionTrigger>
                 <AccordionContent>
-                  {g.price && <div className="hp-mnav-price" data-testid="pricing-note-phone"><span className="hp-mnav-price-name">{g.price[0]}</span><strong>{g.price[1]}</strong><span>{g.price[2]}</span></div>}
                   <ul className="hp-mnav-links">
                     {g.links.map((l) => <li key={l.label}><Link to={l.to as never} hash={l.hash} onClick={close}>{l.label}</Link></li>)}
                   </ul>

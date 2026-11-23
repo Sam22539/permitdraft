@@ -106,7 +106,7 @@ function Checklist() {
         <p className="lp-kicker">{t("Free checklist · no sign-in", "Lista gratis · sin iniciar sesión")}</p>
         <h1 id="ck-h1">{t("Heat Pump Change-Out Paperwork Checklist", "Lista de papeleo para cambio de bomba de calor")}</h1>
         <p className="ap-muted">{t("Use this checklist to capture the evidence your office needs to prepare a residential heat pump permit draft.", "Use esta lista para capturar la evidencia que su oficina necesita para preparar un borrador de permiso de bomba de calor residencial.")}</p>
-        <Link to="/get-started" className="ap-btn primary" data-testid="ck-trial-top">{t("Start your PermitDraft trial", "Comience su prueba de PermitDraft")}</Link>
+        <Link to="/demo" className="ap-btn primary" data-testid="ck-trial-top">{t("Try Free Demo", "Probar la demo gratis")}</Link>
         <p className="lp-sub">{t("14 days free, no card.", "14 días gratis, sin tarjeta.")} <Link to="/hvac-permits" className="lp-link">{t("How PermitDraft works", "Cómo funciona PermitDraft")}</Link></p>
       </section>
 
@@ -143,7 +143,7 @@ function Checklist() {
       <section className="lp-close" aria-labelledby="ck-end">
         <h2 id="ck-end" className="lp-h2">{t("Capture this checklist on every job", "Capture esta lista en cada trabajo")}</h2>
         <p>{t("PermitDraft walks your tech through these photos and readings, links each draft value to its evidence and marks what is NEEDED.", "PermitDraft guía a su técnico por estas fotos y lecturas, vincula cada valor del borrador con su evidencia y marca lo NECESARIO.")}</p>
-        <Link to="/get-started" className="ap-btn primary" data-testid="ck-trial">{t("Start your PermitDraft trial", "Comience su prueba de PermitDraft")}</Link>
+        <Link to="/demo" className="ap-btn primary" data-testid="ck-trial">{t("Try Free Demo", "Probar la demo gratis")}</Link>
         <p className="lp-sub on-dark">{t("14 days free, no card.", "14 días gratis, sin tarjeta.")} <Link to="/demo" className="lp-link">{t("Try the free demo", "Probar la demo gratis")}</Link></p>
       </section>
     </AppPage>

@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { backend } from "../lib/backend";
 import { finishGoogleSignIn, signInWithGoogle } from "../integrations/foundable/sign-in";
 import { EmailCodeForm } from "../integrations/foundable/email-code";
-import { BuyButton, ManageSubscriptionButton, useAccess } from "../lib/payments/buy";
+import { ManageSubscriptionButton, useAccess } from "../lib/payments/buy";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
-import { startCoreTrial } from "../lib/trial";
-import { sessionHeaders } from "../lib/payments/buy";
 import { Link } from "@tanstack/react-router";
+import { Play } from "lucide-react";
 import { PasswordAccountForm } from "./account-form";
 
 const PRICE = "permitdraft_core_4900_usd_monthly";
@@ -132,59 +131,40 @@ function EmailCodeSignIn({ onSignedIn }: { onSignedIn?: () => void }) {
   );
 }
 
-/** Core's offer: sign in, subscribe, manage. Where `compact`, no heading text above the price. */
+/** Demo-first panel: the free demo for everyone, Early Access, and the existing subscriber's or trial's status and Manage Subscription. */
 export function CoreOffer({ heading = "h2" }: { heading?: "h2" | "h3" }) {
   const { t } = useLang();
   const email = useSessionEmail();
   const access = useAccess("permitdraft_core");
   const trial = useCoreTrial();
   const [asked, setAsked] = useState(false);
-  const [starting, setStarting] = useState(false);
-  const [err, setErr] = useState("");
   const H = heading;
-  const start = async () => {
-    setStarting(true); setErr("");
-    try {
-      const h = await sessionHeaders();
-      const token = h ? Object.values(h as Record<string, string>)[0] : null;
-      if (!token) throw new Error("auth");
-      await startCoreTrial({ data: { token } });
-      window.dispatchEvent(new Event("core-trial-changed"));
-    } catch { setErr(t("We could not start your trial. Please try again.", "No pudimos iniciar su prueba. Inténtelo de nuevo.")); }
-    setStarting(false);
-  };
   const expiry = trial.expiresAt ? new Date(trial.expiresAt).toLocaleDateString(undefined, { dateStyle: "medium" }) : "";
   return (
     <section id="core-offer" className="ap-card ap-subscribe" aria-labelledby="sub-h" data-testid="subscribe">
-      <H id="sub-h">PermitDraft Core</H>
-      <p>{t("Try Core free for 14 days: no card needed. Subscribing is optional and nothing is billed automatically.", "Pruebe Core gratis por 14 días: sin tarjeta. Suscribirse es opcional y no se cobra nada automáticamente.")}</p>
-      <p className="ap-muted">{t("Includes field capture, jobs, draft review and inspection tracking, also during an active free trial. Jobs save in this browser; on Finish, photos are saved to your account and one private packet goes to the office.", "Incluye captura de campo, trabajos, revisión de borradores y seguimiento de inspecciones, también durante la prueba gratis activa. Los trabajos se guardan en este navegador; al Finalizar, las fotos se guardan en su cuenta y un paquete privado va a la oficina.")}</p>
-      <p className="ap-muted">{t("It does not verify permit rules and does not file anything for you. The public sample and coverage page stay free.", "No verifica reglas de permisos ni presenta nada por usted. La muestra pública y la página de cobertura siguen siendo gratis.")}</p>
+      <H id="sub-h">{t("Try PermitDraft free", "Pruebe PermitDraft gratis")}</H>
+      <p>{t("The free demo walks through every step on a sample job: field capture, draft review and the office handoff. No sign-in, no card, and nothing is sent or filed.", "La demo gratis recorre cada paso con un trabajo de muestra: captura de campo, revisión del borrador y entrega a la oficina. Sin iniciar sesión, sin tarjeta, y no se envía ni presenta nada.")}</p>
+      <div className="ap-subscribe-actions">
+        <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} aria-hidden />{t("Try Free Demo", "Probar la demo gratis")}</Link>
+        <Link to="/early-access" className="ap-btn ghost" data-testid="offer-early-access">{t("Request Early Access", "Solicitar acceso anticipado")}</Link>
+      </div>
       {email ? (
         <p className="ap-muted" data-testid="signed-in-as">{t("Signed in as", "Sesión iniciada como")} {email} · <button type="button" className="underline font-semibold" onClick={() => { void backend.auth.signOut(); }}>{t("Sign out", "Cerrar sesión")}</button></p>
       ) : null}
       {access !== true && trial.state === "active" && <p role="status" data-testid="trial-active"><strong>{t(`Your free trial is active until ${expiry}.`, `Su prueba gratis está activa hasta el ${expiry}.`)}</strong></p>}
-      {access !== true && trial.state === "expired" && <p role="status" data-testid="trial-expired"><strong>{t(`Your free trial ended on ${expiry}. Your work is saved; subscribe to keep using Core.`, `Su prueba gratis terminó el ${expiry}. Su trabajo está guardado; suscríbase para seguir usando Core.`)}</strong></p>}
       {access === true && <p role="status" data-testid="core-active"><strong>{t("Your Core access is active.", "Su acceso a Core está activo.")}</strong></p>}
-      <div className="ap-subscribe-actions">
-        {access !== true && email && trial.state === "none" && (
-          <button type="button" className="ap-btn primary" data-testid="start-trial" disabled={starting} onClick={() => { void start(); }}>{t("Start free trial", "Comenzar prueba gratis")}</button>
-        )}
-        {access !== true && (
-          <BuyButton priceHandle={PRICE} audience="signed_in" onSignIn={() => setAsked(true)} className="ap-btn primary">{t("Subscribe to PermitDraft Core", "Suscribirse a PermitDraft Core")}</BuyButton>
-        )}
-        <ManageSubscriptionButton priceHandle={PRICE} className="ap-btn ghost">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
-      </div>
-      <p className="ap-muted" data-testid="offer-demo">{t("Want to see it first?", "¿Quiere verlo primero?")} <Link to="/demo" className="underline font-semibold">{t("Try the free demo", "Probar la demo gratis")}</Link>{t(": every step, no sign-in or card.", ": todos los pasos, sin iniciar sesión ni tarjeta.")}</p>
-      {err && <p role="alert" className="ap-muted">{err}</p>}
+      {access === true && (
+        <div className="ap-subscribe-actions">
+          <ManageSubscriptionButton priceHandle={PRICE} className="ap-btn ghost">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
+        </div>
+      )}
       {email === null && asked && <SignInForm />}
       {email === null && !asked && (
-        <button type="button" className="underline font-semibold text-left" onClick={() => setAsked(true)}>{t("Sign in to your account", "Inicie sesión en su cuenta")}</button>
+        <button type="button" className="underline font-semibold text-left" onClick={() => setAsked(true)}>{t("Existing subscriber? Sign in", "¿Suscriptor actual? Inicie sesión")}</button>
       )}
     </section>
   );
 }
-
 /** Wraps a Core route: its paid part for a subscriber, the offer for everyone else. */
 export function CoreGate({ children }: { children: React.ReactNode }) {
   const { t } = useLang();
@@ -197,7 +177,7 @@ export function CoreGate({ children }: { children: React.ReactNode }) {
         <p className="ap-muted" role="status">{t("Checking your access…", "Comprobando su acceso…")}</p>
       ) : (
         <>
-          <p className="ap-muted">{t("This part of PermitDraft is for Core subscribers: field capture, draft review and inspection tracking.", "Esta parte de PermitDraft es para suscriptores de Core: captura de campo, revisión de borradores y seguimiento de inspecciones.")}</p>
+          <p className="ap-muted">{t("This part of PermitDraft is for existing subscribers. Everyone else can try every step in the free demo.", "Esta parte de PermitDraft es para suscriptores actuales. Todos los demás pueden probar cada paso en la demo gratis.")}</p>
           <CoreOffer heading="h2" />
         </>
       )}
