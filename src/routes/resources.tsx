@@ -49,7 +49,6 @@ function Resources() {
     <AppPage>
       <h1 className="text-3xl">{t("Official resources", "Recursos oficiales")}</h1>
       <p className="ap-muted">{t("Public links to official agencies for residential HVAC work in California, Arizona, Texas and Las Vegas, Nevada (not the rest of Nevada), plus federal references. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo residencial de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada), más referencias federales. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
-      <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
 
       <PageJumps items={[
         { id: "rs-checklist-card", label: ["Checklist", "Lista"] },

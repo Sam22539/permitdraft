@@ -53,8 +53,8 @@ export function OfficeHandoff() {
       <header className="jb-head">
         <div className="jb-title"><h1>{t("Office handoff", "Entrega a oficina")}</h1></div>
         <p className="ap-muted">{t(
-          demo ? "Search the demo's practice jobs by job number, address or customer name, then open the review draft." : "Search the captured jobs saved on this device by job number, address or customer name, then open the review draft.",
-          demo ? "Busque los trabajos de práctica de la demo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión." : "Busque los trabajos capturados en este dispositivo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión.",
+          demo ? "Search the demo's sample jobs by job number, address or customer name, then open the review draft." : "Search the captured jobs saved on this device by job number, address or customer name, then open the review draft.",
+          demo ? "Busque los trabajos de muestra de la demo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión." : "Busque los trabajos capturados en este dispositivo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión.",
         )}</p>
         <p className="ap-muted">{t("Ready for office review is not ready for filing. Filing always shows Not ready.", "Listo para revisión de oficina no es listo para presentar. Presentar siempre muestra No está listo.")}</p>
       </header>
@@ -75,7 +75,7 @@ export function OfficeHandoff() {
       </p>
       {mounted && rows.length === 0 && (
         <div className="jb-empty" data-testid="oh-empty">
-          <p>{t(demo ? "No practice jobs are saved in the demo yet. Finish a demo job and it shows up here." : "No captured jobs are saved on this device yet. Finish a job and it shows up here.", demo ? "Todavía no hay trabajos de práctica guardados en la demo. Termine un trabajo de la demo y aparecerá aquí." : "Todavía no hay trabajos capturados en este dispositivo. Termine un trabajo y aparecerá aquí.")}</p>
+          <p>{t(demo ? "No sample jobs are saved in the demo yet. Finish a demo job and it shows up here." : "No captured jobs are saved on this device yet. Finish a job and it shows up here.", demo ? "Todavía no hay trabajos de muestra guardados en la demo. Termine un trabajo de la demo y aparecerá aquí." : "Todavía no hay trabajos capturados en este dispositivo. Termine un trabajo y aparecerá aquí.")}</p>
           <Link to={p("/new")} className="ap-btn primary">{t("+ New job", "+ Nuevo trabajo")}</Link>
         </div>
       )}
@@ -89,7 +89,7 @@ export function OfficeHandoff() {
         <div key={c.id} className={`jb-job ${status}`} data-testid="oh-job">
           <div className="jb-top">
             <span className="jb-addr">{sm.addr}</span>
-            <span className={`jb-badge ${status}`}>{status === "missing" ? t("Missing info", "Falta información") : t("Draft", "Borrador")}</span>
+            <span className={`jb-badge ${status}`}>{status === "missing" ? t("Missing info", "Falta información") : t("Not filed yet", "Aún no presentado")}</span>
           </div>
           <p className="jb-meta">
             <span data-testid="oh-jobno">{t("Job", "Trabajo")} {c.id}</span>

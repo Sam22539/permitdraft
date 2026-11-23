@@ -61,7 +61,7 @@ export function Detail() {
     <AppPage bottom capture>
       {saved && (
         <div role="status" className="cx-card calm">
-          <p className="font-semibold">{demo ? t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.") : t("Job saved. This is not permit filing.", "Trabajo guardado. No es la presentación del permiso.")}</p>
+          <p className="font-semibold">{demo ? t("Demo job saved. Nothing is filed.", "Trabajo de demostración guardado. No se presenta nada.") : t("Job saved. This is not permit filing.", "Trabajo guardado. No es la presentación del permiso.")}</p>
           {!demo && doneId && <PacketInfo jobId={doneId} />}
           {doneId && <Link to={p("/permit/draft/$id")} params={{ id: doneId } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
           {demo && doneId && <DemoFeedback />}
@@ -136,7 +136,7 @@ export function Detail() {
       {summary("Work performed", "Trabajo realizado", "Heat-pump change-out, same pad, left side yard")}
 
       <button type="button" className="ap-btn primary" onClick={() => setSent(true)}>{t("Send homeowner update", "Enviar actualización al propietario")}</button>
-      {sent && <p role="status" className="ap-card font-semibold">{t("Practice only: nothing is sent", "Solo práctica: no se envía nada")}</p>}
+      {sent && <p role="status" className="ap-card font-semibold">{t("Demo only: nothing is sent", "Solo demo: no se envía nada")}</p>}
     </AppPage>
   );
 }

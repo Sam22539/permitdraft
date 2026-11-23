@@ -26,7 +26,7 @@ const JOBS: Job[] = [
   { id: "hp-1187", addr: "4412 Alder Court, Sacramento", who: ["MR", "Marcus Reyes"], equip: "Heat pump change-out", date: "Nov 18, 2026", status: "Missing info", next: "Next: fix 2 missing items", href: true },
   { id: "s1", addr: "7 Demo Lane", equip: "Gas furnace", date: "Nov 17, 2026", status: "Draft", next: "Next: finish job details (7 left)", sample: true },
   { id: "s2", addr: "33 Sample Rd", equip: "Heat pump AC", date: "Nov 16, 2026", status: "Blocked", next: "Refrigerant type to confirm with the office", sample: true },
-  { id: "s3", addr: "92 Placeholder Ct", equip: "Ductless mini-split", date: "Nov 15, 2026", status: "Draft", sample: true },
+  { id: "s3", addr: "92 Maple Court", equip: "Ductless mini-split", date: "Nov 15, 2026", status: "Draft", sample: true },
 ];
 const cls: Record<Status, string> = { Draft: "draft", "Missing info": "missing", Done: "done", Blocked: "blocked" };
 const esStatus: Record<Status, string> = { Draft: "Borrador", "Missing info": "Falta información", Done: "Listo", Blocked: "Bloqueado" };
@@ -88,7 +88,7 @@ export function Jobs() {
       <p className="jb-meta"><Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link><Link to={p("/office-handoff")} className="underline font-semibold" data-testid="office-handoff-link">{t("Office handoff search", "Búsqueda de entrega a oficina")}</Link></p>
       <section className="jb-metrics" aria-label={t("Job counts", "Conteo de trabajos")}>
         <div className="jb-metric blue"><strong>{all.length}</strong><span>{t("Total jobs", "Trabajos en total")}</span></div>
-        <div className="jb-metric slate"><strong>{count("Draft")}</strong><span>{t("Drafts in progress", "Borradores en curso")}</span></div>
+        <div className="jb-metric slate"><strong>{count("Draft")}</strong><span>{t("Not filed yet", "Aún no presentados")}</span></div>
         <div className="jb-metric warn"><strong>{count("Missing info")}</strong><span>{t("Missing information", "Falta información")}</span></div>
         <div className="jb-metric ok"><strong>{awaitingCount}</strong><span>{t("Ready for office review", "Listos para revisión de oficina")}</span></div>
       </section>
@@ -112,7 +112,7 @@ export function Jobs() {
       <div className="jb-chipwrap">
         <div className="jb-chips" role="group" aria-label={t("Filter jobs", "Filtrar trabajos")}>
           {chips.map(([c, es]) => (
-            <button key={c} type="button" className="jb-chip" aria-pressed={chip === c} onClick={() => setChip(c)}>{t(c, es)}</button>
+            <button key={c} type="button" className="jb-chip" aria-pressed={chip === c} onClick={() => setChip(c)}>{c === "Drafts" ? t("Not filed yet", "Aún no presentados") : t(c, es)}</button>
           ))}
         </div>
       </div>
@@ -129,7 +129,7 @@ export function Jobs() {
           <>
             <div className="jb-top">
               <span className="jb-addr">{j.addr}</span>
-              <span className={`jb-badge ${cls[j.status]}`}>{lang === "es" ? esStatus[j.status] : j.status}</span>
+              <span className={`jb-badge ${cls[j.status]}`}>{j.status === "Draft" ? ((j as { sample?: boolean }).sample ? t("In progress", "En curso") : t("Not filed yet", "Aún no presentado")) : lang === "es" ? esStatus[j.status] : j.status}</span>
             </div>
             {j.who && <div className="jb-who"><span className="jb-init">{j.who[0]}</span><span>{j.who[1]}</span></div>}
             <p className="jb-meta">{j.equip} · {j.date}{j.sample && <span className="jb-tag">{t("Sample", "Muestra")}</span>}</p>

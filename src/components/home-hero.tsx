@@ -35,8 +35,8 @@ export function ScreenPreview() {
   const { t } = useLang();
   const rows: [string, string, string, boolean][] = [
     ["4412 Alder Court, Sacramento", "Marcus Reyes · " + t("Heat pump change-out", "Cambio de bomba de calor"), t("Missing info", "Falta información"), true],
-    ["7 Demo Lane", t("Gas furnace", "Furnace de gas"), t("Draft", "Borrador"), false],
-    ["92 Placeholder Ct", t("Ductless mini-split", "Mini-split sin ductos"), t("Draft", "Borrador"), false],
+    ["7 Demo Lane", t("Gas furnace", "Furnace de gas"), t("In progress", "En curso"), false],
+    ["92 Maple Court", t("Ductless mini-split", "Mini-split sin ductos"), t("In progress", "En curso"), false],
   ];
   return (
     <div className="hp-devices" role="img" aria-label={t("Sample PermitDraft screens: the Jobs dashboard on a laptop beside an outdoor condenser, filled with the demo's sample job", "Pantallas de muestra de PermitDraft: el panel de trabajos en una laptop junto a una unidad exterior, con el trabajo de muestra de la demo")}>
@@ -47,7 +47,7 @@ export function ScreenPreview() {
           <div className="hp-scr-main">
             <div className="hp-scr-top"><b>{t("Jobs", "Trabajos")}</b><span className="hp-scr-btn">+ {t("New job", "Nuevo trabajo")}</span></div>
             <div className="hp-scr-metrics">
-              <span><b>4</b>{t("Total jobs", "Total")}</span><span><b>2</b>{t("Drafts", "Borradores")}</span><span className="w"><b>1</b>{t("Missing info", "Falta info")}</span><span className="g"><b>0</b>{t("Ready for review", "Listos")}</span>
+              <span><b>4</b>{t("Total jobs", "Total")}</span><span><b>2</b>{t("In progress", "En curso")}</span><span className="w"><b>1</b>{t("Missing info", "Falta info")}</span><span className="g"><b>0</b>{t("Ready for review", "Listos")}</span>
             </div>
             <div className="hp-scr-table">
               {rows.map((r) => <div key={r[0]} className="hp-scr-row"><span><b>{r[0]}</b><em>{r[1]}</em></span><span className={`hp-scr-badge${r[3] ? " w" : ""}`}>{r[2]}</span></div>)}

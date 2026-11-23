@@ -55,9 +55,9 @@ type Entry = {
   at: string;
 };
 
-const EDITOR = "Practice reviewer (named practice role, not a verified identity)";
+const EDITOR = "Demo reviewer (named demo role, not a verified identity)";
 
-const EDITOR_ES = "Revisor de práctica (rol de práctica con nombre, no una identidad verificada)";
+const EDITOR_ES = "Revisor de demo (rol de demo con nombre, no una identidad verificada)";
 function fmt(iso: string, lang: "en" | "es" = "en") {
   return new Date(iso).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "medium" });
 }
@@ -249,7 +249,7 @@ function Page() {
         <Image src="/generated-assets/company-logo.png" alt="PermitDraft logo" width={44} height={44} priority />
         <div>
           <p className="pd-brand">PermitDraft</p>
-          <p className="pd-practice">{t("Practice job — not connected to real permit filing", "Trabajo de práctica: no conectado a la presentación real de permisos")}</p>
+          <p className="pd-practice">{t("Demo job — not filed with the permitting authority", "Trabajo de demo: no presentado ante la autoridad de permisos")}</p>
         </div>
       </header>
 
@@ -362,7 +362,7 @@ function Page() {
 
             <div className="pd-card" aria-labelledby="hist">
               <h2 id="hist">{t("History", "Historial")}: {fl(sel)}</h2>
-              <p className="pd-ev-src">{t("Newest first. Practice entries only, kept in this browser for this participant.", "Lo más reciente primero. Solo entradas de práctica, guardadas en este navegador.")}</p>
+              <p className="pd-ev-src">{t("Newest first. Demo entries only, kept in this browser for this participant.", "Lo más reciente primero. Solo entradas de demo, guardadas en este navegador.")}</p>
               {history.filter((h) => h.fieldId === sel.id).length === 0 ? (
                 <p className="pd-ev-text">{t("No changes recorded for this field yet.", "Aún no hay cambios registrados para este campo.")}</p>
               ) : (
@@ -437,8 +437,8 @@ function Page() {
       </main>
 
       <footer className="pd-foot">
-        <p>{t("Draft — not a guarantee of compliance. Contractor review and signature required.", "Borrador: no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
-        <p>{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No conectada a la presentación real de permisos.")}</p>
+        <p>{t("PermitDraft prepares documentation for contractor review. It does not file permits or guarantee compliance.", "PermitDraft prepara documentación para revisión del contratista. No presenta permisos ni garantiza el cumplimiento.")}</p>
+        <p>{t("Demo with a sample job. Nothing is filed.", "Demo con un trabajo de muestra. No se presenta nada.")}</p>
         <p><a className="underline font-semibold" href="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</a></p>
       </footer>
     </div>

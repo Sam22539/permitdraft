@@ -113,7 +113,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
       </section>
       {fixBar}
       <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />
-      <p className="cx-note">{demo ? t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.") : t("Not connected to real permit filing.", "No está conectada a la presentación real de permisos.")}</p>
+      <p className="cx-note">{demo ? t("Demo with a sample job. Nothing is filed.", "Demo con un trabajo de muestra. No se presenta nada.") : t("Not filed with the permitting authority.", "No presentado ante la autoridad de permisos.")}</p>
     </AppPage>
   );
 }

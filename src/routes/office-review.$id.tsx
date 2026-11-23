@@ -93,7 +93,7 @@ function OfficeReview() {
             <h2 id="or-sent" className="ap-h2">{t("Job", "Trabajo")} {pk.job_id}</h2>
             <p data-testid="or-submitted"><strong>{t("Submitted by", "Enviado por")}</strong> {pk.sent_by_name}{pk.employee_id ? ` · ${t("Employee ID", "ID de empleado")} ${pk.employee_id}` : ""}</p>
             <p className="ap-muted">{new Date(pk.sent_at).toLocaleString(lang === "es" ? "es" : "en-US")}</p>
-            <p className="ap-muted">{t("For office review only, not permit filing. Draft, not a guarantee of compliance. Contractor review and signature required.", "Solo para revisión de oficina, no para presentar el permiso. Borrador, no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+            <p className="ap-muted">{t("For office review only, not permit filing. Contractor review and signature required.", "Solo para revisión de oficina, no para presentar el permiso. Se requiere revisión y firma del contratista.")}</p>
           </section>
           <section className="ap-card" aria-labelledby="or-corr" data-testid="or-corrections">
             <h2 id="or-corr" className="ap-h2">{t("Correction requests", "Solicitudes de corrección")}</h2>

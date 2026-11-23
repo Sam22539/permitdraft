@@ -201,7 +201,7 @@ export function AppPage({ children, bottom, wide, capture, home, core }: { child
       <AppTop home={home} mode={demo ? "demo" : bottom || core ? "core" : undefined} />
       <main className={`${home ? "hp-main" : "ap-main"} ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{demo && <DemoBar />}{children}</main>
       {(demo || bottom || core) && <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
-        <p>{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+        <p>{t("PermitDraft prepares documentation for contractor review. It does not file permits or guarantee compliance.", "PermitDraft prepara documentación para revisión del contratista. No presenta permisos ni garantiza el cumplimiento.")}</p>
         <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
         <Link to="/resources" className="underline font-semibold">{t("Official resources", "Recursos oficiales")}</Link>
       </footer>}

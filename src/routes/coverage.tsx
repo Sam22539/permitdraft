@@ -43,7 +43,6 @@ function Coverage() {
         <p>{t("Verified permit rules cover no state, county or city, including the areas above. Nothing here checks a law, code or local rule, there is no nationwide coverage, and PermitDraft files nothing.", "Las reglas de permisos verificadas no cubren ningún estado, condado ni ciudad, incluidas las áreas de arriba. Nada aquí verifica una ley, código o regla local, no hay cobertura nacional y PermitDraft no presenta nada.")}</p>
         <p className="ap-muted">{t("Verified legal rules: 0. The official pages below are handoff references only. For any other jurisdiction, the permit office, dates, fees and requirements are unverified: the office must confirm them.", "Reglas legales verificadas: 0. Las páginas oficiales de abajo son solo referencias de entrega. Para cualquier otra jurisdicción, la oficina de permisos, las fechas, las tarifas y los requisitos no están verificados: la oficina debe confirmarlos.")}</p>
       </section>
-      <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
       {HANDOFF_STATES.map((s) => (
         <section id={s.code === HANDOFF_STATES[0].code ? "cv-official" : undefined} className="ap-card" key={s.code} data-testid={`coverage-state-${s.code}`}>
           <h2 className="ap-h2">{t(...s.name)}</h2>
