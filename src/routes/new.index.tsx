@@ -10,14 +10,15 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
 import { useCorePath } from "../components/demo";
+import { AddressLookup } from "../components/address-lookup";
 
 export const Route = createFileRoute("/new/")({
   validateSearch: fixSearch,
   head: () => ({ meta: [{ title: "New job — PermitDraft" }, { name: "description", content: "Step 1 of 5: homeowner and job site." }] }),
-  component: () => <CoreGate><NewJob /></CoreGate>,
+  component: () => <CoreGate><NewJob lookup /></CoreGate>,
 });
 
-export function NewJob() {
+export function NewJob({ lookup = false }: { lookup?: boolean } = {}) {
   const { t } = useLang();
   const p = useCorePath();
   const nav = useNavigate();
@@ -44,7 +45,9 @@ export function NewJob() {
       <form className="cx-card" onSubmit={next} data-saved={draft ? "yes" : "no"}>
         <div className="cx-field"><Label htmlFor="n">{t("Homeowner name *", "Nombre del propietario *")}</Label><Input id="n" value={f.name} onChange={set("name")} autoComplete="off" /></div>
         <div className="cx-field"><Label htmlFor="p">{t("Phone", "Teléfono")}</Label><Input id="p" type="tel" value={f.phone} onChange={set("phone")} /></div>
-        <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label><Input id="a" value={f.addr} onChange={set("addr")} /></div>
+        <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label>{lookup && d.fixState === "off"
+          ? <AddressLookup id="a" value={f.addr} onText={(v) => d.set("addr", v)} onPick={(a) => { d.set("addr", a.street); d.set("city", a.city); }} />
+          : <Input id="a" value={f.addr} onChange={set("addr")} />}</div>
         <div className="cx-field"><Label htmlFor="c">{t("City *", "Ciudad *")}</Label><Input id="c" value={f.city} onChange={set("city")} /></div>
         <p className="cx-note">{t("County: set in Settings", "Condado: se define en Ajustes")}</p>
         {d.fixState === "off" && <div className="cx-actions">
