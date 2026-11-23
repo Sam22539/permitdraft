@@ -8,7 +8,7 @@ import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks, checkConfirmed, furnaceAnswers, scopeKeyOf, tickValues } from "../lib/capture-fields";
+import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks, checkConfirmed, checkNeedsReview, furnaceAnswers, reviewReason, scopeValues, tickValues } from "../lib/capture-fields";
 import { useDemo } from "../components/demo";
 import { CHECK_MSG_KEY } from "./new.photos";
 
@@ -43,7 +43,7 @@ export function Checks() {
     } catch { /* ignore */ }
   }, []);
   const jt = d.get("type") || undefined;
-  const sv: Record<string, string> = { fu_furnace: d.get("fu_furnace"), fu_coil: d.get("fu_coil"), fu_outdoor: d.get("fu_outdoor"), fu_refrig: d.get("fu_refrig"), ...Object.fromEntries(["c1", "c2", "c3", "c4"].flatMap((k) => [[k, d.get(k)], [scopeKeyOf(k), d.get(scopeKeyOf(k))]])) };
+  const sv: Record<string, string> = scopeValues(d.get);
   const stillUnticked = unticked.filter(([en]) => { const it = ITEMS.find((i) => i[1] === en); return it ? !checkConfirmed(jt, sv, it[0]) : false; });
   const demo = useDemo();
   const shown = applicableChecks(jt, sv);
@@ -115,13 +115,20 @@ export function Checks() {
       {fa.contradiction && <p role="alert" className="cx-err">{t("Your answers conflict (no outdoor unit, but refrigerant work done). Fix them on the Equipment step.", "Sus respuestas se contradicen (sin unidad exterior, pero con trabajo de refrigerante). Corríjalas en el paso Equipo.")}</p>}
       {ITEMS.filter(([k]) => shown.includes(k)).map(([k, en, es]) => {
         const ok = checkConfirmed(jt, sv, k);
+        const review = !ok && checkNeedsReview(jt, sv, k);
+        const why = review ? reviewReason(sv, k) : null;
         return (
-          <div key={k} className="grid gap-3">
+          <div key={k} className="grid gap-3" data-testid={`check-${k}`}>
             <label className={`cx-check${demo ? " cx-demo-check" : ""}${ok ? " on" : ""}`}>
               <input type="checkbox" checked={ok} onChange={(e) => { for (const [kk, vv] of Object.entries(tickValues(jt, sv, k, e.target.checked))) d.set(kk, vv); }} />
               <span className="txt">{t(en, es)}</span>
-              <strong className={ok ? "cx-ok" : "cx-need"}>{ok ? t("Confirmed", "Confirmado") : t("NEEDED", "NECESARIO")}</strong>
+              <strong className={ok ? "cx-ok" : "cx-need"} data-testid={`check-${k}-state`}>{ok ? t("Confirmed", "Confirmado") : review ? t("Review again", "Revisar de nuevo") : t("NEEDED", "NECESARIO")}</strong>
             </label>
+            {why && (
+              <p role="status" className="cx-note" data-testid={`check-${k}-why`}>
+                <strong>{t("Review again", "Revisar de nuevo")}:</strong> {t(...why)} {t("Your earlier confirmation is shown for reference only and does not count.", "Su confirmación anterior se muestra solo como referencia y no cuenta.")}
+              </p>
+            )}
             {k === "c2" && demo && (
               <div className="grid gap-3">
                 {demoReading("sub", ["Subcooling", "Subenfriamiento"])}

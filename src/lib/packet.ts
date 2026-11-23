@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { applicableChecks, checkConfirmed, furnaceAnswers, requiredSlots } from "./capture-fields";
+import { applicableChecks, checkConfirmed, furnaceAnswers, missingSlots } from "./capture-fields";
 import { ALL_SLOTS, EXTRA_SLOTS, type Slot } from "./photos";
 
 const KNOWN: string[] = [...ALL_SLOTS, ...EXTRA_SLOTS];
@@ -38,7 +38,12 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     // The job flow's required photos decide, read from what is stored; the device's list only names uploads in progress.
     const type = data.values.type || "Heat pump change-out";
     const answers = furnaceAnswers(type, data.values);
-    const missing = requiredSlots(type, data.values).filter((s) => !have.has(s) && !data.slots.includes(s)) as Slot[];
+    // A photo counts only while it is current: a data plate photo saved before its equipment's scope changed is stale (never attributed to the changed equipment).
+    const ms = (v: unknown) => { const n = Number(v); return Number.isFinite(n) ? n : Date.parse(String(v)); };
+    const times: Partial<Record<Slot, number>> = {};
+    for (const p of [...photos, ...extras]) times[p.slot as Slot] = ms(p.taken_at);
+    for (const s of data.slots) if (!have.has(s)) times[s as Slot] = Number.MAX_SAFE_INTEGER;
+    const missing = missingSlots(type, data.values, times);
     const waiting = data.slots.filter((s) => !have.has(s)).length;
     const office = await import("./office.server");
     const capture = office.isTestPerson(u.user);

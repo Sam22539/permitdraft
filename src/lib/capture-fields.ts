@@ -75,7 +75,7 @@ export const DUCT_LABEL: Record<string, L> = {
 };
 /** Captured details that belong to no field of this capture (kept as evidence). Blank strings are kept only when non-empty. */
 export function uncategorized(c: Captured): [string, string][] {
-  const known = new Set([...fieldSets(c).map((f) => f.key), ...Object.values(READING_UNIT_KEY), ...["c1", "c2", "c3", "c4"].map(scopeKeyOf)]);
+  const known = new Set([...fieldSets(c).map((f) => f.key), ...Object.values(READING_UNIT_KEY), ...["c1", "c2", "c3", "c4"].flatMap((k) => [scopeKeyOf(k), invKeyOf(k)]), ...PLATE_SLOTS_LIST.map(staleKeyOf)]);
   return Object.entries(c.values).filter(([k, v]) => !known.has(k) && String(v).trim() !== "") as [string, string][];
 }
 
@@ -83,7 +83,7 @@ export function captureSummary(c: Captured, lang: "en" | "es") {
   const has = (k: string) => String(c.values[k] ?? "").trim() !== "";
   const required = fieldSets(c).filter((f) => f.required);
   const missingFields = required.filter((f) => !has(f.key)).length;
-  const missingPhotos = requiredSlots(activeType(c), c.values).filter((s) => !c.photos.some((p) => p.slot === s)).length;
+  const missingPhotos = missingSlots(activeType(c), c.values, Object.fromEntries(c.photos.map((p) => [p.slot, p.savedAt]))).length;
   const addr = [c.values.addr, c.values.city].filter((x) => x && x.trim()).join(", ");
   const type = activeType(c);
   return {
@@ -164,23 +164,102 @@ export function furnaceScope(values: Record<string, string>) {
     refrigerant: values.fu_refrig === "yes" || coil || outdoor,
   };
 }
-const CHECK_SCOPE_KEYS: Record<string, string[]> = { c1: ["fu_outdoor"], c2: ["fu_refrig", "fu_coil", "fu_outdoor"], c3: ["fu_refrig", "fu_coil", "fu_outdoor"], c4: [] };
-/** The scope a check's confirmation was given under. A tick only counts while the scope it was given under still stands. */
+/**
+ * Per-answer dependencies. A Final check depends only on the part of the scope that decides whether it applies and what it is
+ * about, in terms of the actual work (replaced or not, refrigerant work or not), never on every answer:
+ *   c1 outdoor location   -> outdoor unit replaced
+ *   c2 / c3 refrigerant   -> refrigerant work, indoor coil replaced, outdoor unit replaced
+ *   c4 equipment label    -> nothing (universal)
+ * A change to an answer outside a check's dependencies (furnace kept/replaced, or kept -> not present for the outdoor unit)
+ * leaves that check's confirmation exactly as it was.
+ */
+const DEP_LABEL: Record<string, { s: L; y: L; n: L }> = {
+  o: { s: ["Outdoor unit", "Unidad exterior"], y: ["replaced", "reemplazada"], n: ["not replaced", "no reemplazada"] },
+  c: { s: ["Indoor coil", "Serpentín interior"], y: ["replaced", "reemplazado"], n: ["not replaced", "no reemplazado"] },
+  r: { s: ["Refrigerant work", "Trabajo con refrigerante"], y: ["done", "realizado"], n: ["not done", "no realizado"] },
+};
+const CHECK_DEPS: Record<string, string[]> = { c1: ["o"], c2: ["r", "c", "o"], c3: ["r", "c", "o"], c4: [] };
+function depValue(d: string, values: Record<string, string>): string {
+  const a = d === "o" ? values.fu_outdoor : d === "c" ? values.fu_coil : values.fu_refrig;
+  const known = d === "o" ? ["kept", "replaced", "none"] : d === "c" ? ["replaced", "retained"] : ["yes", "no"];
+  if (!known.includes(a ?? "")) return `${d}?`;
+  return `${d}${a === (d === "r" ? "yes" : "replaced") ? 1 : 0}`;
+}
+/** The scope a check's confirmation was given under (its dependencies only). "?" marks an unanswered dependency. */
 export function checkScope(k: string, values: Record<string, string>): string {
-  return (CHECK_SCOPE_KEYS[k] ?? []).map((x) => values[x] ?? "").join("|");
+  return (CHECK_DEPS[k] ?? []).map((d) => depValue(d, values)).join("|");
+}
+/** The older stored form (raw answers joined), still honoured so saved jobs keep their confirmations. */
+function legacyScope(k: string, values: Record<string, string>): string {
+  const keys: Record<string, string[]> = { c1: ["fu_outdoor"], c2: ["fu_refrig", "fu_coil", "fu_outdoor"], c3: ["fu_refrig", "fu_coil", "fu_outdoor"], c4: [] };
+  return (keys[k] ?? []).map((x) => values[x] ?? "").join("|");
 }
 export const scopeKeyOf = (k: string) => `${k}_sc`;
-/** Is this Final check confirmed for the job as it stands now? Furnace + coil confirmations must match the current scope. */
+/** Set when a scope change touched a confirmation: it then stays "Review again" until the tech confirms it again, even if the scope changes back. */
+export const invKeyOf = (k: string) => `${k}_inv`;
+/** The stored scope still stands for this check (and is fully answered). */
+function scopeStands(values: Record<string, string>, k: string): boolean {
+  const now = checkScope(k, values);
+  if (now.includes("?")) return false;
+  const was = values[scopeKeyOf(k)] ?? "";
+  return was === now || was === legacyScope(k, values);
+}
+/** Was this check confirmed once (a stored tick) but can no longer count? Its value is shown as reference only. */
+export function checkNeedsReview(type: string | undefined, values: Record<string, string>, k: string): boolean {
+  if (type !== FURNACE || values[k] !== "1") return false;
+  return values[invKeyOf(k)] === "1" || !scopeStands(values, k);
+}
+/** Is this Final check confirmed for the job as it stands now? Furnace + coil confirmations must match the current scope and not be flagged. */
 export function checkConfirmed(type: string | undefined, values: Record<string, string>, k: string): boolean {
   if (values[k] !== "1") return false;
   if (type !== FURNACE) return true;
-  return (values[scopeKeyOf(k)] ?? "") === checkScope(k, values);
+  return !checkNeedsReview(type, values, k);
 }
-/** Values to store when a check is ticked or unticked. */
+/** Why a confirmation needs another look: the dependencies that differ from when it was given. */
+export function reviewReason(values: Record<string, string>, k: string): L {
+  const was = (values[scopeKeyOf(k)] ?? "").split("|"), now = checkScope(k, values).split("|");
+  const diff = (CHECK_DEPS[k] ?? []).map((d, i) => ({ d, w: was.find((x) => x[0] === d) ?? "", n: now[i] })).filter((x) => x.w !== x.n && x.w !== "");
+  if (diff.length === 0) return ["The job's scope changed after you confirmed this. Confirm it again.", "El alcance del trabajo cambió después de confirmar esto. Confírmelo de nuevo."];
+  const word = (d: string, v: string, i: 0 | 1) => (v.endsWith("1") ? DEP_LABEL[d].y[i] : v.endsWith("0") ? DEP_LABEL[d].n[i] : i ? "sin responder" : "not answered");
+  const en = diff.map((x) => `${DEP_LABEL[x.d].s[0]}: was ${word(x.d, x.w, 0)}, now ${word(x.d, x.n, 0)}`).join("; ");
+  const es = diff.map((x) => `${DEP_LABEL[x.d].s[1]}: antes ${word(x.d, x.w, 1)}, ahora ${word(x.d, x.n, 1)}`).join("; ");
+  return [`${en}. Confirm it again.`, `${es}. Confírmelo de nuevo.`];
+}
+/** Values to store when a check is ticked or unticked. Ticking confirms under the current scope and lifts any review flag. */
 export function tickValues(type: string | undefined, values: Record<string, string>, k: string, on: boolean): Record<string, string> {
-  if (!on) return { [k]: "", [scopeKeyOf(k)]: "" };
-  return { [k]: "1", [scopeKeyOf(k)]: type === FURNACE ? checkScope(k, values) : "" };
+  if (!on) return { [k]: "", [scopeKeyOf(k)]: "", [invKeyOf(k)]: "" };
+  return { [k]: "1", [scopeKeyOf(k)]: type === FURNACE ? checkScope(k, values) : "", [invKeyOf(k)]: "" };
 }
+/** Replaced-ness of each piece of equipment decides whose data plate a photo can stand for. */
+const PLATE_SCOPE: Record<Slot, string | undefined> = { plate_furnace: "fu_furnace", plate_coil: "fu_coil", plate_outdoor: "fu_outdoor" } as never;
+export const staleKeyOf = (slot: string) => `${slot}_stale`;
+/** A saved plate photo marked stale (taken before its equipment's scope changed) no longer counts until retaken or kept on purpose. */
+export function photoStale(values: Record<string, string>, slot: Slot, savedAt: number | undefined): boolean {
+  const m = values[staleKeyOf(slot)];
+  return !!m && savedAt !== undefined && m === String(savedAt);
+}
+/**
+ * What a change from one set of answers to the next touches, so only affected items are invalidated:
+ * confirmed checks whose own dependencies changed (or all, when the job type moved to or from furnace + coil) are flagged for review,
+ * and a saved plate photo of equipment whose replaced/kept answer changed is marked stale. The old values stay as reference.
+ */
+export function scopeChangePatch(prev: Record<string, string>, next: Record<string, string>, photoTimes: Partial<Record<Slot, number>>): Record<string, string> {
+  const patch: Record<string, string> = {};
+  const pt = prev.type ?? "", nt = next.type ?? "";
+  if (nt !== FURNACE && pt !== FURNACE) return patch;
+  const typeMoved = pt !== nt;
+  for (const k of ["c1", "c2", "c3", "c4"]) {
+    if (next[k] !== "1") continue;
+    if (typeMoved || (nt === FURNACE && !scopeStands(next, k))) patch[invKeyOf(k)] = "1";
+  }
+  for (const slot of PLATE_SLOTS_LIST) {
+    const key = PLATE_SCOPE[slot]!, at = photoTimes[slot];
+    if (at === undefined) continue;
+    if (typeMoved || (prev[key] === "replaced") !== (next[key] === "replaced")) patch[staleKeyOf(slot)] = String(at);
+  }
+  return patch;
+}
+const PLATE_SLOTS_LIST: Slot[] = ["plate_furnace", "plate_coil", "plate_outdoor"];
 /**
  * Final checks that apply to this job. The equipment label check always applies. Heat pump and central AC keep all four.
  * Furnace + coil: the outdoor location check when the outdoor unit was replaced, the refrigerant checks on refrigerant circuit work.
@@ -203,12 +282,21 @@ export function requiredSlots(type: string | undefined, values: Record<string, s
   if (sc.refrigerant) out.push("gauge");
   return out;
 }
+/** Required slots with no usable photo: none saved, or the saved plate photo predates a change to its equipment's scope. */
+export function missingSlots(type: string | undefined, values: Record<string, string>, photoTimes: Partial<Record<Slot, number>>): Slot[] {
+  return requiredSlots(type, values).filter((s) => photoTimes[s] === undefined || photoStale(values, s, photoTimes[s]));
+}
+/** Every answer and flag a step needs to judge scope, read through one getter. */
+export function scopeValues(get: (k: string) => string): Record<string, string> {
+  const keys = ["type", ...FU_SCOPE_KEYS, ...["c1", "c2", "c3", "c4"].flatMap((k) => [k, scopeKeyOf(k), invKeyOf(k)]), ...PLATE_SLOTS_LIST.map(staleKeyOf)];
+  return Object.fromEntries(keys.map((k) => [k, get(k)]));
+}
 const CHECK_DEPENDENTS: Record<string, string[]> = { c2: ["sub", "sup", "sub_unit", "sup_unit"] };
 /** Values with answers for checks (and readings) that do not apply to this job removed. Nothing is removed while an answer is missing. */
 export function cleanValues(type: string | undefined, values: Record<string, string>): Record<string, string> {
   if (furnaceAnswers(type, values).missing.length > 0) return { ...values };
   const ok = new Set(applicableChecks(type, values));
   const out = { ...values };
-  for (const k of ["c1", "c2", "c3", "c4"]) if (!ok.has(k)) { delete out[k]; delete out[scopeKeyOf(k)]; for (const d of CHECK_DEPENDENTS[k] ?? []) delete out[d]; }
+  for (const k of ["c1", "c2", "c3", "c4"]) if (!ok.has(k)) { delete out[k]; delete out[scopeKeyOf(k)]; delete out[invKeyOf(k)]; for (const d of CHECK_DEPENDENTS[k] ?? []) delete out[d]; }
   return out;
 }

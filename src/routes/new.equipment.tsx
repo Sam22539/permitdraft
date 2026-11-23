@@ -6,8 +6,8 @@ import { Label } from "../components/ui/label";
 import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
-import { usePhotos } from "../lib/photos";
-import { FU_COIL_OPTS, FU_FURNACE_OPTS, FU_OUTDOOR_OPTS, FU_REFRIG_OPTS, furnaceAnswers, furnaceScope, retainedField, FU_SCOPE_KEYS, applicableChecks, checkScope, scopeKeyOf } from "../lib/capture-fields";
+import { usePhotos, PLATE_SLOTS } from "../lib/photos";
+import { FU_COIL_OPTS, FU_FURNACE_OPTS, FU_OUTDOOR_OPTS, FU_REFRIG_OPTS, furnaceAnswers, furnaceScope, retainedField, FU_SCOPE_KEYS, scopeChangePatch, scopeValues, photoStale, staleKeyOf } from "../lib/capture-fields";
 import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/equipment")({
@@ -22,12 +22,14 @@ export function Equipment() {
   useFixFocus(d.fix, d.fix?.value ?? "");
   const { photos } = usePhotos();
   const on = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const prev = scopeValues(d.get);
     d.set(k, e.target.value);
-    // A scope answer changed: confirmations given under the old scope are dropped, so they can never come back as satisfied.
-    if ((FU_SCOPE_KEYS as readonly string[]).includes(k)) {
-      const next = { type: d.get("type"), ...Object.fromEntries(FU_SCOPE_KEYS.map((x) => [x, x === k ? e.target.value : d.get(x)])) } as Record<string, string>;
-      const keep = new Set(applicableChecks(next.type, next));
-      for (const c of ["c1", "c2", "c3", "c4"]) if (d.get(c) && (!keep.has(c) || checkScope(c, next) !== d.get(scopeKeyOf(c)))) { d.set(c, ""); d.set(scopeKeyOf(c), ""); }
+    // Only what this answer touches is flagged: confirmations whose own dependencies changed stay as reference and ask for a
+    // review (never cleared, never silently valid again), and saved plate photos of equipment whose answer changed stop counting.
+    if (k === "type" || (FU_SCOPE_KEYS as readonly string[]).includes(k)) {
+      const next = { ...prev, [k]: e.target.value };
+      const times = Object.fromEntries(PLATE_SLOTS.filter((sl) => photos[sl]).map((sl) => [sl, photos[sl]!.savedAt]));
+      for (const [kk, vv] of Object.entries(scopeChangePatch(prev, next, times))) d.set(kk, vv);
     }
   };
   const type = d.get("type");
@@ -49,6 +51,12 @@ export function Equipment() {
   const plateShot = (slot: "plate_furnace" | "plate_coil" | "plate_outdoor", replaced: boolean, l: [string, string]) => (replaced || photos[slot]) ? (
     <div data-testid={`equip-${slot}`}>
       <PhotoSlot slot={slot} label={l} photo={photos[slot]} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
+      {replaced && photos[slot] && photoStale({ [staleKeyOf(slot)]: val(staleKeyOf(slot)) }, slot, photos[slot]!.savedAt) && (
+        <div role="status" className="cx-err" data-testid={`stale-${slot}`}>
+          <p><strong>{t("Review again", "Revisar de nuevo")}</strong>: {t("this photo was saved before the replaced/kept answer for this equipment changed, so it is not counted for it. Retake it, or confirm it shows this equipment.", "esta foto se guardó antes de que cambiara la respuesta de reemplazo de este equipo, por lo que no se cuenta. Tómela de nuevo, o confirme que muestra este equipo.")}</p>
+          <button type="button" className="ap-btn ghost" data-testid={`keep-${slot}`} onClick={() => d.set(staleKeyOf(slot), "")}>{t("This photo shows this equipment", "Esta foto muestra este equipo")}</button>
+        </div>
+      )}
       {!replaced && <p className="cx-note">{t("Optional: this equipment was not replaced.", "Opcional: este equipo no se reemplazó.")}</p>}
     </div>
   ) : null;

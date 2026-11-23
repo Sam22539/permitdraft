@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { Captured } from "../captured";
-import { activeType, applicableChecks, checkConfirmed, cleanValues, fieldSets, furnaceAnswers, requiredSlots } from "../capture-fields";
+import { activeType, applicableChecks, checkConfirmed, checkNeedsReview, cleanValues, fieldSets, furnaceAnswers, photoStale, requiredSlots, reviewReason } from "../capture-fields";
 import { ALL_SLOTS } from "../photos";
 import { evaluate, type CheckResult } from "./engine";
 import { PACK } from "./data";
@@ -50,7 +50,16 @@ export function evaluateCapture(c: Captured, jurisdictionCode: string | null) {
   const values0 = { ...cleanValues(type0, c.values) };
   for (const k of ["c1", "c2", "c3", "c4"]) if (values0[k] === "1" && !checkConfirmed(type0, c.values, k)) delete values0[k];
   const fa = furnaceAnswers(type0, c.values);
-  const ev = evaluate(pack, { type: type0, values: { ...values0, fu_ok: fa.contradiction ? "" : "1" }, photoSlots: ALL_SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
+  const ev0 = evaluate(pack, { type: type0, values: { ...values0, fu_ok: fa.contradiction ? "" : "1" }, photoSlots: ALL_SLOTS.filter((s) => c.photos.some((p) => p.slot === s && !photoStale(c.values, s, p.savedAt))), jurisdictionCode, asOf: today() });
+  // The same rows, told "Review again" where the item was confirmed (or photographed) under a scope that has since changed.
+  const ev = { ...ev0, missing: ev0.missing.map((m) => {
+    const ck = /^app-doc-chk-(c\d)$/.exec(m.ruleId);
+    if (ck && checkNeedsReview(type0, c.values, ck[1])) { const r = reviewReason(c.values, ck[1]); return { ...m, todo: [`Review again: ${r[0]}`, `Revisar de nuevo: ${r[1]}`] as [string, string] }; }
+    const ph = /^app-doc-p-(plate_furnace|plate_coil|plate_outdoor)$/.exec(m.ruleId);
+    if (ph && c.photos.some((p) => p.slot === ph[1] && photoStale(c.values, ph[1] as never, p.savedAt))) return { ...m, todo: ["Review again: this photo was taken before the equipment's replaced/kept answer changed. Retake it for the replaced equipment.", "Revisar de nuevo: esta foto es anterior al cambio de la respuesta de reemplazo. Tómela de nuevo para el equipo reemplazado."] as [string, string] };
+    return m;
+  }) } as typeof ev0;
+  if (ev.next.kind === "capture" && ev.missing[0]) ev.next = { kind: "capture", item: ev.missing[0] };
   // A flagged correction with no decision is an unresolved conflict: it blocks Ready until the office accepts or returns it.
   const open = Object.entries(c.corrections ?? {}).filter(([, k]) => k.flaggedAt && !k.decision);
   if (open.length === 0) return ev;

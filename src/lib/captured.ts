@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { copyPhotos, deleteJobPhotos, JOB_ID, loadPhotos, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
 import { nsKey } from "./demo-mode";
-import { FU_SCOPE_KEYS, answerLabel, cleanValues } from "./capture-fields";
+import { FU_SCOPE_KEYS, answerLabel, cleanValues, scopeChangePatch } from "./capture-fields";
 
 // Finished practice captures, kept in this browser (localStorage). Photos stay in the existing IndexedDB photo store:
 // each capture gets its own `job` id, so its photos live under `<captureId>:<slot>` like every other photo.
@@ -136,7 +136,11 @@ export function acceptCorrection(capId: string, field: string, reason: string): 
     const list = read();
     const original = field in cap.values ? cap.values[field] : null;
     writeAll(list.map((x) => x.id !== capId ? x : {
-      ...x, values: { ...x.values, [field]: c.value.trim() },
+      ...x, values: (() => {
+        // A scope answer accepted on a saved job flags only the confirmations and plate photos it touches for review.
+        const nv = { ...x.values, [field]: c.value.trim() };
+        return { ...nv, ...scopeChangePatch(x.values, nv, Object.fromEntries(x.photos.map((p) => [p.slot, p.savedAt]))) };
+      })(),
       corrections: { ...(x.corrections ?? {}), [field]: { ...c, decision: { status: "accepted", reason: r, at: Date.now(), reviewer: REVIEWER, original } } },
     }));
     return "ok";

@@ -10,7 +10,7 @@ import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
 import { JOB_ID, loadPhotos, usePhotos, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
-import { applicableChecks, checkConfirmed, cleanValues, furnaceAnswers, furnaceScope, requiredSlots, scopeKeyOf } from "../lib/capture-fields";
+import { applicableChecks, checkConfirmed, checkNeedsReview, cleanValues, furnaceAnswers, furnaceScope, missingSlots, photoStale, requiredSlots, reviewReason, scopeValues } from "../lib/capture-fields";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
 import { PhotoSlot } from "../components/photo-slot";
@@ -100,7 +100,7 @@ function NewPhotos() {
   const p = useCorePath();
   const dr = useDraft(5);
   const { photos, pending, loadError, ready } = usePhotos();
-  const dvals: Record<string, string> = { type: dr.get("type"), fu_furnace: dr.get("fu_furnace"), fu_coil: dr.get("fu_coil"), fu_outdoor: dr.get("fu_outdoor"), fu_refrig: dr.get("fu_refrig"), ...Object.fromEntries(["c1", "c2", "c3", "c4"].flatMap((k) => [[k, dr.get(k)], [scopeKeyOf(k), dr.get(scopeKeyOf(k))]])) };
+  const dvals: Record<string, string> = scopeValues(dr.get);
   const jobType = dvals.type || undefined;
   const isFurn = jobType === "Furnace + coil change-out";
   const REQUIRED = requiredSlots(jobType, dvals);
@@ -120,7 +120,7 @@ function NewPhotos() {
   const waiting = demo ? pending : (stillUp ?? pending);
   // Core: required photos this job has not attached at all, kept apart from attached photos still uploading.
   const [tried, setTried] = useState(false);
-  const missing = ready ? REQUIRED.filter((k) => !photos[k]) : [];
+  const missing = ready ? missingSlots(jobType, dvals, Object.fromEntries(Object.entries(photos).map(([k, v]) => [k, v!.savedAt]))) : [];
   const label = (k: Slot) => { const r = SLOTS.find(([x]) => x === k); return r ? t(r[1], r[2]) : k; };
   useEffect(() => { if (!demo) { const v = readEmp(); if (v) setEmployeeId(v); } }, [demo]);
   // Core: the Employee ID the company admin assigned, read-only here; it goes to the office with the packet automatically.
@@ -225,8 +225,8 @@ function NewPhotos() {
             <ul>
               {fa.missing.map((k) => <li key={k}>{t("Answer: " + ANS_NAME[k][0], "Respuesta: " + ANS_NAME[k][1])} <Link to={p("/new/equipment")} className="underline">{t("Equipment step", "Paso Equipo")}</Link></li>)}
               {fa.contradiction && <li>{t("Conflicting answers: outdoor unit not present but refrigerant work done. Change one on the Equipment step.", "Respuestas en conflicto: unidad exterior no presente pero con trabajo de refrigerante. Cambie una en el paso Equipo.")}</li>}
-              {unticked.map((k) => <li key={k}><Link to={p("/new/checks")} className="underline">{t("Final check: " + CHECK_NAMES[k][0], "Verificación final: " + CHECK_NAMES[k][1])}</Link></li>)}
-              {!demo && ready && missing.map((k) => <li key={k}>{t("Photo: " + label(k), "Foto: " + label(k))}</li>)}
+              {unticked.map((k) => <li key={k}><Link to={p("/new/checks")} className="underline">{t("Final check: " + CHECK_NAMES[k][0], "Verificación final: " + CHECK_NAMES[k][1])}</Link>{checkNeedsReview(jobType, dvals, k) ? <> · <strong>{t("Review again", "Revisar de nuevo")}</strong>: {t(...reviewReason(dvals, k))}</> : null}</li>)}
+              {!demo && ready && missing.map((k) => <li key={k}>{t("Photo: " + label(k), "Foto: " + label(k))}{photos[k] ? <> · <strong>{t("Review again", "Revisar de nuevo")}</strong>: {t("saved before this equipment's answer changed; retake it or confirm it on the Equipment step.", "guardada antes de que cambiara la respuesta de este equipo; tómela de nuevo o confírmela en el paso Equipo.")}</> : null}</li>)}
             </ul>
           </details>
         )}
@@ -235,8 +235,9 @@ function NewPhotos() {
       {SLOTS.filter(([k]) => REQUIRED.includes(k) || !!photos[k]).map(([k, en0, es0]) => {
         const [en, es] = isFurn && k === "outdoor" ? ["Replaced outdoor unit, as installed", "Unidad exterior reemplazada, como quedó instalada"] : [en0, es0];
         const needed = REQUIRED.includes(k);
-        const ok = !!photos[k];
-        const state = !needed ? t("Kept, not required for this job", "Conservada, no requerida para este trabajo") : demo ? (ok ? t("Attached", "Adjunta") : t("Required", "Requerida"))
+        const stale = !!photos[k] && photoStale(dvals, k, photos[k]!.savedAt);
+        const ok = !!photos[k] && !stale;
+        const state = stale && needed ? t("Review again", "Revisar de nuevo") : !needed ? t("Kept, not required for this job", "Conservada, no requerida para este trabajo") : demo ? (ok ? t("Attached", "Adjunta") : t("Required", "Requerida"))
           : !ok ? (tried ? t("Missing, required", "Falta, requerida") : t("Required", "Requerida"))
           : photos[k]?.uploaded ? t("Saved", "Guardada") : t("Uploading…", "Subiendo…");
         return (
