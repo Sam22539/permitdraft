@@ -29,7 +29,7 @@ const FORMS = [
 ];
 
 export const Route = createFileRoute("/sample-job")({
-  head: () => ({ meta: [{ title: "Heat-pump change-out permit draft" }, { name: "description", content: "Heat-pump change-out permit draft for Job #HP-1187 with every value traced to its source." }] }),
+  head: () => ({ meta: [{ title: "Heat-pump change-out permit draft — PermitDraft Demo" }, { property: "og:title", content: "Heat-pump change-out permit draft — PermitDraft Demo" }, { name: "description", content: "PermitDraft Demo: heat-pump change-out permit draft for Job #HP-1187 with every value traced to its source." }, { property: "og:description", content: "PermitDraft Demo: heat-pump change-out permit draft for Job #HP-1187 with every value traced to its source." }] }),
   component: Page,
 });
 
@@ -57,7 +57,7 @@ type Entry = {
 
 const EDITOR = "Demo reviewer (named demo role, not a verified identity)";
 
-const EDITOR_ES = "Revisor de demo (rol de demo con nombre, no una identidad verificada)";
+const EDITOR_ES = "Revisor de demo demo (rol de demo con nombre, no una identidad verificada)";
 function fmt(iso: string, lang: "en" | "es" = "en") {
   return new Date(iso).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "medium" });
 }
@@ -244,12 +244,12 @@ function Page() {
 
   return (
     <div className="pd">
-      <AppTop />
+      <AppTop demo />
       <header className="pd-top">
         <Image src="/generated-assets/company-logo.png" alt="PermitDraft logo" width={44} height={44} priority />
         <div>
           <p className="pd-brand">PermitDraft</p>
-          <p className="pd-practice">{t("Demo job — not filed with the permitting authority", "Trabajo de demo: no presentado ante la autoridad de permisos")}</p>
+          <p className="pd-practice">{t("Demo Demo — not filed with the permitting authority", "PermitDraft de demo: no presentado ante la autoridad de permisos")}</p>
         </div>
       </header>
 
@@ -362,7 +362,7 @@ function Page() {
 
             <div className="pd-card" aria-labelledby="hist">
               <h2 id="hist">{t("History", "Historial")}: {fl(sel)}</h2>
-              <p className="pd-ev-src">{t("Newest first. Demo entries only, kept in this browser for this participant.", "Lo más reciente primero. Solo entradas de demo, guardadas en este navegador.")}</p>
+              <p className="pd-ev-src">{t("Newest first. Demo Demo entries only, kept in this browser for this participant.", "Lo más reciente primero. Solo entradas de demo, guardadas en este navegador.")}</p>
               {history.filter((h) => h.fieldId === sel.id).length === 0 ? (
                 <p className="pd-ev-text">{t("No changes recorded for this field yet.", "Aún no hay cambios registrados para este campo.")}</p>
               ) : (
@@ -373,7 +373,7 @@ function Page() {
                       <p>{t("Prior value", "Valor anterior")}: {h.priorValue || t("No value yet", "Sin valor todavía")}</p>
                       {h.proposedValue !== undefined && <p className="pd-prop">{t("Proposed conflicting value (not the actual value)", "Valor en conflicto propuesto (no es el valor real)")}: {h.proposedValue}</p>}
                       <p>{t("Resulting actual value", "Valor real resultante")}: {h.resultValue || t("No value yet", "Sin valor todavía")} · {HS(h.resultStatus)}</p>
-                      <p className="pd-ev-src">{t("Editor", "Editor")}: {h.editor === EDITOR ? t(EDITOR, EDITOR_ES) : h.editor}</p>
+                      <p className="pd-ev-src">{t("Editor", "Editor")}: {h.editor === EDITOR || h.editor === OLD_EDITOR ? t(EDITOR, EDITOR_ES) : h.editor}</p>
                     </li>
                   ))}
                 </ol>

@@ -11,7 +11,7 @@ import "../app.css";
 type NavLink = { label: string; to: string; hash?: string };
 type NavGroup = { label: string; note?: string; price?: [string, string, string]; links: NavLink[] };
 /** The public site's menu groups: each opens an existing section or page. */
-function useNavGroups(): NavGroup[] {
+function useNavGroups({ demo: demoPage = false }: { demo?: boolean } = {}): NavGroup[] {
   const { t } = useLang();
   return [
     { label: t("Features", "Funciones"), links: [
@@ -53,7 +53,8 @@ function PublicNav({ home }: { home?: boolean }) {
           </DropdownMenuContent>
         </DropdownMenu>
       ))}
-      <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
+      <Link to="/sign-in" className="hp-nav-login">{demo
+          ? t("Log In", "Iniciar sesión")}</Link>
       <Link to="/demo" className="hp-nav-cta">{t("Try Free Demo", "Probar la demo gratis")}</Link>
     </nav>
   );

@@ -64,16 +64,16 @@ export function DemoBar() {
   const { t } = useLang();
   const [busy, setBusy] = useState(false);
   return (
-    <section className="ap-demo" aria-label={t("Free demo", "Demo gratis")} data-testid="demo-bar">
+    <section className="ap-demo" aria-label="PermitDraft Demo" data-testid="demo-bar">
       <p><strong>{t("Sample job, nothing is sent or filed.", "Trabajo de muestra, no se envía ni presenta nada.")}</strong> {t("No sign-in or card. Demo data stays in this browser, apart from real jobs.", "Sin iniciar sesión ni tarjeta. Los datos de la demo quedan en este navegador, aparte de los trabajos reales.")}</p>
       <p className="ap-demo-links">
         <Link to="/early-access" className="underline font-semibold">{t("Request Early Access", "Solicitar acceso anticipado")}</Link>
         {" · "}
         <Dialog>
-          <DialogTrigger asChild><button type="button" className="underline font-semibold" data-testid="demo-reset">{t("Reset demo", "Reiniciar demo")}</button></DialogTrigger>
+          <DialogTrigger asChild><button type="button" className="underline font-semibold" data-testid="demo-reset">{t("Reset PermitDraft Demo", "Reiniciar PermitDraft Demo")}</button></DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t("Reset the demo?", "¿Reiniciar la demo?")}</DialogTitle>
+              <DialogTitle>{t("Reset PermitDraft Demo?", "¿Reiniciar PermitDraft Demo?")}</DialogTitle>
               <DialogDescription>{t("This clears your PermitDraft Demo jobs, photos and dates and starts the sample job again. Real jobs are not touched.", "Esto borra los trabajos, fotos y fechas de PermitDraft Demo y vuelve a empezar el trabajo de muestra. Los trabajos reales no se tocan.")}</DialogDescription>
             </DialogHeader>
             <DialogFooter>

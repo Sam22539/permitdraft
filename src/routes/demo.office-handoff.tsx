@@ -3,6 +3,6 @@ import { DemoProvider } from "../components/demo";
 import { OfficeHandoff } from "./office-handoff";
 
 export const Route = createFileRoute("/demo/office-handoff")({
-  head: () => ({ meta: [{ title: "Free demo: office handoff search — PermitDraft" }, { name: "description", content: "Search the demo's sample jobs by job number, address or customer name and open the review draft." }] }),
+  head: () => ({ meta: [{ title: "Office handoff — PermitDraft Demo" }, { property: "og:title", content: "Office handoff — PermitDraft Demo" }, { name: "description", content: "PermitDraft Demo: search the demo sample by job number, address or customer name and open the review draft." }, { property: "og:description", content: "PermitDraft Demo: search the demo jobs by job number, address or customer name and open the review draft." }] }),
   component: () => <DemoProvider><OfficeHandoff /></DemoProvider>,
 });
