@@ -26,6 +26,10 @@ const D: D[] = [
   { id: "p-plate", wf: ALL, req: { type: "photo", slot: "plate" }, text: ["Data plate photo", "Foto de la placa de datos"], todo: ["Take the data plate photo.", "Tome la foto de la placa de datos."] },
   { id: "p-outdoor", wf: ALL, req: { type: "photo", slot: "outdoor" }, text: ["Outdoor unit photo", "Foto de la unidad exterior"], todo: ["Take the outdoor unit photo.", "Tome la foto de la unidad exterior."] },
   { id: "p-gauge", wf: ALL, req: { type: "photo", slot: "gauge" }, text: ["Gauge or meter photo", "Foto del manómetro o medidor"], todo: ["Take the gauge or meter photo.", "Tome la foto del manómetro o medidor."] },
+  { id: "chk-c1", wf: ALL, req: { type: "field", input: "c1" }, text: ["Outdoor unit location recorded", "Ubicación de la unidad exterior registrada"], todo: ["Record the outdoor unit location.", "Registre la ubicación de la unidad exterior."] },
+  { id: "chk-c2", wf: COOL, req: { type: "field", input: "c2" }, text: ["Refrigerant charge reading taken", "Lectura de carga de refrigerante tomada"], todo: ["Take the refrigerant charge reading.", "Tome la lectura de carga de refrigerante."] },
+  { id: "chk-c3", wf: COOL, req: { type: "field", input: "c3" }, text: ["Refrigerant type matches data plate", "El tipo de refrigerante coincide con la placa"], todo: ["Confirm the refrigerant type matches the data plate.", "Confirme que el tipo de refrigerante coincide con la placa."] },
+  { id: "chk-c4", wf: ALL, req: { type: "field", input: "c4" }, text: ["Equipment label photo readable", "Foto de la etiqueta del equipo legible"], todo: ["Confirm the equipment label photo is readable.", "Confirme que la foto de la etiqueta del equipo es legible."] },
 ];
 
 export const WORKFLOWS: Workflow[] = [

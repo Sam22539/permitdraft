@@ -17,6 +17,9 @@ export const Route = createFileRoute("/new/checks")({
   component: () => <CoreGate><Checks /></CoreGate>,
 });
 
+const COOL_TYPES = ["Heat pump change-out", "Central AC change-out"];
+const appliesCheck = (k: string, type: string | undefined) => (k !== "c2" && k !== "c3") || !type || COOL_TYPES.includes(type);
+
 const ITEMS: [string, string, string][] = [
   ["c1", "Outdoor unit location recorded", "Ubicación de la unidad exterior registrada"],
   ["c2", "Refrigerant charge reading taken", "Lectura de carga de refrigerante tomada"],
@@ -87,7 +90,7 @@ export function Checks() {
           <h2 className="cx-label text-sm font-semibold">{t("Final checks", "Verificaciones finales")}</h2>
         </div>
       )}
-      {ITEMS.map(([k, en, es]) => {
+      {ITEMS.filter(([k]) => appliesCheck(k, d.get("type") || undefined)).map(([k, en, es]) => {
         const ok = d.get(k) === "1";
         return (
           <div key={k} className="grid gap-3">
