@@ -61,7 +61,6 @@ export function Photos() {
 /** Opened from a saved job's NEEDED photo row: only that slot, stored under the job's own scoped key. */
 function SavedJobPhoto({ id, slot, rule }: { id: string; slot?: string; rule?: string }) {
   const { t } = useLang();
-  const demo = useDemo();
   const p = useCorePath();
   const all = useCaptured();
   const [mounted, setMounted] = useState(false);
@@ -91,14 +90,13 @@ function SavedJobPhoto({ id, slot, rule }: { id: string; slot?: string; rule?: s
         <PhotoSlot slot={k} job={id} onChanged={() => syncCapturePhotos(id).then(() => {})} label={[en, es]} photo={photos[k]} takeLabel={["Add photo", "Agregar foto"]} tagUnit={k === "plate"} />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
-      <p className="cx-note">{demo ? t("Photos are saved to this job as you add them.", "Las fotos se guardan en este trabajo al agregarlas.")}</p>
+      <p className="cx-note">{t("Photos are saved to this job as you add them.", "Las fotos se guardan en este trabajo al agregarlas.")}</p>
     </StepShell>
   );
 }
 
 function NewPhotos() {
   const { t } = useLang();
-  const demo = useDemo();
   const p = useCorePath();
   const dr = useDraft(5);
   const { photos, pending, loadError, ready } = usePhotos();
@@ -304,7 +302,7 @@ function NewPhotos() {
       {demo ? (
         <>
           <p className="ph-pend" data-testid="pending-count">{t(`${Object.values(photos).filter(Boolean).length} photo(s) saved on this device`, `${Object.values(photos).filter(Boolean).length} foto(s) guardada(s) en este dispositivo`)}</p>
-          <p className="cx-note">{demo ? t("Photos stay on this device. Nothing is sent anywhere.", "Las fotos se quedan en este dispositivo. No se envía nada a ningún sitio.")}</p>
+          <p className="cx-note">{t("Photos stay on this device. Nothing is sent anywhere.", "Las fotos se quedan en este dispositivo. No se envía nada a ningún sitio.")}</p>
         </>
       ) : (
         <>

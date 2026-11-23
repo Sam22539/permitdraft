@@ -136,7 +136,7 @@ export function Detail() {
       {summary("Work performed", "Trabajo realizado", "Heat-pump change-out, same pad, left side yard")}
 
       <button type="button" className="ap-btn primary" onClick={() => setSent(true)}>{t("Send homeowner update", "Enviar actualización al propietario")}</button>
-      {sent && <p role="status" className="ap-card font-semibold">{demo ? t("Demo only: nothing is sent", "Solo demo: no se envía nada")}</p>}
+      {sent && <p role="status" className="ap-card font-semibold">{t("Demo only: nothing is sent", "Solo demo: no se envía nada")}</p>}
     </AppPage>
   );
 }
