@@ -1,8 +1,8 @@
 import type { Captured } from "./captured";
-import { SLOTS } from "./photos";
+import { SLOTS, type Slot } from "./photos";
 
 type L = [string, string];
-export type CapField = { key: string; label: L; step: number; required?: boolean; kind?: "text" | "check" | "duct" };
+export type CapField = { key: string; label: L; step: number; required?: boolean; kind?: "text" | "check" | "duct" | "choice" };
 
 const SITE: CapField[] = [
   { key: "name", label: ["Homeowner name", "Nombre del propietario"], step: 1, required: true },
@@ -33,6 +33,8 @@ export function equipFields(type: string): CapField[] {
     { key: "coil_maker", label: ["Indoor coil manufacturer", "Fabricante del serpentín interior"], step: 2 },
     { key: "coil_model", label: ["Indoor coil model number", "Número de modelo del serpentín interior"], step: 2, required: true },
     { key: "coil_serial", label: ["Indoor coil serial number", "Número de serie del serpentín interior"], step: 2, required: true },
+    { key: "fu_outdoor", label: ["Outdoor unit: kept, replaced or not present", "Unidad exterior: conservada, reemplazada o no presente"], step: 2, required: true, kind: "choice" },
+    { key: "fu_refrig", label: ["Refrigerant work done", "Trabajo con refrigerante realizado"], step: 2, required: true, kind: "choice" },
   ];
   const p = type === "Heat pump change-out" ? "" : "ac_";
   const w = p ? ["Outdoor AC", "Aire acondicionado exterior"] : ["Outdoor heat pump", "Bomba de calor exterior"];
@@ -73,7 +75,7 @@ export function captureSummary(c: Captured, lang: "en" | "es") {
   const has = (k: string) => String(c.values[k] ?? "").trim() !== "";
   const required = fieldSets(c).filter((f) => f.required);
   const missingFields = required.filter((f) => !has(f.key)).length;
-  const missingPhotos = SLOTS.filter((s) => !c.photos.some((p) => p.slot === s)).length;
+  const missingPhotos = requiredSlots(activeType(c), c.values).filter((s) => !c.photos.some((p) => p.slot === s)).length;
   const addr = [c.values.addr, c.values.city].filter((x) => x && x.trim()).join(", ");
   const type = activeType(c);
   return {
@@ -94,24 +96,51 @@ export const FIX_INPUT_ID: Record<string, string> = {
   maker: "mf", model: "mo", serial: "se", refrig: "rf", loc: "ol",
   ac_maker: "mf", ac_model: "mo", ac_serial: "se", ac_refrig: "rf", ac_loc: "ol",
   fu_maker: "fmf", fu_model: "fmo", fu_serial: "fse", coil_maker: "cmf", coil_model: "cmo", coil_serial: "cse",
-  work: "wk", panel: "pa", duct: "ds", ductReason: "dr", sub: "sub", sup: "sup",
+  work: "wk", panel: "pa", duct: "ds", ductReason: "dr", sub: "sub", sup: "sup", fu_outdoor: "fuo", fu_refrig: "fur",
 };
 
 const FURNACE = "Furnace + coil change-out";
+/** The two furnace + coil answers. Asked outright, never inferred from coil identifiers, never defaulted. */
+export const FU_OUTDOOR_OPTS: [string, L][] = [
+  ["kept", ["Kept (not replaced)", "Conservada (no reemplazada)"]],
+  ["replaced", ["Replaced", "Reemplazada"]],
+  ["none", ["Not present (no outdoor unit)", "No presente (sin unidad exterior)"]],
+];
+export const FU_REFRIG_OPTS: [string, L][] = [
+  ["no", ["No refrigerant work", "Sin trabajo con refrigerante"]],
+  ["yes", ["Yes, refrigerant work was done", "Sí, se hizo trabajo con refrigerante"]],
+];
+export function answerLabel(key: string, v: string): L | null {
+  const list = key === "fu_outdoor" ? FU_OUTDOOR_OPTS : key === "fu_refrig" ? FU_REFRIG_OPTS : [];
+  return list.find(([k]) => k === v)?.[1] ?? null;
+}
+const okAnswer = (key: string, v: string | undefined) => !!answerLabel(key, String(v ?? ""));
+/** Furnace + coil answers still missing, and whether they contradict (no outdoor unit, yet refrigerant work done). */
+export function furnaceAnswers(type: string | undefined, values: Record<string, string>) {
+  if (type !== FURNACE) return { missing: [] as string[], contradiction: false };
+  const missing = ["fu_outdoor", "fu_refrig"].filter((k) => !okAnswer(k, values[k]));
+  return { missing, contradiction: values.fu_outdoor === "none" && values.fu_refrig === "yes" };
+}
 /**
- * Final checks that apply to this job. The equipment label check always applies. Outdoor unit and refrigerant checks
- * apply to a heat pump or central AC, and to a furnace job only once a cooling coil is in its scope (coil entered).
+ * Final checks that apply to this job. The equipment label check always applies. Heat pump and central AC keep all four.
+ * Furnace + coil: the outdoor location check only when the outdoor unit was replaced, the refrigerant checks only when
+ * refrigerant work was done, both read from the tech's own answers (unanswered = not yet known, enforced as missing answers).
  */
 export function applicableChecks(type: string | undefined, values: Record<string, string>): string[] {
   if (type === FURNACE) {
-    const coil = String(values.coil_model ?? "").trim() !== "" || String(values.coil_serial ?? "").trim() !== "";
-    return coil ? ["c1", "c2", "c3", "c4"] : ["c4"];
+    return ["c1", "c2", "c3", "c4"].filter((k) => k === "c4" || (k === "c1" ? values.fu_outdoor === "replaced" : values.fu_refrig === "yes"));
   }
   return ["c1", "c2", "c3", "c4"];
 }
+/** Required photo slots for this job. Furnace + coil: outdoor only when replaced, gauge only with refrigerant work. */
+export function requiredSlots(type: string | undefined, values: Record<string, string>): Slot[] {
+  if (type !== FURNACE) return SLOTS;
+  return SLOTS.filter((s) => s === "plate" || (s === "outdoor" ? values.fu_outdoor === "replaced" : values.fu_refrig === "yes"));
+}
 const CHECK_DEPENDENTS: Record<string, string[]> = { c2: ["sub", "sup", "sub_unit", "sup_unit"] };
-/** Values with answers for checks (and readings) that do not apply to this job removed. */
+/** Values with answers for checks (and readings) that do not apply to this job removed. Nothing is removed while an answer is missing. */
 export function cleanValues(type: string | undefined, values: Record<string, string>): Record<string, string> {
+  if (furnaceAnswers(type, values).missing.length > 0) return { ...values };
   const ok = new Set(applicableChecks(type, values));
   const out = { ...values };
   for (const k of ["c1", "c2", "c3", "c4"]) if (!ok.has(k)) { delete out[k]; for (const d of CHECK_DEPENDENTS[k] ?? []) delete out[d]; }

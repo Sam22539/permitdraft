@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 import { copyPhotos, deleteJobPhotos, JOB_ID, loadPhotos, type Slot, type Unit } from "./photos";
 import { finishDraft, readDraftValues } from "./job-draft";
 import { nsKey } from "./demo-mode";
-import { cleanValues } from "./capture-fields";
+import { answerLabel, cleanValues } from "./capture-fields";
 
 // Finished practice captures, kept in this browser (localStorage). Photos stay in the existing IndexedDB photo store:
 // each capture gets its own `job` id, so its photos live under `<captureId>:<slot>` like every other photo.
@@ -121,6 +121,7 @@ export function flagCorrection(capId: string, field: string): boolean {
 export function acceptProblem(field: string, value: string): string {
   if (!value.trim()) return "empty";
   if (field === "duct" && !DUCT_OK.includes(value.trim())) return "duct";
+  if ((field === "fu_outdoor" || field === "fu_refrig") && !answerLabel(field, value.trim())) return "choice";
   return "";
 }
 /** Reviewer accepts a correction awaiting office review: the corrected value is applied, the original kept in the decision. */

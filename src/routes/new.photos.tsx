@@ -8,9 +8,9 @@ import { clearDraftJobId, draftJobId, syncPhotos } from "../lib/photo-sync";
 import { backend } from "../lib/backend";
 import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
-import { JOB_ID, loadPhotos, usePhotos, SLOTS as REQUIRED, type Slot } from "../lib/photos";
+import { JOB_ID, loadPhotos, usePhotos, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
-import { applicableChecks, cleanValues } from "../lib/capture-fields";
+import { applicableChecks, cleanValues, furnaceAnswers, requiredSlots } from "../lib/capture-fields";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
 import { PhotoSlot } from "../components/photo-slot";
@@ -95,8 +95,16 @@ function SavedJobPhoto({ id, slot, rule }: { id: string; slot?: string; rule?: s
 function NewPhotos() {
   const { t } = useLang();
   const p = useCorePath();
-  useDraft(5);
+  const dr = useDraft(5);
   const { photos, pending, loadError, ready } = usePhotos();
+  const dvals: Record<string, string> = { type: dr.get("type"), fu_outdoor: dr.get("fu_outdoor"), fu_refrig: dr.get("fu_refrig"), c1: dr.get("c1"), c2: dr.get("c2"), c3: dr.get("c3"), c4: dr.get("c4") };
+  const jobType = dvals.type || undefined;
+  const isFurn = jobType === "Furnace + coil change-out";
+  const REQUIRED = requiredSlots(jobType, dvals);
+  const fa = furnaceAnswers(jobType, dvals);
+  const ANS_NAME: Record<string, [string, string]> = { fu_outdoor: ["Outdoor unit answer (kept, replaced or not present)", "Respuesta sobre la unidad exterior (conservada, reemplazada o no presente)"], fu_refrig: ["Refrigerant work answer", "Respuesta sobre el trabajo con refrigerante"] };
+  const unticked = applicableChecks(jobType, dvals).filter((k) => dvals[k] !== "1");
+  const [answersErr, setAnswersErr] = useState(false);
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -135,7 +143,14 @@ function NewPhotos() {
     setBusy(true); setFailed(false); setSendErr(false);
     {
       const dv = readDraftValues();
-      const need = applicableChecks(dv.type || undefined, { coil_model: dv.coil_model ?? "", coil_serial: dv.coil_serial ?? "" }).filter((k) => dv[k] !== "1");
+      const ans = furnaceAnswers(dv.type || undefined, dv);
+      if (ans.missing.length > 0 || ans.contradiction) {
+        setBusy(false); setAnswersErr(true);
+        document.getElementById("finish-needs")?.scrollIntoView({ block: "center" });
+        return;
+      }
+      setAnswersErr(false);
+      const need = applicableChecks(dv.type || undefined, dv).filter((k) => dv[k] !== "1");
       if (need.length > 0) {
         setBusy(false);
         const names = need.map((k) => CHECK_NAMES[k]);
@@ -180,7 +195,7 @@ function NewPhotos() {
       const formDefaults: Record<string, string> = {};
       for (const k of ["type", "work"]) if (!(k in values)) formDefaults[k] = k === "type" ? "Heat pump change-out" : "Heat-pump change-out, same pad, left side yard";
       const r = await sendOfficePacket({ data: { token, jobId, employeeId, values, formDefaults, slots: local.map((x) => x.slot) } });
-      if (!r.ok) { setStillUp(r.waiting); setBusy(false); return; }
+      if (!r.ok) { if (r.answers) setAnswersErr(true); setStillUp(r.waiting); setBusy(false); return; }
     } catch { setBusy(false); setSendErr(true); return; }
     const id = await finishCapture(jobId);
     setBusy(false);
@@ -193,11 +208,24 @@ function NewPhotos() {
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" action={<>
         {!demo && sendErr && <p role="alert" className="cx-err" data-testid="send-error">{t("Could not save the office packet. Your job is still editable: try Finish again.", "No se pudo guardar el paquete de oficina. Su trabajo sigue editable: intente Finalizar de nuevo.")}</p>}
         {failed && <p role="alert" className="cx-err" data-testid="finish-error">{t("Could not save this job on this device. Nothing was cleared: your capture is still here. Try Finish again.", "No se pudo guardar este trabajo en este dispositivo. No se borró nada: su captura sigue aquí. Intente Finalizar de nuevo.")}</p>}
+        {(fa.missing.length > 0 || fa.contradiction || unticked.length > 0 || (!demo && ready && missing.length > 0)) && (
+          <div id="finish-needs" role={answersErr ? "alert" : "status"} className={answersErr ? "cx-err" : "cx-note"} data-testid="finish-needs">
+            <p><strong>{t("Still needed before Finish:", "Falta antes de Finalizar:")}</strong></p>
+            <ul>
+              {fa.missing.map((k) => <li key={k}>{t("Answer: " + ANS_NAME[k][0], "Respuesta: " + ANS_NAME[k][1])} <Link to={p("/new/equipment")} className="underline">{t("Equipment step", "Paso Equipo")}</Link></li>)}
+              {fa.contradiction && <li>{t("Conflicting answers: outdoor unit not present but refrigerant work done. Change one on the Equipment step.", "Respuestas en conflicto: unidad exterior no presente pero con trabajo de refrigerante. Cambie una en el paso Equipo.")}</li>}
+              {unticked.map((k) => <li key={k}>{t("Final check: " + CHECK_NAMES[k][0], "Verificación final: " + CHECK_NAMES[k][1])}</li>)}
+              {!demo && ready && missing.map((k) => <li key={k}>{t("Photo: " + label(k), "Foto: " + label(k))}</li>)}
+            </ul>
+          </div>
+        )}
         <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : t("Finish", "Finalizar")}</button>
       </>}>
-      {SLOTS.map(([k, en, es]) => {
+      {SLOTS.filter(([k]) => REQUIRED.includes(k) || !!photos[k]).map(([k, en0, es0]) => {
+        const [en, es] = isFurn && k === "outdoor" ? ["Replaced outdoor unit, as installed", "Unidad exterior reemplazada, como quedó instalada"] : [en0, es0];
+        const needed = REQUIRED.includes(k);
         const ok = !!photos[k];
-        const state = demo ? (ok ? t("Attached", "Adjunta") : t("Required", "Requerida"))
+        const state = !needed ? t("Kept, not required for this job", "Conservada, no requerida para este trabajo") : demo ? (ok ? t("Attached", "Adjunta") : t("Required", "Requerida"))
           : !ok ? (tried ? t("Missing, required", "Falta, requerida") : t("Required", "Requerida"))
           : photos[k]?.uploaded ? t("Saved", "Guardada") : t("Uploading…", "Subiendo…");
         return (
@@ -210,6 +238,16 @@ function NewPhotos() {
           </div>
         );
       })}
+      {isFurn && (
+        <p className="cx-note" data-testid="photo-rules-note">
+          {dvals.fu_outdoor === "replaced" ? t("Outdoor unit replaced: the outdoor equipment photo is required.", "Unidad exterior reemplazada: la foto del equipo exterior es obligatoria.")
+            : dvals.fu_outdoor ? t("No outdoor equipment photo is needed: the outdoor unit was not replaced.", "No se necesita foto del equipo exterior: la unidad exterior no se reemplazó.")
+            : t("Outdoor unit answer missing: answer it on the Equipment step.", "Falta la respuesta de la unidad exterior: respóndala en el paso Equipo.")}{" "}
+          {dvals.fu_refrig === "yes" ? t("Refrigerant work done: the gauge or meter photo is required.", "Trabajo con refrigerante: la foto del manómetro o medidor es obligatoria.")
+            : dvals.fu_refrig ? t("No gauge photo is needed: no refrigerant work was done.", "No se necesita foto del manómetro: no hubo trabajo con refrigerante.")
+            : t("Refrigerant work answer missing: answer it on the Equipment step.", "Falta la respuesta sobre refrigerante: respóndala en el paso Equipo.")}
+        </p>
+      )}
       <div className="cx-shot" data-testid="wide-shot">
         <div className="cx-shot-top">
           <span>{t("Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)")}</span>

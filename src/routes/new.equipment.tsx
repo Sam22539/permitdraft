@@ -7,6 +7,7 @@ import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { usePhotos } from "../lib/photos";
+import { FU_OUTDOOR_OPTS, FU_REFRIG_OPTS, furnaceAnswers } from "../lib/capture-fields";
 import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/equipment")({
@@ -50,6 +51,21 @@ export function Equipment() {
           {field("coil_maker", "cmf", ["Indoor coil manufacturer", "Fabricante del serpentín interior"])}
           {field("coil_model", "cmo", ["Indoor coil model number *", "Número de modelo del serpentín interior *"])}
           {field("coil_serial", "cse", ["Indoor coil serial number *", "Número de serie del serpentín interior *"])}
+          <h2 className="cx-h">{t("Outdoor unit and refrigerant", "Unidad exterior y refrigerante")}</h2>
+          <p className="cx-note">{t("Answer both. They decide which final checks and photos this job needs; nothing is assumed from the coil.", "Responda ambas. Deciden qué verificaciones y fotos necesita este trabajo; nada se supone a partir del serpentín.")}</p>
+          <div className="cx-field"><Label htmlFor="fuo">{t("Outdoor unit: kept, replaced or not present *", "Unidad exterior: conservada, reemplazada o no presente *")}</Label>
+            <select id="fuo" className={selectCls} value={val("fu_outdoor")} onChange={on("fu_outdoor")} data-testid="fu-outdoor">
+              <option value="">{t("Choose…", "Elegir…")}</option>
+              {FU_OUTDOOR_OPTS.map(([k, l]) => <option key={k} value={k}>{t(l[0], l[1])}</option>)}
+            </select></div>
+          <div className="cx-field"><Label htmlFor="fur">{t("Was refrigerant work done? *", "¿Se hizo trabajo con refrigerante? *")}</Label>
+            <select id="fur" className={selectCls} value={val("fu_refrig")} onChange={on("fu_refrig")} data-testid="fu-refrig">
+              <option value="">{t("Choose…", "Elegir…")}</option>
+              {FU_REFRIG_OPTS.map(([k, l]) => <option key={k} value={k}>{t(l[0], l[1])}</option>)}
+            </select></div>
+          {furnaceAnswers(type, { fu_outdoor: val("fu_outdoor"), fu_refrig: val("fu_refrig") }).contradiction && (
+            <p role="alert" className="cx-err" data-testid="fu-contradiction">{t("These answers conflict: no outdoor unit is present, yet refrigerant work is marked done. Change one before Finish.", "Estas respuestas se contradicen: no hay unidad exterior, pero se marcó trabajo con refrigerante. Cambie una antes de Finalizar.")}</p>
+          )}
           <p className="cx-note">
             {t("Furnace model", "Modelo del horno")}: <strong>{val("fu_model") || needed}</strong> · {t("Serial", "Serie")}: <strong>{val("fu_serial") || needed}</strong><br />
             {t("Coil model", "Modelo del serpentín")}: <strong>{val("coil_model") || needed}</strong> · {t("Serial", "Serie")}: <strong>{val("coil_serial") || needed}</strong>

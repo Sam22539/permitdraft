@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { SLOTS, ALL_SLOTS, EXTRA_SLOTS, type Slot } from "./photos";
+import { furnaceAnswers, requiredSlots } from "./capture-fields";
+import { ALL_SLOTS, EXTRA_SLOTS, type Slot } from "./photos";
 
 const KNOWN: string[] = [...ALL_SLOTS, ...EXTRA_SLOTS];
 
@@ -8,7 +9,7 @@ type In = { token: string; jobId: string; employeeId: string; values: Record<str
 /**
  * Creates the one private office packet for a job: captured fields, links to the job's saved photos, the signed-in
  * technician's name and the database clock's sent time. Sending twice returns the same packet. Refused, with nothing saved
- * or sent, while any photo the job flow requires (SLOTS) is not among the technician's photos stored in the database for
+ * or sent, while any photo the job flow requires (requiredSlots) is not among the technician's photos stored in the database for
  * this job, or any other photo the device holds is not saved there yet. Once saved, one notice email goes to the technician's company's
  * verified office inbox (none where the company has none), linking to the signed-in office review.
  */
@@ -35,7 +36,9 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     const photos = main.data ?? [], extras = extra.data ?? [];
     const have = new Set([...photos, ...extras].map((p) => String(p.slot)));
     // The job flow's required photos decide, read from what is stored; the device's list only names uploads in progress.
-    const missing = SLOTS.filter((s) => !have.has(s) && !data.slots.includes(s)) as Slot[];
+    const type = data.values.type || "Heat pump change-out";
+    const answers = furnaceAnswers(type, data.values);
+    const missing = requiredSlots(type, data.values).filter((s) => !have.has(s) && !data.slots.includes(s)) as Slot[];
     const waiting = data.slots.filter((s) => !have.has(s)).length;
     const office = await import("./office.server");
     const capture = office.isTestPerson(u.user);
@@ -45,7 +48,8 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
       const notice = await office.sendOfficeNotice(db, String(existing.data.id), String(existing.data.sent_at), capture);
       return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string, notice };
     }
-    if (missing.length > 0 || waiting > 0) return { ok: false as const, missing, waiting };
+    if (answers.missing.length > 0 || answers.contradiction) return { ok: false as const, missing, waiting, answers: true as const };
+    if (missing.length > 0 || waiting > 0) return { ok: false as const, missing, waiting, answers: false as const };
     // The company comes from the technician's own verified membership, never from the page.
     const member = u.user.email ? await office.membership(db, u.user.email.toLowerCase()) : null;
     const md = (u.user.user_metadata ?? {}) as Record<string, unknown>;

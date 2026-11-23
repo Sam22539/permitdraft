@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { AppPage } from "../components/app-shell";
 import { PhotoViewer } from "../components/photo-viewer";
 import { useCaptured } from "../lib/captured";
-import { activeType, captureSummary, DUCT_LABEL, fieldSets, FIX_INPUT_ID, READING_UNIT_KEY, readingUnit, STEP_ROUTES, uncategorized } from "../lib/capture-fields";
+import { activeType, answerLabel, captureSummary, requiredSlots, DUCT_LABEL, fieldSets, FIX_INPUT_ID, READING_UNIT_KEY, readingUnit, STEP_ROUTES, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
 import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
@@ -171,6 +171,7 @@ export function Review() {
             const def = cap.formDefaults[f.key];
             let shown = "";
             if (f.kind === "check") shown = raw === "1" ? t("Ticked by the tech", "Marcado por el técnico") : "";
+            else if (f.kind === "choice" && has) shown = answerLabel(f.key, raw) ? t(...answerLabel(f.key, raw)!) : raw;
             else if (f.kind === "duct" && has) shown = DUCT_LABEL[raw] ? t(...DUCT_LABEL[raw]) : raw;
             else if (has) shown = raw;
             else if (def) shown = def;
@@ -224,7 +225,7 @@ export function Review() {
             </div>
           );
         })()}
-        {[...SLOTS, ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])].map((s) => {
+        {[...new Set<Slot>([...requiredSlots(activeType(cap), cap.values), ...SLOTS.filter((x) => cap.photos.some((p) => p.slot === x)), ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])])].map((s) => {
           const ref = cap.photos.find((p) => p.slot === s);
           return (
             <div key={s} className="ph-ev" data-testid={`rv-photo-${s}`}>
