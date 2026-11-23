@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -28,6 +29,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [ok, setOk] = useState("");
+  const [sent, setSent] = useState(false);
   const clean = email.trim().toLowerCase();
   const go = (v: string) => { setTab(v); setMsg(""); setOk(""); setPassword(""); };
 
@@ -77,7 +79,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
     try {
       const { error } = await backend.auth.resetPasswordForEmail(clean);
       if (error && !/not found|no user/i.test(error.message)) setMsg(t("The email could not be sent right now. Please try again in a few minutes.", "No se pudo enviar el correo ahora. Inténtelo de nuevo en unos minutos."));
-      else setOk(t("If that address has a PermitDraft account, an email with a one-time link to set a new password is on its way. The link expires; then come back here and sign in.", "Si esa dirección tiene una cuenta de PermitDraft, va en camino un correo con un enlace de un solo uso para establecer una contraseña nueva. El enlace vence; luego vuelva aquí e inicie sesión."));
+      else setSent(true);
     } catch { setMsg(t("The email could not be sent right now. Please try again in a few minutes.", "No se pudo enviar el correo ahora. Inténtelo de nuevo en unos minutos.")); }
     setBusy(false);
   };
@@ -126,6 +128,15 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
         </TabsContent>
         <TabsContent value="code">{fallback}</TabsContent>
       </Tabs>
+      <Dialog open={sent} onOpenChange={(o) => { if (!o) { setSent(false); go("signin"); } }}>
+        <DialogContent data-testid="forgot-dialog" role="alertdialog" className="max-w-[calc(100%-2rem)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("Check your inbox", "Revise su bandeja de entrada")}</DialogTitle>
+            <DialogDescription>{t("If an account exists for that email address, we’ll send a password reset link. Check your inbox and spam folder.", "Si existe una cuenta para esa dirección de correo, enviaremos un enlace para restablecer la contraseña. Revise su bandeja de entrada y la carpeta de spam.")}</DialogDescription>
+          </DialogHeader>
+          <button type="button" className="ap-btn primary" onClick={() => { setSent(false); go("signin"); }} data-testid="forgot-dialog-back">{t("Back to sign in", "Volver a iniciar sesión")}</button>
+        </DialogContent>
+      </Dialog>
       {ok && <p role="status" className="ap-muted" data-testid="acct-ok">{ok}</p>}
       {msg && <p role="alert" className="ap-muted" data-testid="acct-msg">{msg}</p>}
     </div>
