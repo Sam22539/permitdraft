@@ -330,3 +330,5 @@ html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
 .pf-badge{display:inline-block;border-radius:9999px;padding:.1rem .6rem;font-weight:700;font-size:.9rem}
 .pf-badge.ok{background:#dcfce7;color:#14532d}
 .pf-badge.no{background:#fee2e2;color:#7f1d1d}
+.cv-areas{display:flex;flex-wrap:wrap;gap:.5rem;list-style:none;padding:0;margin:.5rem 0}
+.cv-areas li{border:1.5px solid #12264a;border-radius:.4rem;padding:.3rem .75rem;font-weight:700;color:#12264a;background:#fff}

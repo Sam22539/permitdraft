@@ -51,12 +51,12 @@ function PilotForm() {
         <li>{t("Spotting missing paperwork details.", "Detectar detalles faltantes en el papeleo.")}</li>
         <li>{t("Reviewing how job evidence supports permit drafts before filing.", "Revisar cómo la evidencia del trabajo respalda los borradores de permiso antes de presentar.")}</li>
       </ul>
-      <p className="ap-muted">{t("Early Access is for trying this out. It doesn’t give automatic access, and nothing is filed for you.", "El acceso anticipado es para probar esta herramienta. No da acceso automático y no se presenta nada por usted.")}</p>
+      <p className="ap-muted">{t("Early Access is for trying this out. It doesn’t give automatic access.", "El acceso anticipado es para probar esta herramienta. No da acceso automático.")}</p>
       <p className="ap-muted">{t("Before you join, try the free PermitDraft Demo, with no sign-in needed. Then tell us in the form below which missing equipment detail sends a job back to your crew most often.", "Antes de unirse, pruebe la demo gratuita de PermitDraft, sin registrarse. Luego díganos en el formulario de abajo qué dato de equipo que falta devuelve más trabajos a su equipo.")} <Link to="/demo" className="underline font-semibold">{t("Try the free PermitDraft Demo", "Probar la demo gratuita de PermitDraft")}</Link></p>
     </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
       <h2 id="pilot-h">{t("Get Early Access", "Obtenga acceso anticipado")}</h2>
-      <p className="ap-muted">{t("Residential HVAC companies in California, Arizona, Texas or Las Vegas, Nevada: tell us who you are. Service for Las Vegas, Nevada starts November 23, 2026 (Pacific time) and covers Las Vegas only, not the rest of Nevada. A request does not enroll you automatically.", "Empresas residenciales de HVAC en California, Arizona, Texas o Las Vegas, Nevada: díganos quién es. El servicio para Las Vegas, Nevada comienza el 23 de noviembre de 2026 (hora del Pacífico) y cubre solo Las Vegas, no el resto de Nevada. Una solicitud no lo inscribe automáticamente.")}</p>
+      <p className="ap-muted">{t("Tell us who you are. Service for Las Vegas, Nevada starts November 23, 2026 (Pacific time). A request does not enroll you automatically.", "Díganos quién es. El servicio para Las Vegas, Nevada comienza el 23 de noviembre de 2026 (hora del Pacífico). Una solicitud no lo inscribe automáticamente.")}</p>
       <form onSubmit={submit} className="ap-form" noValidate>
         <div className="ap-field"><Label htmlFor="pc">{t("HVAC company name *", "Nombre de la empresa de HVAC *")}</Label><Input id="pc" name="company" value={f.company} onChange={set("company")} maxLength={150} autoComplete="organization" /></div>
         <div className="ap-field"><Label htmlFor="pn">{t("Contact name *", "Nombre de contacto *")}</Label><Input id="pn" name="contact" value={f.contact} onChange={set("contact")} maxLength={100} autoComplete="name" /></div>
@@ -129,16 +129,16 @@ function DraftCard() {
 function Start() {
   const { t } = useLang();
   const steps = [
-    { icon: FilePlus2, title: t("Capture", "Capturar"), text: t("Job details and photos.", "Detalles del trabajo y fotos.") },
-    { icon: Search, title: t("Review", "Revisar"), text: t("Review missing information.", "Revise la información faltante.") },
-    { icon: ClipboardList, title: t("Prepare", "Preparar"), text: t("Prepare the draft.", "Prepare el borrador.") },
-    { icon: Send, title: t("Send", "Enviar"), text: t("Send to your office.", "Envíe a su oficina.") },
-    { icon: BarChart3, title: t("Track", "Seguir"), text: t("Track handoff status.", "Siga el estado de la entrega.") },
+    { icon: FilePlus2, title: t("Capture", "Capturar"), text: t("Job details, equipment and checklist photos.", "Datos del trabajo, equipo y fotos de la lista.") },
+    { icon: Search, title: t("Review", "Revisar"), text: t("Missing details are flagged.", "Se marcan los datos faltantes.") },
+    { icon: ClipboardList, title: t("Prepare", "Preparar"), text: t("The permit draft, field by field.", "El borrador del permiso, campo por campo.") },
+    { icon: Send, title: t("Send", "Enviar"), text: t("Tap Done to hand off.", "Toque Listo para entregar.") },
+    { icon: BarChart3, title: t("Track", "Seguir"), text: t("See where each handoff stands.", "Vea cómo va cada entrega.") },
   ];
   const benefits = [
-    { icon: SearchCheck, title: t("Spot missing details", "Detecte detalles faltantes"), text: t("PermitDraft checks that your paperwork is complete.", "PermitDraft verifica que su papeleo esté completo.") },
+    { icon: SearchCheck, title: t("The same checklist every job", "La misma lista en cada trabajo"), text: t("Each job runs the documentation checklist the office needs.", "Cada trabajo corre la lista de documentación que la oficina necesita.") },
     { icon: ShieldCheck, title: t("Evidence behind each field", "Evidencia detrás de cada campo"), text: t("The office sees the photo, note or reading behind each field.", "La oficina ve la foto, la nota o la lectura detrás de cada campo.") },
-    { icon: Layers, title: t("One packet per job", "Un paquete por trabajo"), text: t("Photos, notes and the draft go to the office together.", "Fotos, notas y el borrador llegan juntos a la oficina.") },
+    { icon: Layers, title: t("One packet per job", "Un paquete por trabajo"), text: t("Photos, notes and the draft arrive at the office together.", "Fotos, notas y el borrador llegan juntos a la oficina.") },
   ];
   const places = ["California", "Arizona", "Texas", "Las Vegas, Nevada"];
   return (
@@ -148,7 +148,7 @@ function Start() {
           <div className="hp-copy">
             <p className="hp-eyebrow">{t("Residential HVAC permit paperwork", "Papeleo de permisos residenciales de HVAC")}</p>
             <h1>{t("HVAC permit paperwork,", "Papeleo de permisos de HVAC,")} <span>{t("from the field to your office.", "del campo a su oficina.")}</span></h1>
-            <p className="hp-lead">{t("Capture job evidence in the field, spot missing details, and send one private job packet to your contractor’s office for review when you tap Done.", "Capture la evidencia del trabajo en campo, detecte los detalles que faltan y envíe un paquete privado del trabajo a la oficina de su contratista para revisión al tocar Listo.")}</p>
+            <p className="hp-lead">{t("Capture job evidence in the field. When you tap Done, one private packet goes to your contractor’s office for review. It is not a permit filing.", "Capture la evidencia del trabajo en campo. Al tocar Listo, un paquete privado va a la oficina de su contratista para revisión. No es la presentación de un permiso.")}</p>
             <div className="hp-ctas">
               <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try the free demo", "Probar la demo gratis")}</Link>
               <a href="#core-offer" className="ap-btn hp-outline" data-testid="see-core-pricing">{t("View Pricing", "Ver precios")}</a>
@@ -188,7 +188,7 @@ function Start() {
           </div>
           <p className="hp-built"><Home size={20} aria-hidden />{t("Built for residential HVAC contractors", "Hecho para contratistas residenciales de HVAC")}</p>
         </div>
-        <p className="hp-cov" data-testid="landing-coverage">{t("Serving residential HVAC contractors in California, Arizona, Texas, and Las Vegas, Nevada.", "Atendemos a contratistas residenciales de HVAC en California, Arizona, Texas y Las Vegas, Nevada.")} <Link to="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
+        <p className="hp-cov" data-testid="landing-coverage">{t("Documentation support in each area; verified local rules are not covered yet.", "Apoyo de documentación en cada área; las reglas locales verificadas aún no están cubiertas.")} <Link to="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
       </section>
 
       <div className="hp-signup"><div className="ap-signup"><PilotForm /><CoreOffer /></div></div>
