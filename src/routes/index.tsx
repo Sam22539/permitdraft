@@ -6,9 +6,14 @@ import { joinPilot, US_STATES } from "../lib/pilot";
 import { AppPage } from "../components/app-shell";
 import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
+import { useSessionEmail } from "../components/core-offer";
+import { DEMO_PHOTO } from "../components/demo";
+import { Image } from "../image";
+import { BarChart3, Check, CheckSquare, FilePlus2, Home, Layers, LogIn, MapPin, Play, Search, SearchCheck, Send, ShieldCheck, UserPlus } from "lucide-react";
+import "../home.css";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "PermitDraft — permit paperwork before you leave the driveway" }, { name: "description", content: "Add job details, take the checklist photos, review the draft and export. A documentation workflow for residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada." }] }),
+  head: () => ({ meta: [{ title: "PermitDraft — capture the HVAC job, send it to the office" }, { name: "description", content: "Capture job details and checklist photos, review the permit draft, and send one private job packet to your office. A documentation workflow for residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada." }] }),
   component: Start,
 });
 
@@ -75,29 +80,117 @@ function PilotForm() {
   );
 }
 
+function SignInCard() {
+  const { t } = useLang();
+  const email = useSessionEmail();
+  return (
+    <section className="hp-signin" aria-labelledby="hp-signin-h" data-testid="home-sign-in">
+      <h2 id="hp-signin-h">{t("Log in to PermitDraft", "Inicie sesión en PermitDraft")}</h2>
+      {email ? (
+        <>
+          <p className="hp-small">{t("Signed in as", "Sesión iniciada como")} {email}</p>
+          <Link to="/jobs" className="ap-btn primary" data-testid="home-open-jobs">{t("Open my jobs", "Abrir mis trabajos")}</Link>
+          <Link to="/profile" className="ap-btn ghost">{t("Account", "Cuenta")}</Link>
+        </>
+      ) : (
+        <>
+          <p className="hp-small">{t("Open your jobs, drafts and office handoffs.", "Abra sus trabajos, borradores y entregas a la oficina.")}</p>
+          <Link to="/sign-in" className="ap-btn primary" data-testid="home-log-in"><LogIn size={20} aria-hidden />{t("Log in", "Iniciar sesión")}</Link>
+          <div className="hp-or"><span>{t("or", "o")}</span></div>
+          <Link to="/sign-in" className="ap-btn ghost" data-testid="home-create"><UserPlus size={20} aria-hidden />{t("Create account", "Crear cuenta")}</Link>
+          <p className="hp-small">{t("Forgot your password?", "¿Olvidó su contraseña?")} <Link to="/sign-in" className="underline font-semibold" data-testid="home-forgot">{t("Reset it on the sign-in page", "Restablézcala en la página de inicio de sesión")}</Link></p>
+        </>
+      )}
+    </section>
+  );
+}
+
+function DraftCard() {
+  const { t } = useLang();
+  const items = [
+    t("Job details captured", "Detalles del trabajo capturados"),
+    t("Equipment data plate photo", "Foto de la placa de datos del equipo"),
+    t("Checklist photos & notes", "Fotos y notas de la lista"),
+    t("Missing details flagged", "Detalles faltantes marcados"),
+  ];
+  return (
+    <div className="hp-draft" aria-label={t("Example permit draft card", "Tarjeta de ejemplo de borrador de permiso")} role="img">
+      <div className="hp-draft-brand"><Image src="/generated-assets/company-logo.png" alt="" width={22} height={22} /><span>Permit<b>Draft</b></span></div>
+      <p className="hp-draft-title">{t("Heat pump permit draft", "Borrador de permiso de bomba de calor")}</p>
+      <ul>
+        {items.map((i) => <li key={i}><CheckSquare size={16} aria-hidden />{i}</li>)}
+      </ul>
+      <p className="hp-draft-stamp"><Check size={18} aria-hidden />{t("Sent to office", "Enviado a la oficina")}</p>
+      <p className="hp-draft-note">{t("Draft for contractor review — not a filed permit", "Borrador para revisión del contratista: no es un permiso presentado")}</p>
+    </div>
+  );
+}
+
 function Start() {
   const { t } = useLang();
   const steps = [
-    t("Add job details and equipment from the data plate.", "Agregue los detalles del trabajo y del equipo desde la placa de datos."),
-    t("Take the checklist photos.", "Tome las fotos de la lista de verificación."),
-    t("Review the draft, fix flagged items, export.", "Revise el borrador, corrija lo marcado y exporte."),
+    { icon: FilePlus2, title: t("Capture", "Capturar"), text: t("Job details, the equipment data plate and checklist photos.", "Detalles del trabajo, la placa de datos del equipo y las fotos de la lista.") },
+    { icon: Search, title: t("Review", "Revisar"), text: t("Review the draft and fix flagged items.", "Revise el borrador y corrija lo marcado.") },
+    { icon: Send, title: t("Send to office", "Enviar a la oficina"), text: t("Finish sends one private job packet to your office.", "Al Finalizar se envía un paquete privado del trabajo a su oficina.") },
+    { icon: BarChart3, title: t("Track", "Seguir"), text: t("Follow inspection status on each job.", "Siga el estado de la inspección de cada trabajo.") },
   ];
+  const benefits = [
+    { icon: SearchCheck, title: t("Spot missing details", "Detecte detalles faltantes"), text: t("PermitDraft checks that your paperwork is complete.", "PermitDraft verifica que su papeleo esté completo.") },
+    { icon: ShieldCheck, title: t("Evidence behind each field", "Evidencia detrás de cada campo"), text: t("The office sees the photo, note or reading behind each field.", "La oficina ve la foto, la nota o la lectura detrás de cada campo.") },
+    { icon: Layers, title: t("One packet per job", "Un paquete por trabajo"), text: t("Photos, notes and the draft go to the office together.", "Fotos, notas y el borrador llegan juntos a la oficina.") },
+  ];
+  const places = ["California", "Arizona", "Texas", "Las Vegas, Nevada"];
   return (
-    <AppPage>
-      <section className="ap-hero">
-        <h1>{t("Review the evidence before you file", "Revise la evidencia antes de presentar")}</h1>
-        <p className="ap-muted">{t("In a sample heat-pump permit draft, the office can see the photo, note or reading behind each field and spot missing information before anything is filed.", "En un borrador de muestra de permiso para bomba de calor, la oficina puede ver la foto, la nota o la lectura detrás de cada campo y detectar la información que falta antes de presentar nada.")}</p>
+    <AppPage home>
+      <section className="hp-hero">
+        <div className="hp-hero-in">
+          <div className="hp-copy">
+            <p className="hp-eyebrow">{t("Residential HVAC permit paperwork", "Papeleo de permisos residenciales de HVAC")}</p>
+            <h1>{t("Capture the job.", "Capture el trabajo.")} <span>{t("Send it to the office.", "Envíelo a la oficina.")}</span></h1>
+            <p className="hp-lead">{t("Add job details and equipment from the data plate, take the checklist photos and review the draft. The office sees the photo, note or reading behind each field and spots missing information before anything is filed.", "Agregue los detalles del trabajo y del equipo desde la placa de datos, tome las fotos de la lista y revise el borrador. La oficina ve la foto, la nota o la lectura detrás de cada campo y detecta lo que falta antes de presentar nada.")}</p>
+            <div className="hp-ctas">
+              <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try the free demo", "Probar la demo gratis")}</Link>
+              <a href="#core-offer" className="ap-btn hp-outline" data-testid="see-core-pricing">{t("See Core pricing", "Ver precio de Core")}</a>
+            </div>
+            <p className="hp-sample">{t("No sign-in needed for the demo.", "La demo no requiere iniciar sesión.")} <Link to="/sample-job">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link></p>
+          </div>
+          <div className="hp-visual">
+            <div className="hp-photo"><Image src={DEMO_PHOTO} alt={t("Heat pump outdoor unit data plate", "Placa de datos de una unidad exterior de bomba de calor")} width={1024} height={1024} priority /></div>
+            <DraftCard />
+          </div>
+          <SignInCard />
+        </div>
       </section>
-      <ol className="ap-steps">
-        {steps.map((s, i) => (
-          <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
+
+      <section className="hp-flow" id="how" aria-labelledby="hp-flow-h">
+        <div className="hp-flow-head">
+          <p className="hp-kicker">{t("The PermitDraft process", "El proceso de PermitDraft")}</p>
+          <h2 id="hp-flow-h">{t("A complete job workflow", "Un flujo de trabajo completo")}</h2>
+        </div>
+        <ol className="hp-steps">
+          {steps.map((s) => (
+            <li key={s.title}><s.icon size={30} strokeWidth={1.75} aria-hidden /><strong>{s.title}</strong><span>{s.text}</span></li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="hp-benefits" aria-label={t("Why PermitDraft", "Por qué PermitDraft")}>
+        {benefits.map((b) => (
+          <div key={b.title} className="hp-benefit"><b.icon size={34} strokeWidth={1.75} aria-hidden /><div><h3>{b.title}</h3><p>{b.text}</p></div></div>
         ))}
-      </ol>
-      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada only (not the rest of Nevada; Las Vegas from November 23, 2026, Pacific time). PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant. Permit documentation is for contractor review only: local rule checks and direct filing are not offered in this rollout.", "Cobertura honesta: el flujo de documentación está abierto solo a contratistas residenciales de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada; Las Vegas desde el 23 de noviembre de 2026, hora del Pacífico). PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. La documentación de permisos es solo para revisión del contratista: la verificación de reglas locales y la presentación directa no se ofrecen en este lanzamiento.")}</p>
-      <Link to="/demo" className="ap-btn primary" data-testid="try-demo">{t("Try the free demo", "Probar la demo gratis")}</Link>
-      <a href="#core-offer" className="ap-core-jump" data-testid="see-core-pricing">{t("See Core pricing", "Ver precio de Core")}</a>
-      <Link to="/sample-job" className="ap-btn ghost">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link>
-      <div className="ap-signup"><PilotForm /><CoreOffer /></div>
+      </section>
+
+      <section className="hp-band" aria-label={t("Coverage", "Cobertura")}>
+        <div className="hp-band-in">
+          <div className="hp-serving"><MapPin size={22} aria-hidden /><strong>{t("Currently serving", "Servicio actual")}</strong>
+            <ul>{places.map((p) => <li key={p}>{p}</li>)}</ul>
+          </div>
+          <p className="hp-built"><Home size={20} aria-hidden />{t("Built for residential HVAC contractors", "Hecho para contratistas residenciales de HVAC")}</p>
+        </div>
+        <p className="hp-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada only (not the rest of Nevada; Las Vegas from November 23, 2026, Pacific time). PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant. Permit documentation is for contractor review only: local rule checks and direct filing are not offered in this rollout.", "Cobertura honesta: el flujo de documentación está abierto solo a contratistas residenciales de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada; Las Vegas desde el 23 de noviembre de 2026, hora del Pacífico). PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. La documentación de permisos es solo para revisión del contratista: la verificación de reglas locales y la presentación directa no se ofrecen en este lanzamiento.")} <Link to="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
+      </section>
+
+      <div className="hp-signup"><div className="ap-signup"><PilotForm /><CoreOffer /></div></div>
     </AppPage>
   );
 }
