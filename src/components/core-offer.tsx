@@ -62,7 +62,7 @@ export function useCoreAccess(): boolean | null {
   return trial.state === "active";
 }
 
-function SignInForm() {
+export function SignInForm() {
   const { t } = useLang();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");

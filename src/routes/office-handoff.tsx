@@ -8,6 +8,7 @@ import { useCaptured } from "../lib/captured";
 import { captureSummary, fieldSets } from "../lib/capture-fields";
 import { CorrectionStatus } from "../components/correction";
 import { PacketInfo } from "../components/packet-info";
+import { CompanyPackets } from "../components/company-packets";
 import { useLang } from "../lib/lang";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 
@@ -57,6 +58,7 @@ export function OfficeHandoff() {
         )}</p>
         <p className="ap-muted">{t("Ready for office review is not ready for filing. Filing always shows Not ready.", "Listo para revisión de oficina no es listo para presentar. Presentar siempre muestra No está listo.")}</p>
       </header>
+      {!demo && <CompanyPackets />}
       <div className="ap-field">
         <label htmlFor="oh-q">{t("Job number, address or customer name", "Número de trabajo, dirección o nombre del cliente")}</label>
         <Input id="oh-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder={t("e.g. Alder or cap-", "p. ej. Alder o cap-")} data-testid="oh-search" />

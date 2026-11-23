@@ -1,3 +1,4 @@
+import { PacketInfo } from "../components/packet-info";
 import { ResourceLink } from "../components/resource-link";
 import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
@@ -60,7 +61,8 @@ export function Detail() {
     <AppPage bottom capture>
       {saved && (
         <div role="status" className="cx-card calm">
-          <p className="font-semibold">{demo ? t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.") : t("Sent to the office for review. This is not permit filing.", "Enviado a la oficina para revisión. No es la presentación del permiso.")}</p>
+          <p className="font-semibold">{demo ? t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.") : t("Job saved. This is not permit filing.", "Trabajo guardado. No es la presentación del permiso.")}</p>
+          {!demo && doneId && <PacketInfo jobId={doneId} />}
           {doneId && <Link to={p("/permit/draft/$id")} params={{ id: doneId } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
           {demo && doneId && <DemoFeedback />}
         </div>

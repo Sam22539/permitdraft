@@ -5,7 +5,8 @@ type In = { token: string; jobId: string; employeeId: string; values: Record<str
 /**
  * Creates the one private office packet for a job: captured fields, links to the job's saved photos, the signed-in
  * technician's name and the database clock's sent time. Sending twice returns the same packet. Refused while any
- * photo the device holds is not yet saved in the database.
+ * photo the device holds is not yet saved in the database. Once saved, one notice email goes to the technician's company's
+ * verified office inbox (none where the company has none), linking to the signed-in office review.
  */
 export const sendOfficePacket = createServerFn({ method: "POST" })
   .inputValidator((d: In) => {
@@ -26,18 +27,46 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     if (pe) throw new Error("save");
     const have = new Set((photos ?? []).map((p) => p.slot));
     const waiting = data.slots.filter((s) => !have.has(s)).length;
+    const office = await import("./office.server");
+    const capture = office.isTestPerson(u.user);
     const existing = await db.from("office_packets").select("id, sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).maybeSingle();
-    if (existing.data) return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string };
+    if (existing.data) {
+      // Finish again: the same packet; its one notice is tried only if it never went (the claim keeps it to one email).
+      const notice = await office.sendOfficeNotice(db, String(existing.data.id), String(existing.data.sent_at), capture);
+      return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string, notice };
+    }
     if (waiting > 0) return { ok: false as const, waiting };
+    // The company comes from the technician's own verified membership, never from the page.
+    const member = u.user.email ? await office.membership(db, u.user.email.toLowerCase()) : null;
     const md = (u.user.user_metadata ?? {}) as Record<string, unknown>;
     const name = String(md.full_name ?? md.name ?? "").trim() || u.user.email || "Technician";
     const row = {
-      user_id: uid, job_id: data.jobId, sent_by_name: name.slice(0, 200), employee_id: data.employeeId || null,
+      user_id: uid, job_id: data.jobId, company_id: member?.company_id ?? null, notify_status: "saved", sent_by_name: name.slice(0, 200), employee_id: data.employeeId || null,
       captured_fields: { values: data.values, formDefaults: data.formDefaults },
       photo_links: (photos ?? []).map((p) => ({ photoId: p.id, slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),
     };
     const ins = await db.from("office_packets").upsert(row, { onConflict: "user_id,job_id", ignoreDuplicates: true });
     if (ins.error) throw new Error("save");
-    const { data: made } = await db.from("office_packets").select("sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).single();
-    return { ok: true as const, created: true, sentBy: String(made?.sent_by_name ?? name), sentAt: String(made?.sent_at ?? new Date().toISOString()) };
+    const { data: made, error: me } = await db.from("office_packets").select("id, sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).single();
+    if (me || !made) throw new Error("save");
+    const notice = await office.sendOfficeNotice(db, String(made.id), String(made.sent_at), capture);
+    return { ok: true as const, created: true, sentBy: String(made.sent_by_name ?? name), sentAt: String(made.sent_at), notice };
+  });
+
+/** The technician's own packet: tries its one office notice again where it failed or the inbox was not set up yet. */
+export const retryOfficeNotice = createServerFn({ method: "POST" })
+  .inputValidator((d: { token: string; jobId: string }) => {
+    const token = String(d?.token ?? ""), jobId = String(d?.jobId ?? "");
+    if (!token || token.length > 4000 || !jobId || jobId.length > 80) throw new Error("input");
+    return { token, jobId };
+  })
+  .handler(async ({ data }) => {
+    const { serverBackend } = await import("./backend.server");
+    const office = await import("./office.server");
+    const db = serverBackend();
+    const { data: u, error: ue } = await db.auth.getUser(data.token);
+    if (ue || !u.user) throw new Error("auth");
+    const { data: pk } = await db.from("office_packets").select("id, sent_at").eq("user_id", u.user.id).eq("job_id", data.jobId).maybeSingle();
+    if (!pk) return { notice: "missing" as const };
+    return { notice: await office.sendOfficeNotice(db, String(pk.id), String(pk.sent_at), office.isTestPerson(u.user)) };
   });

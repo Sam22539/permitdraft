@@ -57,6 +57,27 @@
       "when": 1795396730148,
       "tag": "0007_job_photos_and_office_packets_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795398654980,
+      "tag": "0008_company_scoping_verified_office_inbox_packet_not",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795398945331,
+      "tag": "0009_temporary_check_fixture_companies",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795399037777,
+      "tag": "0010_remove_temporary_check_fixture_companies",
+      "breakpoints": true
     }
   ]
 }
