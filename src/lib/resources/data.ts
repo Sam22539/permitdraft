@@ -5,13 +5,13 @@
 export type LinkStatus = "verified" | "unverified" | "not_applicable" | "not_found";
 export type Stage = "setup" | "new_job" | "equipment" | "permit" | "install" | "close_out" | "money";
 export type Category = "licensing" | "codes" | "refrigerant" | "consumer" | "incentives" | "permits" | "federal";
-export type SourceType = "official_gov" | "official_program" | "utility" | "secondary";
+export type SourceType = "official_gov" | "official_program" | "industry" | "utility" | "secondary";
 
 export type ResourceLink = {
   key: string; category: Category; url: string | null; page_title: string | null; agency: string | null;
   source_type: SourceType | null; status: LinkStatus; checked_on: string | null; volatile: boolean; notes: string;
   label_en: string; label_es: string; show_in_app_stage: Stage;
-  note_en?: string; note_es?: string;
+  note_en?: string; note_es?: string; tag_en?: string; tag_es?: string;
 };
 export type KeyDef = { key: string; category: Category; en: string; es: string; stage: Stage; volatile?: boolean };
 
@@ -123,6 +123,7 @@ export const STATES: [string, string][] = ROLLOUT_STATE_CODES.map((c) => ARCHIVE
 // Records actually read and opened (curl + page fetch, 2026-11-22). Everything not listed here is pending research.
 type Rec = Partial<ResourceLink> & { key: string; status: LinkStatus };
 const D = "2026-11-22";
+const D2 = "2026-11-23";
 export const FEDERAL_RECORDS: Rec[] = [
   { key: "fed_epa_608", url: "https://www.epa.gov/section608/section-608-technician-certification", page_title: "Section 608 Technician Certification | US EPA",
     agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D, volatile: false, notes: "Opened; HTTP 200, no redirect." },
@@ -132,8 +133,41 @@ export const FEDERAL_RECORDS: Rec[] = [
   { key: "fed_epa_608_recordkeeping", url: "https://www.epa.gov/section608/recordkeeping-and-reporting-requirements-stationary-refrigeration", page_title: "Recordkeeping and Reporting Requirements for Stationary Refrigeration | US EPA",
     agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D, volatile: true,
     notes: "EPA summary of recordkeeping and reporting duties for technicians, owners, certifiers and reclaimers under 40 CFR Part 82 Subpart F; last updated Feb 25, 2026 per the page. Summary only, not legal advice." },
+  { key: "fed_epa_tech_transitions", url: "https://www.epa.gov/hfcs/technology-transitions-program", page_title: "Technology Transitions Program | US EPA", agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D2, volatile: true, notes: "Opened 2026-11-23.",
+    note_en: "EPA program page on HFC restrictions in refrigeration, air conditioning and heat pump equipment. Compliance dates vary by sector; check the page's tables. Background only, not a permit rule.",
+    note_es: "Página de la EPA sobre restricciones de HFC en equipos de refrigeración, aire acondicionado y bombas de calor. Las fechas varían por sector; consulte las tablas de la página. Solo referencia, no es una regla de permiso." },
+  { key: "fed_epa_err", url: "https://www.epa.gov/hfcs/reporting-resources-emissions-reduction-reclamation-rule", page_title: "Reporting Resources for the Emissions Reduction & Reclamation Rule | US EPA", agency: "U.S. Environmental Protection Agency", source_type: "official_gov", status: "verified", checked_on: D2, volatile: true, notes: "Opened 2026-11-23.",
+    note_en: "EPA reporting resources for the ER&R rule (40 CFR Part 84, Subpart C). Check the page for which systems and reports apply. Background only, not a permit rule.",
+    note_es: "Recursos de reporte de la EPA para la regla ER&R (40 CFR Parte 84, Subparte C). Consulte la página para ver qué sistemas e informes aplican. Solo referencia, no es una regla de permiso." },
+  { key: "fed_doe_regional_standards", url: "https://www1.eere.energy.gov/buildings/appliance_standards/pdfs/2023_CAC_Standards_FAQ_10-5-2022_Final.pdf", page_title: "2023 Central Air Conditioner Standards FAQ (DOE, Oct 5, 2022)", agency: "U.S. Department of Energy", source_type: "official_gov", status: "verified", checked_on: D2, volatile: false, notes: "PDF opened 2026-11-23.",
+    note_en: "DOE FAQ (2022) on the 2023 standards and their regional approach. It states that installing a product that does not meet the regional standards in the Southeast and Southwest is not allowed. Read the document for the figures; none are copied here. Not a PermitDraft compliance check.",
+    note_es: "Preguntas frecuentes del DOE (2022) sobre las normas de 2023 y su enfoque regional. Indica que no se permite instalar un producto que no cumpla las normas regionales del Sureste y Suroeste. Consulte el documento para las cifras; aquí no se copian. No es una verificación de cumplimiento de PermitDraft." },
+  { key: "fed_doe_ccms", url: null, page_title: null, agency: "U.S. Department of Energy", source_type: "official_gov", status: "unverified", checked_on: D2, volatile: false, notes: "Pending: access refused on 2026-11-23.",
+    note_en: "Pending: the DOE certification database page could not be opened in our check on 2026-11-23 (access refused), so it is not linked.",
+    note_es: "Pendiente: no se pudo abrir la página de la base de certificación del DOE en nuestra revisión del 2026-11-23 (acceso rechazado), por lo que no se enlaza." },
+  { key: "fed_ecfr_430_32", url: null, page_title: null, agency: "U.S. Government", source_type: "official_gov", status: "unverified", checked_on: D2, volatile: false, notes: "Pending: blocked by an access check on 2026-11-23.",
+    note_en: "Pending: the eCFR page for 10 CFR 430.32 was blocked by an access check in our direct check on 2026-11-23, so it is not linked. No other site is substituted.",
+    note_es: "Pendiente: la página de eCFR para 10 CFR 430.32 fue bloqueada por una verificación de acceso en nuestra revisión del 2026-11-23, por lo que no se enlaza. No se sustituye por otro sitio." },
+  { key: "fed_ahri_directory", url: "https://www.ahridirectory.org/", page_title: "AHRI Certification Directory", agency: "Air-Conditioning, Heating, and Refrigeration Institute (AHRI)", source_type: "industry", status: "verified", checked_on: D2, volatile: false, notes: "Opened 2026-11-23.",
+    tag_en: "Industry source", tag_es: "Fuente de la industria",
+    note_en: "Trade association directory of performance-certified HVACR equipment, for confirming equipment ratings. Industry source, not a government agency and not a permit rule.",
+    note_es: "Directorio de la asociación comercial de equipos HVACR con rendimiento certificado, para confirmar clasificaciones. Fuente de la industria, no una agencia de gobierno ni una regla de permiso." },
+  { key: "fed_ftc_cooling_off", url: "https://www.federalregister.gov/documents/full_text/xml/2015/01/09/2015-00164.xml", page_title: "Trade Regulation Rule Concerning Cooling-Off Period for Sales Made at Homes or at Certain Other Locations (final rule, 2015)", agency: "Federal Trade Commission (published in the Federal Register)", source_type: "official_gov", status: "verified", checked_on: D2, volatile: false, notes: "Opened 2026-11-23.",
+    tag_en: "Contract background", tag_es: "Contexto de contratos",
+    note_en: "Text of the FTC's final rule on cancellation rights for in-home sales. Contract background only; contract handling needs legal review before it is offered. Not a permit rule.",
+    note_es: "Texto de la regla final de la FTC sobre derechos de cancelación en ventas a domicilio. Solo contexto de contratos; el manejo de contratos requiere revisión legal antes de ofrecerse. No es una regla de permiso." },
+  { key: "fed_irs_25c", url: "https://www.irs.gov/credits-deductions/energy-efficient-home-improvement-credit", page_title: "Energy Efficient Home Improvement Credit | Internal Revenue Service", agency: "Internal Revenue Service", source_type: "official_gov", status: "verified", checked_on: D2, volatile: true, notes: "Opened 2026-11-23.",
+    tag_en: "Expired · historical use only", tag_es: "Vencido · solo uso histórico",
+    note_en: "Section 25C credit page. The page ties the credit to property placed in service before 2026, so it is not a current incentive; use it only for past-year installs.",
+    note_es: "Página del crédito de la Sección 25C. La página vincula el crédito a propiedad puesta en servicio antes de 2026, por lo que no es un incentivo vigente; úselo solo para instalaciones de años pasados." },
+  { key: "fed_doe_home_energy_rebates", url: "https://www.energy.gov/sites/default/files/2024-09/home-energy-rebates-faq-fact-sheet_925224.pdf", page_title: "Home Energy Rebates FAQ fact sheet (DOE, Sept 2024)", agency: "U.S. Department of Energy", source_type: "official_gov", status: "verified", checked_on: D2, volatile: true, notes: "PDF opened 2026-11-23.",
+    tag_en: "State-run programs", tag_es: "Programas estatales",
+    note_en: "DOE fact sheet from 2024. States, territories and Tribes run these rebates, so availability depends on the home's location and is not promised here. Check the state's own program page before telling a customer a rebate is available.",
+    note_es: "Hoja informativa del DOE de 2024. Los estados, territorios y tribus administran estos reembolsos, por lo que la disponibilidad depende de la ubicación y aquí no se promete. Consulte la página del programa estatal antes de decirle a un cliente que hay un reembolso." },
   { key: "fed_energycodes_state_portal", url: null, page_title: null, agency: "U.S. Department of Energy", source_type: "official_gov", status: "unverified", checked_on: null, volatile: false,
-    notes: "energycodes.gov home opened, but its state status page returned HTTP 403 to our check, so no state-portal address is confirmed yet." },
+    notes: "energycodes.gov home opened, but its state status page returned HTTP 403 to our check, so no state-portal address is confirmed yet.",
+    note_en: "Pending: the DOE state energy codes portal address could not be confirmed in our check on 2026-11-23, so it is not linked.",
+    note_es: "Pendiente: no se pudo confirmar la dirección del portal estatal de códigos de energía del DOE en nuestra revisión del 2026-11-23, por lo que no se enlaza." },
 ];
 // Archival evidence for states outside the rollout is not kept here.
 export const STATE_RECORDS: Record<string, Rec[]> = {

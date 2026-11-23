@@ -24,11 +24,12 @@ function Item({ l }: { l: ResourceLink }) {
   return (
     <li className="rs-item" data-testid="resource-item" data-status={out ? "verified" : "pending"}>
       <strong>{out ? <a href={l.url!} target="_blank" rel="noopener noreferrer" className="underline">{t(l.label_en, l.label_es)}</a> : t(l.label_en, l.label_es)}</strong>
-      <span className={`rs-badge${out ? " ok" : ""}`}>{status}{l.volatile ? ` · ${t("changes often", "cambia seguido")}` : ""}</span>
+      <span className={`rs-badge${out ? " ok" : ""}`}>{status}{l.tag_en ? ` · ${t(l.tag_en, l.tag_es ?? l.tag_en)}` : ""}{l.volatile ? ` · ${t("changes often", "cambia seguido")}` : ""}</span>
       {out && <span className="ap-muted">{l.page_title} · {l.agency} · {t("checked", "revisado")} {l.checked_on}</span>}
       {out && l.note_en && <span className="ap-muted">{t(l.note_en, l.note_es ?? l.note_en)}</span>}
-      {!out && l.status !== "unverified" && <span className="ap-muted">{l.notes}</span>}
-      {!out && l.status === "unverified" && l.notes && !l.notes.startsWith("Pending") && <span className="ap-muted">{l.notes}</span>}
+      {!out && l.note_en && <span className="ap-muted">{t(l.note_en, l.note_es ?? l.note_en)}</span>}
+      {!out && !l.note_en && l.status !== "unverified" && <span className="ap-muted">{l.notes}</span>}
+      {!out && !l.note_en && l.status === "unverified" && l.notes && !l.notes.startsWith("Pending") && <span className="ap-muted">{l.notes}</span>}
     </li>
   );
 }
