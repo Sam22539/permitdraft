@@ -9,8 +9,9 @@ import { DemoBar, useCorePath, useDemo } from "./demo";
 import "../app.css";
 
 type NavLink = { label: string; to: string; hash?: string };
+type NavGroup = { label: string; note?: string; links: NavLink[] };
 /** The public site's menu groups: each opens an existing section or page. */
-function useNavGroups(): { label: string; links: NavLink[] }[] {
+function useNavGroups(): NavGroup[] {
   const { t } = useLang();
   return [
     { label: t("Features", "Funciones"), links: [
@@ -22,8 +23,8 @@ function useNavGroups(): { label: string; links: NavLink[] }[] {
       { label: t("Sample permit draft", "Borrador de permiso de muestra"), to: "/sample-job" },
       { label: t("Sample office handoff", "Entrega a oficina de muestra"), to: "/demo/office-handoff" },
     ] },
-    { label: t("Pricing", "Precio"), links: [
-      { label: "PermitDraft Core", to: "/", hash: "core-offer" },
+    { label: t("Pricing", "Precio"), note: t("PermitDraft Core: US$49/month, renews monthly. 14-day free trial, no card needed.", "PermitDraft Core: US$49/mes, se renueva mensualmente. Prueba gratis de 14 días, sin tarjeta."), links: [
+      { label: t("Start with PermitDraft Core", "Comenzar con PermitDraft Core"), to: "/get-started" },
       { label: t("Try Free Demo", "Probar la demo gratis"), to: "/demo" },
       { label: t("Early Access", "Acceso anticipado"), to: "/early-access" },
     ] },
@@ -47,6 +48,7 @@ function PublicNav({ home }: { home?: boolean }) {
         <DropdownMenu key={g.label} modal={false}>
           <DropdownMenuTrigger className="hp-nav-trigger" data-current={path === "/early-access" && g.links.some((l) => l.to === "/early-access") ? "true" : undefined}>{g.label}<ChevronDown size={16} aria-hidden /></DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="hp-nav-menu">
+            {g.note && <p className="hp-nav-note" data-testid="pricing-note">{g.note}</p>}
             {g.links.map((l) => (
               <DropdownMenuItem key={l.label} asChild><Link to={l.to as never} hash={l.hash}>{l.label}</Link></DropdownMenuItem>
             ))}
@@ -54,7 +56,7 @@ function PublicNav({ home }: { home?: boolean }) {
         </DropdownMenu>
       ))}
       <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
-      <Link to="/" hash="core-offer" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+      <Link to="/get-started" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
     </nav>
   );
 }
@@ -72,7 +74,7 @@ function PublicNavPhone({ home }: { home?: boolean }) {
           {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}{t("Menu", "Menú")}
         </button>
         <Link to="/sign-in" className="hp-mnav-login">{t("Log In", "Iniciar sesión")}</Link>
-        <Link to="/" hash="core-offer" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+        <Link to="/get-started" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
       </div>
       {open && (
         <nav id="hp-mnav-panel" className="hp-mnav-panel" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
@@ -82,6 +84,7 @@ function PublicNavPhone({ home }: { home?: boolean }) {
               <AccordionItem key={g.label} value={g.label}>
                 <AccordionTrigger className="hp-mnav-group">{g.label}</AccordionTrigger>
                 <AccordionContent>
+                  {g.note && <p className="hp-nav-note" data-testid="pricing-note-phone">{g.note}</p>}
                   <ul className="hp-mnav-links">
                     {g.links.map((l) => <li key={l.label}><Link to={l.to as never} hash={l.hash} onClick={close}>{l.label}</Link></li>)}
                   </ul>
@@ -200,11 +203,11 @@ export function AppPage({ children, bottom, wide, capture, home, core }: { child
       {(demo || bottom || core) && <SideNav />}
       <AppTop home={home} mode={demo ? "demo" : bottom || core ? "core" : undefined} />
       <main className={`${home ? "hp-main" : "ap-main"} ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{demo && <DemoBar />}{children}</main>
-      <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
+      {(demo || bottom || core) && <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
         <p>{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
         <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
         <Link to="/resources" className="underline font-semibold">{t("Official resources", "Recursos oficiales")}</Link>
-      </footer>
+      </footer>}
       {bottom && <BottomBar current="jobs" />}
     </div>
   );

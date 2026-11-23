@@ -35,7 +35,7 @@ function Landing() {
         <h1 id="lp-h1">{t("From field photos to a permit draft your office can review", "De las fotos de campo a un borrador de permiso que su oficina puede revisar")}</h1>
         <p className="ap-muted">{t("Your tech captures the job on a phone. PermitDraft turns the photos and notes into a draft, flags what’s missing and shows the evidence behind every value.", "Su técnico captura el trabajo en el teléfono. PermitDraft convierte las fotos y notas en un borrador, marca lo que falta y muestra la evidencia detrás de cada valor.")}</p>
         <Link to="/demo" className="ap-btn primary" data-testid="lp-try-demo">{t("Try the free demo", "Probar la demo gratis")}</Link>
-        <p className="lp-sub">{t("No sign-in or card.", "Sin iniciar sesión ni tarjeta.")} <Link to="/" hash="core-offer" className="lp-link" data-testid="lp-see-pricing">{t("See Core pricing", "Ver precio de Core")}</Link></p>
+        <p className="lp-sub">{t("No sign-in or card.", "Sin iniciar sesión ni tarjeta.")} <Link to="/get-started" className="lp-link" data-testid="lp-see-pricing">{t("Get started with Core", "Comenzar con Core")}</Link></p>
       </section>
 
       <section className="lp-sec" aria-labelledby="lp-checklist" data-testid="lp-checklist">
@@ -91,7 +91,7 @@ function Landing() {
         <h2 id="lp-end" className="lp-h2">{t("Walk through a heat-pump job yourself", "Recorra usted mismo un trabajo de bomba de calor")}</h2>
         <p>{t("Every step of the demo is open: capture, checks and the draft review.", "Cada paso de la demo está abierto: captura, verificaciones y revisión del borrador.")}</p>
         <Link to="/demo" className="ap-btn primary" data-testid="lp-try-demo-end">{t("Try the free demo", "Probar la demo gratis")}</Link>
-        <p className="lp-sub on-dark"><Link to="/" hash="core-offer" className="lp-link">{t("See Core pricing", "Ver precio de Core")}</Link></p>
+        <p className="lp-sub on-dark"><Link to="/get-started" className="lp-link">{t("Get started with Core", "Comenzar con Core")}</Link></p>
       </section>
     </AppPage>
   );

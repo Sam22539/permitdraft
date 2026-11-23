@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
-import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
 import { ScreenPreview } from "../components/home-hero";
 import { BarChart3, ClipboardList, FilePlus2, Home, Layers, MapPin, Play, Search, SearchCheck, Send, ShieldCheck } from "lucide-react";
@@ -73,7 +72,6 @@ function Start() {
         <p className="hp-cov" data-testid="landing-coverage">{t("Documentation support in each area; verified local rules are not covered yet.", "Apoyo de documentación en cada área; las reglas locales verificadas aún no están cubiertas.")} <Link to="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
       </section>
 
-      <div className="hp-signup"><div className="ap-signup"><CoreOffer /></div></div>
     </AppPage>
   );
 }

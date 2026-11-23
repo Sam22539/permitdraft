@@ -94,7 +94,7 @@
   .hp-band{padding:1.25rem 2rem 1.5rem}
 }
 @media (max-width:1023px){.hp-signin{order:2}.hp-visual{order:3}}
-.hp-signup #core-offer{scroll-margin-top:7rem}
+
 
 /* ── Bright hero: white ground, navy words, orange "Office", real sign-in panel and sample screens ── */
 .hp-hero{background:linear-gradient(180deg,#fff 0%,#fff 60%,#F4F7FB 100%);color:#152235;padding:2.25rem 1rem 5.5rem;border-bottom:1px solid #DCE3E9}

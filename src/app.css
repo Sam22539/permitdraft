@@ -696,3 +696,15 @@ html:has(.pj){scroll-padding-top:10rem}
 .ab-values .lp-steps{grid-template-columns:minmax(0,1fr)}
 .ab-values .lp-steps .ap-muted{color:#334155}
 @media (min-width:900px){.ab-values .lp-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.ab-page .lp-hero{padding:3rem 2.5rem}}
+.hp-nav-note{padding:.6rem .75rem;margin:0 0 .25rem;font-size:.9rem;font-weight:600;color:#152235;border-bottom:1px solid #DCE3E9}
+.hp-nav-menu{max-width:min(22rem,calc(100vw - 1.5rem))}.hp-nav-note{white-space:normal;line-height:1.35}
+.gs-wrap{width:min(760px,100%);margin:0 auto;display:grid;gap:1rem}
+.gs-h1{font-size:clamp(2.2rem,7vw,3.5rem);line-height:1.05;font-weight:800;letter-spacing:-.03em;color:#152235}
+.gs-h1 span{color:#F4770B}
+.gs-lead{font-size:1.1rem;color:#334155;max-width:60ch}
+.gs-wrap .ap-subscribe{display:grid;gap:1.1rem;padding:1.75rem}
+.gs-wrap .ap-subscribe p{margin:0}
+.gs-wrap .ap-subscribe .ap-muted{color:#475569}
+.gs-wrap .ap-subscribe-actions{display:grid;gap:.75rem;margin-top:.5rem}
+.gs-wrap .ap-subscribe-actions .ap-btn.primary{background:#F4770B;color:#111A26;opacity:1;font-weight:800}
+.gs-wrap .ap-subscribe-actions .ap-btn.ghost{font-weight:600;min-height:44px}

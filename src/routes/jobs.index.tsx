@@ -77,7 +77,7 @@ export function Jobs() {
           <Link to={p("/new")} className="ap-btn primary jb-newbtn" data-testid="jobs-new"><Plus size={20} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
         </div>
         {trial.state === "active" && (() => { const d = daysLeft(trial.expiresAt); return (
-          <p className="jb-trial" data-testid="trial-banner">{t(`${d} ${d === 1 ? "day" : "days"} left in your free trial`, `Quedan ${d} ${d === 1 ? "día" : "días"} de su prueba gratis`)} · <Link to="/" hash="core-offer" className="underline font-semibold">{t("See plan", "Ver plan")}</Link></p>
+          <p className="jb-trial" data-testid="trial-banner">{t(`${d} ${d === 1 ? "day" : "days"} left in your free trial`, `Quedan ${d} ${d === 1 ? "día" : "días"} de su prueba gratis`)} · <Link to="/get-started" className="underline font-semibold">{t("See plan", "Ver plan")}</Link></p>
         ); })()}
       </header>
       {resume > 0 && (
