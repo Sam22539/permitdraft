@@ -434,3 +434,12 @@ html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
 .ap-card>h2:not([class]){font-size:1.2rem;font-weight:800;line-height:1.25;color:#12264a}
 .ap-card>h2:not([class]):not(:first-child){font-size:1.05rem;margin-top:.5rem}
 .ap-card>h3:not([class]){font-size:1.05rem;font-weight:700;color:#12264a}
+
+/* On this page jump links: compact, wrap on phones; targets clear the sticky header */
+html:has(.pj){scroll-padding-top:10rem}
+.pj{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .75rem;font-size:.95rem}
+.pj-label{font-weight:800;color:#12264a}
+.pj-list{display:flex;flex-wrap:wrap;gap:.25rem .9rem;list-style:none;margin:0;padding:0}
+.pj-link{display:inline-flex;align-items:center;min-height:44px;color:#12264a;font-weight:600;text-decoration:underline}
+.pj-link:focus-visible{outline:3px solid #12264a;outline-offset:2px}
+[id].ap-card{scroll-margin-top:10rem}

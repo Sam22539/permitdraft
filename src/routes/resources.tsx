@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { PageJumps } from "../components/page-jumps";
 import { AppPage } from "../components/app-shell";
 import { useLang } from "../lib/lang";
 import { FilingHandoff, IdahoReference, LasVegasReference } from "../components/filing-handoff";
@@ -50,7 +51,18 @@ function Resources() {
       <p className="ap-muted">{t("Public links to official agencies for residential HVAC work in California, Arizona, Texas and Las Vegas, Nevada (not the rest of Nevada), plus federal references. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo residencial de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada), más referencias federales. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
 
-      <section className="ap-card" aria-labelledby="rs-checklist" data-testid="resources-checklist">
+      <PageJumps items={[
+        { id: "rs-checklist-card", label: ["Checklist", "Lista"] },
+        { id: "filing-handoff", label: ["Filing handoff", "Entrega de presentación"] },
+        { id: "las-vegas-reference", label: ["Las Vegas", "Las Vegas"] },
+        { id: "idaho-reference", label: ["Idaho", "Idaho"] },
+        { id: "rs-filters", label: ["Filters", "Filtros"] },
+        { id: "rs-federal", label: ["Federal", "Federal"] },
+        { id: "rs-state-card", label: ["State", "Estado"] },
+        { id: "rs-counts", label: ["Directory completeness", "Qué tan completo"] },
+      ]} />
+
+      <section id="rs-checklist-card" className="ap-card" aria-labelledby="rs-checklist" data-testid="resources-checklist">
         <h2 id="rs-checklist" className="ap-h2">{t("Heat pump change-out paperwork checklist", "Lista de papeleo para cambio de bomba de calor")}</h2>
         <p className="ap-muted">{t("The photos, readings and office checks a residential heat pump permit draft needs. Free, no sign-in.", "Las fotos, lecturas y revisiones de oficina que necesita un borrador de permiso de bomba de calor residencial. Gratis, sin iniciar sesión.")}</p>
         <Link to="/heat-pump-paperwork-checklist" className="ap-btn ghost" data-testid="rs-open-checklist">{t("Open the checklist", "Abrir la lista")}</Link>
@@ -60,7 +72,7 @@ function Resources() {
       <LasVegasReference />
       <IdahoReference />
 
-      <section className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>
+      <section id="rs-filters" className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>
         <label htmlFor="rs-state" className="font-semibold">{t("State", "Estado")}</label>
         <select id="rs-state" className="rs-select" value={state ?? ""} onChange={(e) => set({ state: e.target.value || undefined })}>
           <option value="">{t("Federal only (no state chosen)", "Solo federal (sin estado)")}</option>
@@ -78,12 +90,12 @@ function Resources() {
         </div>
       </section>
 
-      <section className="ap-card" data-testid="resources-federal">
+      <section id="rs-federal" className="ap-card" data-testid="resources-federal">
         <h2 className="ap-h2">{t("Federal", "Federal")}</h2>
         {fed.length ? <ul className="rs-list">{fed.map((l) => <Item key={l.key} l={l} />)}</ul> : <p className="ap-muted">{t("No federal entries match these filters.", "Ninguna entrada federal coincide con estos filtros.")}</p>}
       </section>
 
-      <section className="ap-card" data-testid="resources-state">
+      <section id="rs-state-card" className="ap-card" data-testid="resources-state">
         <h2 className="ap-h2">{state ? stateName : t("State", "Estado")}</h2>
         {!state ? <p className="ap-muted">{t("Choose a state above to see its entries. PermitDraft never picks a state for you from an address.", "Elija un estado arriba para ver sus entradas. PermitDraft nunca elige un estado por usted a partir de una dirección.")}</p>
           : <>
@@ -92,7 +104,7 @@ function Resources() {
           </>}
       </section>
 
-      <section className="ap-card" data-testid="resources-counts">
+      <section id="rs-counts" className="ap-card" data-testid="resources-counts">
         <h2 className="ap-h2">{t("How complete is this directory?", "¿Qué tan completo está este directorio?")}</h2>
         <dl className="rs-count">
           <dt>{t("States you can select (CA, AZ, TX)", "Estados seleccionables (CA, AZ, TX)")}</dt><dd>{c.selectorStates}</dd>
