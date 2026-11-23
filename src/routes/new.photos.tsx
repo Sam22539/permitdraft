@@ -317,22 +317,32 @@ function NewPhotos() {
         <h2 id="final-review-h">{t("Final review", "Revisión final")}</h2>
         <p className="cx-note">{demo ? t("Check the sample job before you finish. Nothing is sent from the demo.", "Revise el trabajo de muestra antes de finalizar. La demo no envía nada.") : t("Check the job before you send it to your office for review. It is not a permit filing.", "Revise el trabajo antes de enviarlo a su oficina para revisión. No es la presentación de un permiso.")}</p>
         {(() => {
-          const v = (k: string) => (dvals[k] ?? "").trim();
+          // Summary reads the saved capture values by the same keys the step inputs write (not the scope-only subset).
+          const v = (k: string) => (dr.get(k) ?? "").trim();
           const none = t("Not entered", "Sin ingresar");
           const allChecks = applicableChecks(jobType, dvals);
-          const sections: { title: string; step: string; rows: [string, string][] }[] = [
-            { title: t("Customer and job site", "Cliente y sitio"), step: "/new", rows: [[t("Homeowner", "Propietario"), v("name")], [t("Phone", "Teléfono"), v("phone")], [t("Address", "Dirección"), [v("addr"), v("city")].filter(Boolean).join(", ")]] },
-            { title: t("Equipment", "Equipo"), step: "/new/equipment", rows: [[t("Equipment type", "Tipo de equipo"), v("type")], [t("Manufacturer", "Fabricante"), v("maker") || v("fu_maker")], [t("Model", "Modelo"), v("model") || v("fu_model")], [t("Serial", "Serie"), v("serial") || v("fu_serial")]] },
-            { title: t("Work performed", "Trabajo realizado"), step: "/new/work", rows: [[t("Work notes", "Notas del trabajo"), v("work")], [t("Panel size (amps)", "Amperios del panel"), v("panel")]] },
-            { title: t("Checks", "Revisiones"), step: "/new/checks", rows: [[t("Final checks confirmed", "Verificaciones confirmadas"), `${allChecks.length - unticked.length} / ${allChecks.length}`]] },
-            { title: t("Photos and Employee ID", "Fotos e ID de empleado"), step: "/new/photos", rows: [[t("Photos attached", "Fotos adjuntas"), String(Object.keys(photos).length)], [t("Required photos missing", "Fotos requeridas faltantes"), demo ? "—" : String(missing.length)], [t("Employee ID", "ID de empleado"), (demo ? employeeId : assignedId || employeeId).trim()]] },
+          const hp = jobType === "Heat pump change-out";
+          const px = hp ? "" : "ac_";
+          type Row = [string, string, boolean];
+          const ans = (k: string) => { const x = v(k); return x === "replaced" ? t("Replaced", "Reemplazado") : x === "kept" ? t("Kept", "Conservado") : x === "none" ? t("Not present", "No presente") : x === "sealed" ? t("Sealed", "Sellado") : x === "not" ? t("Not sealed", "No sellado") : x === "exempt" ? t("Exempt", "Exento") : x === "yes" ? t("Yes", "Sí") : x === "no" ? t("No", "No") : x; };
+          const equipRows: Row[] = isFurn
+            ? [[t("Equipment type", "Tipo de equipo"), v("type"), true], [t("Furnace manufacturer", "Fabricante del horno"), v("fu_maker"), false], [t("Furnace model", "Modelo del horno"), v("fu_model"), v("fu_furnace") === "replaced"], [t("Furnace serial", "Serie del horno"), v("fu_serial"), v("fu_furnace") === "replaced"],
+              [t("Coil manufacturer", "Fabricante del serpentín"), v("coil_maker"), false], [t("Coil model", "Modelo del serpentín"), v("coil_model"), v("fu_coil") === "replaced"], [t("Coil serial", "Serie del serpentín"), v("coil_serial"), v("fu_coil") === "replaced"],
+              [t("Outdoor manufacturer", "Fabricante exterior"), v("ac_maker"), false], [t("Outdoor model", "Modelo exterior"), v("ac_model"), v("fu_outdoor") === "replaced"], [t("Outdoor serial", "Serie exterior"), v("ac_serial"), v("fu_outdoor") === "replaced"]]
+            : [[t("Equipment type", "Tipo de equipo"), v("type"), true], [t("Manufacturer", "Fabricante"), v(px + "maker"), false], [t("Model", "Modelo"), v(px + "model"), true], [t("Serial", "Serie"), v(px + "serial"), true]];
+          const sections: { title: string; step: string; rows: Row[] }[] = [
+            { title: t("Customer and job site", "Cliente y sitio"), step: "/new", rows: [[t("Homeowner", "Propietario"), v("name"), true], [t("Phone", "Teléfono"), v("phone"), false], [t("Address", "Dirección"), [v("addr"), v("city")].filter(Boolean).join(", "), true]] },
+            { title: t("Equipment", "Equipo"), step: "/new/equipment", rows: equipRows },
+            { title: t("Work performed", "Trabajo realizado"), step: "/new/work", rows: [[t("Work notes", "Notas del trabajo"), v("work"), false], [t("Panel size (amps)", "Amperios del panel"), v("panel"), true], ...(jobType ? [[t("Duct sealing answer", "Respuesta sobre sellado de ductos"), ans("duct"), true] as Row] : [])] },
+            { title: t("Checks", "Revisiones"), step: "/new/checks", rows: [[t("Final checks confirmed", "Verificaciones confirmadas"), `${allChecks.length - unticked.length} / ${allChecks.length}`, true]] },
+            { title: t("Photos and Employee ID", "Fotos e ID de empleado"), step: "/new/photos", rows: [[t("Photos attached", "Fotos adjuntas"), String(Object.keys(photos).length), true], [t("Required photos missing", "Fotos requeridas faltantes"), demo ? "—" : String(missing.length), true], [t("Employee ID", "ID de empleado"), (demo ? employeeId : assignedId || employeeId).trim(), demo]] },
           ];
           return (
             <div className="cx-review-grid">
               {sections.map((sec) => (
                 <div key={sec.title} className="cx-review-sec">
                   <div className="cx-review-top"><h3>{sec.title}</h3>{sec.step !== "/new/photos" && <Link to={p(sec.step) as never} className="underline font-semibold">{t("Edit", "Editar")}<span className="sr-only"> {sec.title}</span></Link>}</div>
-                  <dl>{sec.rows.map(([k, val]) => <div key={k}><dt>{k}</dt><dd className={val ? "" : "is-empty"}>{val || none}</dd></div>)}</dl>
+                  <dl>{sec.rows.map(([k, val, req]) => <div key={k}><dt>{k}</dt><dd className={val ? "" : req ? "is-empty" : "is-optional"} data-testid={`review-${k}`}>{val || (req ? <>{none}<span className="sr-only"> ({t("required", "obligatorio")})</span></> : t("Optional, left blank", "Opcional, en blanco"))}</dd></div>)}</dl>
                 </div>
               ))}
             </div>

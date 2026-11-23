@@ -9,7 +9,7 @@ import { PhotoViewer } from "../components/photo-viewer";
 import { useCaptured } from "../lib/captured";
 import { activeType, answerLabel, captureSummary, requiredSlots, DUCT_LABEL, fieldSets, FIX_INPUT_ID, READING_UNIT_KEY, readingUnit, STEP_ROUTES, uncategorized } from "../lib/capture-fields";
 import { useLang } from "../lib/lang";
-import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
+import { ChecklistDetails, CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { loadPhotos, ALL_SLOTS, type Slot } from "../lib/photos";
 import { CopyRequest } from "../components/copy-request";
@@ -136,7 +136,7 @@ export function Review() {
         <p className="ap-muted">{t("Documentation checks from PermitDraft's own checklist. They are not legal or code checks.", "Verificaciones de documentación de la lista propia de PermitDraft. No son verificaciones legales ni de código.")}</p>
         {ev.results.map((r) => (
           <div key={r.ruleId} id={`need-${r.ruleId}`} tabIndex={-1} className={`rd-item${hl === `need-${r.ruleId}` ? " rd-focus" : ""}`} data-testid={`check-${r.ruleId}`}>
-            <strong>{t(...r.text)} · {r.status === "met" ? t("Captured", "Capturado") : t("NEEDED", "NECESARIO")}</strong>
+            <strong>{t(...r.text)} · {r.status === "met" ? t("Captured in job", "Capturado en el trabajo") : t("NEEDED", "NECESARIO")}</strong>
             {r.status === "missing" && (() => {
               const fk = r.evidence.startsWith("field:") ? r.evidence.slice(6) : "";
               const f = fk ? fieldSets(cap).find((x) => x.key === fk) : undefined;
@@ -158,9 +158,10 @@ export function Review() {
             )}
             {r.status === "missing" && <span className="ap-next">{t(...r.todo)}</span>}
             {r.status === "missing" && <CopyRequest text={copyRequest(r.ruleId.replace(/^app-doc-/, ""), fieldLabel(r), jobCtx)} field={t(...fieldLabel(r))} testId={`copy-${r.ruleId}`} />}
-            <WhyDetails r={r} />
+            {r.status === "missing" && <WhyDetails r={r} />}
           </div>
         ))}
+        <ChecklistDetails results={ev.results} />
         <p className="ap-muted text-sm" data-testid="audit-line">{t(`Rule data ${ev.packId} v${ev.packVersion}, evaluated ${ev.asOf}.`, `Datos de reglas ${ev.packId} v${ev.packVersion}, evaluado ${ev.asOf}.`)}</p>
       </section>
 

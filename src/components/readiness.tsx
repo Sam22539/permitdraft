@@ -30,6 +30,25 @@ export function WhyDetails({ r }: { r: CheckResult }) {
   );
 }
 
+/** One collapsed area for the rationale, sources and rule data of every completed row. */
+export function ChecklistDetails({ results }: { results: CheckResult[] }) {
+  const { t } = useLang();
+  const done = results.filter((r) => r.status === "met");
+  if (done.length === 0) return null;
+  return (
+    <details className="rd-why" data-testid="checklist-details">
+      <summary>{t("Checklist details: why each item is asked, sources and rule data", "Detalles de la lista: por qué se pide cada dato, fuentes y datos de reglas")}</summary>
+      {done.map((r) => (
+        <dl key={r.ruleId} data-testid={`why-${r.ruleId}`}>
+          <dt>{t(...r.text)}</dt><dd>{t(...r.why)}</dd>
+          <dt>{t("Where it comes from", "De dónde viene")}</dt><dd>{r.sources.map((s) => s.title).join("; ")} · {t(...(LAYER[r.layer] ?? [r.layer, r.layer]))}{r.scope === "documentation" ? t(" · not a legal rule", " · no es una regla legal") : ""}</dd>
+          <dt>{t("Rule", "Regla")}</dt><dd>{r.ruleId} v{r.ruleVersion} · {t("status", "estado")}: {r.ruleStatus} · {t("effective", "vigente desde")} {r.effectiveFrom} · {t("checked", "revisada")} {r.verifiedOn} · {t(...BASIS[r.dateBasis])}</dd>
+        </dl>
+      ))}
+    </details>
+  );
+}
+
 /** Two separate statuses, the one next action, and why filing is not ready. */
 export function ReadinessCard({ ev, capId, jur }: { ev: Evaluation; capId: string; jur: string }) {
   const { t } = useLang();
