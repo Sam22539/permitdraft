@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { Captured } from "../captured";
-import { activeType, applicableChecks, cleanValues, fieldSets, furnaceAnswers, requiredSlots } from "../capture-fields";
-import { SLOTS } from "../photos";
+import { activeType, applicableChecks, checkConfirmed, cleanValues, fieldSets, furnaceAnswers, requiredSlots } from "../capture-fields";
+import { ALL_SLOTS } from "../photos";
 import { evaluate, type CheckResult } from "./engine";
 import { PACK } from "./data";
 import { nsKey } from "../demo-mode";
@@ -38,10 +38,19 @@ export function evaluateCapture(c: Captured, jurisdictionCode: string | null) {
   const need = requiredSlots(type0, c.values);
   const pack = { ...PACK, rules: PACK.rules.filter((r) => {
     const m = /^app-doc-chk-(c\d)$/.exec(r.id); if (m) return okChecks.includes(m[1]);
-    const ph = /^app-doc-p-(outdoor|gauge)$/.exec(r.id); return !ph || need.includes(ph[1] as never);
+    const ph = /^app-doc-p-(outdoor|gauge|plate_furnace|plate_coil|plate_outdoor)$/.exec(r.id); if (ph) return need.includes(ph[1] as never);
+    // Nameplate details of equipment the tech answered was kept are optional evidence, never a blocker.
+    if (type0 === "Furnace + coil change-out") {
+      if ((r.id === "app-doc-model" || r.id === "app-doc-serial") && c.values.fu_furnace === "retained") return false;
+      if ((r.id === "app-doc-coilModel" || r.id === "app-doc-coilSerial") && c.values.fu_coil === "retained") return false;
+    }
+    return true;
   }) };
+  // A confirmation only counts under the scope it was given in: a stale tick is read as not confirmed.
+  const values0 = { ...cleanValues(type0, c.values) };
+  for (const k of ["c1", "c2", "c3", "c4"]) if (values0[k] === "1" && !checkConfirmed(type0, c.values, k)) delete values0[k];
   const fa = furnaceAnswers(type0, c.values);
-  const ev = evaluate(pack, { type: type0, values: { ...cleanValues(type0, c.values), fu_ok: fa.contradiction ? "" : "1" }, photoSlots: SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
+  const ev = evaluate(pack, { type: type0, values: { ...values0, fu_ok: fa.contradiction ? "" : "1" }, photoSlots: ALL_SLOTS.filter((s) => c.photos.some((p) => p.slot === s)), jurisdictionCode, asOf: today() });
   // A flagged correction with no decision is an unresolved conflict: it blocks Ready until the office accepts or returns it.
   const open = Object.entries(c.corrections ?? {}).filter(([, k]) => k.flaggedAt && !k.decision);
   if (open.length === 0) return ev;

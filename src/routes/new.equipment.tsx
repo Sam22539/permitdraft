@@ -7,7 +7,7 @@ import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { usePhotos } from "../lib/photos";
-import { FU_OUTDOOR_OPTS, FU_REFRIG_OPTS, furnaceAnswers } from "../lib/capture-fields";
+import { FU_COIL_OPTS, FU_FURNACE_OPTS, FU_OUTDOOR_OPTS, FU_REFRIG_OPTS, furnaceAnswers, furnaceScope, retainedField, FU_SCOPE_KEYS, applicableChecks, checkScope, scopeKeyOf } from "../lib/capture-fields";
 import { PhotoSlot } from "../components/photo-slot";
 
 export const Route = createFileRoute("/new/equipment")({
@@ -21,13 +21,37 @@ export function Equipment() {
   const d = useStepDraft(2);
   useFixFocus(d.fix, d.fix?.value ?? "");
   const { photos } = usePhotos();
-  const on = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => d.set(k, e.target.value);
+  const on = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    d.set(k, e.target.value);
+    // A scope answer changed: confirmations given under the old scope are dropped, so they can never come back as satisfied.
+    if ((FU_SCOPE_KEYS as readonly string[]).includes(k)) {
+      const next = { type: d.get("type"), ...Object.fromEntries(FU_SCOPE_KEYS.map((x) => [x, x === k ? e.target.value : d.get(x)])) } as Record<string, string>;
+      const keep = new Set(applicableChecks(next.type, next));
+      for (const c of ["c1", "c2", "c3", "c4"]) if (d.get(c) && (!keep.has(c) || checkScope(c, next) !== d.get(scopeKeyOf(c)))) { d.set(c, ""); d.set(scopeKeyOf(c), ""); }
+    }
+  };
   const type = d.get("type");
   const isFurn = type === "Furnace + coil change-out";
   const isHp = type === "Heat pump change-out";
   const p = isHp ? "" : "ac_"; // heat pump keeps the legacy unprefixed keys
   const val = (k: string) => d.get(k);
   const needed = t("NEEDED", "NECESARIO");
+  const sc = furnaceScope({ fu_furnace: val("fu_furnace"), fu_coil: val("fu_coil"), fu_outdoor: val("fu_outdoor"), fu_refrig: val("fu_refrig") });
+  const star = (k: string) => (retainedField(k, { fu_furnace: val("fu_furnace"), fu_coil: val("fu_coil") }) ? "" : " *");
+  const scopeSelect = (k: string, id: string, l: readonly [string, string], opts: [string, [string, string]][], tid: string) => (
+    <div className="cx-field"><Label htmlFor={id}>{t(l[0], l[1])}</Label>
+      <select id={id} className={selectCls} value={val(k)} onChange={on(k)} data-testid={tid}>
+        <option value="">{t("Choose…", "Elegir…")}</option>
+        {opts.map(([v, o]) => <option key={v} value={v}>{t(o[0], o[1])}</option>)}
+      </select></div>
+  );
+  // A distinct plate photo is asked for only on replaced equipment; a photo already saved on kept equipment stays shown, optional.
+  const plateShot = (slot: "plate_furnace" | "plate_coil" | "plate_outdoor", replaced: boolean, l: [string, string]) => (replaced || photos[slot]) ? (
+    <div data-testid={`equip-${slot}`}>
+      <PhotoSlot slot={slot} label={l} photo={photos[slot]} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
+      {!replaced && <p className="cx-note">{t("Optional: this equipment was not replaced.", "Opcional: este equipo no se reemplazó.")}</p>}
+    </div>
+  ) : null;
   const field = (k: string, id: string, l: readonly [string, string]) => (
     <div className="cx-field" key={k}><Label htmlFor={id}>{t(l[0], l[1])}</Label><Input id={id} value={val(k)} onChange={on(k)} /></div>
   );
@@ -39,20 +63,26 @@ export function Equipment() {
           <option value="Central AC change-out">{t("Central AC change-out", "Cambio de aire acondicionado central")}</option>
           <option value="Furnace + coil change-out">{t("Furnace + coil change-out", "Cambio de horno + serpentín")}</option>
         </select></div>
-      <PhotoSlot slot="plate" label={["Data plate photo", "Foto de la placa de datos"]} photo={photos.plate} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
-      <p className="cx-note">{t("Read the model and serial from the data plate photo. Missing values stay NEEDED.", "Lea el modelo y el número de serie de la foto de la placa. Los valores faltantes quedan como NECESARIO.")}</p>
+      {(!isFurn || photos.plate) && (
+        <PhotoSlot slot="plate" label={isFurn ? ["Earlier data plate photo (kept as evidence)", "Foto anterior de la placa de datos (se conserva como evidencia)"] : ["Data plate photo", "Foto de la placa de datos"]} photo={photos.plate} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
+      )}
+      <p className="cx-note">{isFurn ? t("Answer what was replaced. Each replaced item needs its own data plate photo; kept equipment needs none, and photos already saved stay.", "Responda qué se reemplazó. Cada equipo reemplazado necesita su propia foto de placa; el equipo conservado no necesita ninguna, y las fotos ya guardadas se conservan.") : t("Read the model and serial from the data plate photo. Missing values stay NEEDED.", "Lea el modelo y el número de serie de la foto de la placa. Los valores faltantes quedan como NECESARIO.")}</p>
       {isFurn ? (
         <>
           <h2 className="cx-h">{t("Furnace nameplate", "Placa del horno")}</h2>
+          {scopeSelect("fu_furnace", "ffu", ["Furnace: kept or replaced *", "Horno: conservado o reemplazado *"], FU_FURNACE_OPTS, "fu-furnace")}
+          {plateShot("plate_furnace", sc.furnace, ["Furnace data plate photo", "Foto de la placa de datos del horno"])}
           {field("fu_maker", "fmf", ["Furnace manufacturer", "Fabricante del horno"])}
-          {field("fu_model", "fmo", ["Furnace model number *", "Número de modelo del horno *"])}
-          {field("fu_serial", "fse", ["Furnace serial number *", "Número de serie del horno *"])}
+          {field("fu_model", "fmo", [`Furnace model number${star("fu_model")}`, `Número de modelo del horno${star("fu_model")}`])}
+          {field("fu_serial", "fse", [`Furnace serial number${star("fu_serial")}`, `Número de serie del horno${star("fu_serial")}`])}
           <h2 className="cx-h">{t("Indoor coil nameplate", "Placa del serpentín interior")}</h2>
+          {scopeSelect("fu_coil", "fco", ["Indoor coil: kept or replaced *", "Serpentín interior: conservado o reemplazado *"], FU_COIL_OPTS, "fu-coil")}
+          {plateShot("plate_coil", sc.coil, ["Indoor coil data plate photo", "Foto de la placa de datos del serpentín interior"])}
           {field("coil_maker", "cmf", ["Indoor coil manufacturer", "Fabricante del serpentín interior"])}
-          {field("coil_model", "cmo", ["Indoor coil model number *", "Número de modelo del serpentín interior *"])}
-          {field("coil_serial", "cse", ["Indoor coil serial number *", "Número de serie del serpentín interior *"])}
+          {field("coil_model", "cmo", [`Indoor coil model number${star("coil_model")}`, `Número de modelo del serpentín interior${star("coil_model")}`])}
+          {field("coil_serial", "cse", [`Indoor coil serial number${star("coil_serial")}`, `Número de serie del serpentín interior${star("coil_serial")}`])}
           <h2 className="cx-h">{t("Outdoor unit and refrigerant", "Unidad exterior y refrigerante")}</h2>
-          <p className="cx-note">{t("Answer both. They decide which final checks and photos this job needs; nothing is assumed from the coil.", "Responda ambas. Deciden qué verificaciones y fotos necesita este trabajo; nada se supone a partir del serpentín.")}</p>
+          <p className="cx-note">{t("Answer both. Together with the furnace and coil answers they decide which final checks and photos this job needs; nothing is assumed. A replaced indoor coil or outdoor unit counts as refrigerant circuit work, even when the outdoor unit is kept.", "Responda ambas. Junto con las respuestas del horno y del serpentín deciden qué verificaciones y fotos necesita este trabajo; nada se supone. Un serpentín interior o una unidad exterior reemplazados cuentan como trabajo en el circuito de refrigerante, aunque se conserve la unidad exterior.")}</p>
           <div className="cx-field"><Label htmlFor="fuo">{t("Outdoor unit: kept, replaced or not present *", "Unidad exterior: conservada, reemplazada o no presente *")}</Label>
             <select id="fuo" className={selectCls} value={val("fu_outdoor")} onChange={on("fu_outdoor")} data-testid="fu-outdoor">
               <option value="">{t("Choose…", "Elegir…")}</option>
@@ -63,6 +93,7 @@ export function Equipment() {
               <option value="">{t("Choose…", "Elegir…")}</option>
               {FU_REFRIG_OPTS.map(([k, l]) => <option key={k} value={k}>{t(l[0], l[1])}</option>)}
             </select></div>
+          {plateShot("plate_outdoor", sc.outdoor, ["Outdoor unit data plate photo", "Foto de la placa de datos de la unidad exterior"])}
           {furnaceAnswers(type, { fu_outdoor: val("fu_outdoor"), fu_refrig: val("fu_refrig") }).contradiction && (
             <p role="alert" className="cx-err" data-testid="fu-contradiction">{t("These answers conflict: no outdoor unit is present, yet refrigerant work is marked done. Change one before Finish.", "Estas respuestas se contradicen: no hay unidad exterior, pero se marcó trabajo con refrigerante. Cambie una antes de Finalizar.")}</p>
           )}

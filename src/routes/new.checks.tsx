@@ -8,7 +8,7 @@ import { useLang } from "../lib/lang";
 import { FixBar } from "../components/fix-bar";
 import { fixSearch, useFixFocus, useStepDraft } from "../lib/fix-mode";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks, furnaceAnswers } from "../lib/capture-fields";
+import { READING_UNIT_KEY, UNIT_LABEL, applicableChecks, checkConfirmed, furnaceAnswers, scopeKeyOf, tickValues } from "../lib/capture-fields";
 import { useDemo } from "../components/demo";
 import { CHECK_MSG_KEY } from "./new.photos";
 
@@ -42,10 +42,12 @@ export function Checks() {
       setTimeout(() => document.getElementById("final-checks-msg")?.scrollIntoView({ block: "center" }), 50);
     } catch { /* ignore */ }
   }, []);
-  const stillUnticked = unticked.filter(([en]) => { const it = ITEMS.find((i) => i[1] === en); return it ? d.get(it[0]) !== "1" : false; });
+  const jt = d.get("type") || undefined;
+  const sv: Record<string, string> = { fu_furnace: d.get("fu_furnace"), fu_coil: d.get("fu_coil"), fu_outdoor: d.get("fu_outdoor"), fu_refrig: d.get("fu_refrig"), ...Object.fromEntries(["c1", "c2", "c3", "c4"].flatMap((k) => [[k, d.get(k)], [scopeKeyOf(k), d.get(scopeKeyOf(k))]])) };
+  const stillUnticked = unticked.filter(([en]) => { const it = ITEMS.find((i) => i[1] === en); return it ? !checkConfirmed(jt, sv, it[0]) : false; });
   const demo = useDemo();
-  const shown = applicableChecks(d.get("type") || undefined, { fu_outdoor: d.get("fu_outdoor"), fu_refrig: d.get("fu_refrig") });
-  const fa = furnaceAnswers(d.get("type") || undefined, { fu_outdoor: d.get("fu_outdoor"), fu_refrig: d.get("fu_refrig") });
+  const shown = applicableChecks(jt, sv);
+  const fa = furnaceAnswers(jt, sv);
   const guard = () => {
     if (!normal) return true;
     if (!d.get("addr").trim() || !d.get("city").trim()) { setErr(t("Fill in the job address and city.", "Complete la dirección del trabajo y la ciudad.")); return false; }
@@ -108,15 +110,15 @@ export function Checks() {
         </p>
       )}
       {fa.missing.length > 0 && (
-        <p role="alert" className="cx-err" data-testid="fu-answers-needed">{t("Answer the outdoor unit and refrigerant questions on the Equipment step to see which checks apply to this furnace + coil job.", "Responda las preguntas de unidad exterior y refrigerante en el paso Equipo para ver qué verificaciones aplican a este trabajo de horno + serpentín.")}</p>
+        <p role="alert" className="cx-err" data-testid="fu-answers-needed">{t("Answer the furnace, indoor coil, outdoor unit and refrigerant questions on the Equipment step to see which checks apply to this furnace + coil job.", "Responda las preguntas de horno, serpentín interior, unidad exterior y refrigerante en el paso Equipo para ver qué verificaciones aplican a este trabajo de horno + serpentín.")}</p>
       )}
       {fa.contradiction && <p role="alert" className="cx-err">{t("Your answers conflict (no outdoor unit, but refrigerant work done). Fix them on the Equipment step.", "Sus respuestas se contradicen (sin unidad exterior, pero con trabajo de refrigerante). Corríjalas en el paso Equipo.")}</p>}
       {ITEMS.filter(([k]) => shown.includes(k)).map(([k, en, es]) => {
-        const ok = d.get(k) === "1";
+        const ok = checkConfirmed(jt, sv, k);
         return (
           <div key={k} className="grid gap-3">
             <label className={`cx-check${demo ? " cx-demo-check" : ""}${ok ? " on" : ""}`}>
-              <input type="checkbox" checked={ok} onChange={(e) => d.set(k, e.target.checked ? "1" : "")} />
+              <input type="checkbox" checked={ok} onChange={(e) => { for (const [kk, vv] of Object.entries(tickValues(jt, sv, k, e.target.checked))) d.set(kk, vv); }} />
               <span className="txt">{t(en, es)}</span>
               <strong className={ok ? "cx-ok" : "cx-need"}>{ok ? t("Confirmed", "Confirmado") : t("NEEDED", "NECESARIO")}</strong>
             </label>

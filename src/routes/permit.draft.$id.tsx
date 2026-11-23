@@ -11,7 +11,7 @@ import { activeType, answerLabel, captureSummary, requiredSlots, DUCT_LABEL, fie
 import { useLang } from "../lib/lang";
 import { CoverageLine, ReadinessCard, WhyDetails } from "../components/readiness";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
-import { loadPhotos, SLOTS, type Slot } from "../lib/photos";
+import { loadPhotos, ALL_SLOTS, type Slot } from "../lib/photos";
 import { CopyRequest } from "../components/copy-request";
 import { copyRequest } from "../lib/copy-requests";
 import { ConflictBox, CorrectionControls, CorrectionStatus } from "../components/correction";
@@ -27,6 +27,9 @@ const SLOT_LABEL: Record<Slot, [string, string]> = {
   wide: ["Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)"],
   gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
   panel: ["Panel label photo", "Foto de la etiqueta del panel"],
+  plate_furnace: ["Furnace data plate", "Placa de datos del horno"],
+  plate_coil: ["Indoor coil data plate", "Placa de datos del serpentín interior"],
+  plate_outdoor: ["Outdoor unit data plate", "Placa de datos de la unidad exterior"],
 };
 /** The demo's capture labels, where they differ from Core's. */
 const DEMO_LABEL: Record<string, [string, string]> = {
@@ -90,7 +93,7 @@ export function Review() {
   const extra = uncategorized(cap);
   const ev = evaluateCapture(cap, jurs[cap.id] ?? null);
   const caption = (s: Slot, u?: "indoor" | "outdoor") => {
-    const kind = s === "plate" ? t("Label close-up", "Primer plano de la etiqueta") : s === "wide" ? t("Whole-unit photo", "Foto de la unidad completa") : t("Photo", "Foto");
+    const kind = s.startsWith("plate") ? t("Label close-up", "Primer plano de la etiqueta") : s === "wide" ? t("Whole-unit photo", "Foto de la unidad completa") : t("Photo", "Foto");
     const unit = u === "indoor" ? t("Indoor unit", "Unidad interior") : u === "outdoor" ? t("Outdoor unit", "Unidad exterior") : null;
     if (s !== "plate" && s !== "wide") return kind;
     return unit ? `${unit} · ${kind}` : `${t("Unit not specified", "Unidad no especificada")} · ${kind}`;
@@ -225,7 +228,7 @@ export function Review() {
             </div>
           );
         })()}
-        {[...new Set<Slot>([...requiredSlots(activeType(cap), cap.values), ...SLOTS.filter((x) => cap.photos.some((p) => p.slot === x)), ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])])].map((s) => {
+        {[...new Set<Slot>([...requiredSlots(activeType(cap), cap.values), ...ALL_SLOTS.filter((x) => x !== "wide" && cap.photos.some((p) => p.slot === x)), ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])])].map((s) => {
           const ref = cap.photos.find((p) => p.slot === s);
           return (
             <div key={s} className="ph-ev" data-testid={`rv-photo-${s}`}>

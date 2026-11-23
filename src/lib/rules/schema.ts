@@ -7,7 +7,7 @@ export type RuleStatus = "verified" | "unverified" | "needs_review" | "deprecate
 export type RuleScope = "documentation" | "legal";
 export type Source = { title: string; url?: string; type: "internal" | "statute" | "regulation" | "agency" | "code" | "secondary" };
 export type WorkflowId = "heat-pump" | "central-ac" | "furnace-coil";
-export type Requirement = { type: "field"; input: string } | { type: "photo"; slot: "plate" | "outdoor" | "gauge" } | { type: "check"; input: string };
+export type Requirement = { type: "field"; input: string } | { type: "photo"; slot: "plate" | "outdoor" | "gauge" | "plate_furnace" | "plate_coil" | "plate_outdoor" } | { type: "check"; input: string };
 
 export type Rule = {
   id: string;

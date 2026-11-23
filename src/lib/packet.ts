@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { furnaceAnswers, requiredSlots } from "./capture-fields";
+import { applicableChecks, checkConfirmed, furnaceAnswers, requiredSlots } from "./capture-fields";
 import { ALL_SLOTS, EXTRA_SLOTS, type Slot } from "./photos";
 
 const KNOWN: string[] = [...ALL_SLOTS, ...EXTRA_SLOTS];
@@ -48,8 +48,11 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
       const notice = await office.sendOfficeNotice(db, String(existing.data.id), String(existing.data.sent_at), capture);
       return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string, notice };
     }
-    if (answers.missing.length > 0 || answers.contradiction) return { ok: false as const, missing, waiting, answers: true as const };
-    if (missing.length > 0 || waiting > 0) return { ok: false as const, missing, waiting, answers: false as const };
+    // Furnace + coil: every check the scope makes applicable must be confirmed under the current scope (hidden checks never block).
+    const unconfirmed = type === "Furnace + coil change-out" ? applicableChecks(type, data.values).filter((k) => !checkConfirmed(type, data.values, k)) : [];
+    if (answers.missing.length > 0 || answers.contradiction) return { ok: false as const, missing, waiting, answers: true as const, checks: unconfirmed };
+    if (unconfirmed.length > 0) return { ok: false as const, missing, waiting, answers: false as const, checks: unconfirmed };
+    if (missing.length > 0 || waiting > 0) return { ok: false as const, missing, waiting, answers: false as const, checks: unconfirmed };
     // The company comes from the technician's own verified membership, never from the page.
     const member = u.user.email ? await office.membership(db, u.user.email.toLowerCase()) : null;
     const md = (u.user.user_metadata ?? {}) as Record<string, unknown>;

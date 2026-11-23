@@ -10,7 +10,7 @@ import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
 import { JOB_ID, loadPhotos, usePhotos, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
-import { applicableChecks, cleanValues, furnaceAnswers, requiredSlots } from "../lib/capture-fields";
+import { applicableChecks, checkConfirmed, cleanValues, furnaceAnswers, furnaceScope, requiredSlots, scopeKeyOf } from "../lib/capture-fields";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
 import { PhotoSlot } from "../components/photo-slot";
@@ -26,6 +26,9 @@ export const Route = createFileRoute("/new/photos")({
 
 const SLOTS: [Slot, string, string][] = [
   ["plate", "Data plate (model and serial)", "Placa de datos (modelo y serie)"],
+  ["plate_furnace", "Furnace data plate (replaced furnace)", "Placa de datos del horno (horno reemplazado)"],
+  ["plate_coil", "Indoor coil data plate (replaced coil)", "Placa de datos del serpentín interior (serpentín reemplazado)"],
+  ["plate_outdoor", "Outdoor unit data plate (replaced outdoor unit)", "Placa de datos de la unidad exterior (unidad reemplazada)"],
   ["outdoor", "Outdoor unit with left side yard and clearance", "Unidad exterior con patio lateral izquierdo y espacio libre"],
   ["gauge", "Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 ];
@@ -97,13 +100,13 @@ function NewPhotos() {
   const p = useCorePath();
   const dr = useDraft(5);
   const { photos, pending, loadError, ready } = usePhotos();
-  const dvals: Record<string, string> = { type: dr.get("type"), fu_outdoor: dr.get("fu_outdoor"), fu_refrig: dr.get("fu_refrig"), c1: dr.get("c1"), c2: dr.get("c2"), c3: dr.get("c3"), c4: dr.get("c4") };
+  const dvals: Record<string, string> = { type: dr.get("type"), fu_furnace: dr.get("fu_furnace"), fu_coil: dr.get("fu_coil"), fu_outdoor: dr.get("fu_outdoor"), fu_refrig: dr.get("fu_refrig"), ...Object.fromEntries(["c1", "c2", "c3", "c4"].flatMap((k) => [[k, dr.get(k)], [scopeKeyOf(k), dr.get(scopeKeyOf(k))]])) };
   const jobType = dvals.type || undefined;
   const isFurn = jobType === "Furnace + coil change-out";
   const REQUIRED = requiredSlots(jobType, dvals);
   const fa = furnaceAnswers(jobType, dvals);
-  const ANS_NAME: Record<string, [string, string]> = { fu_outdoor: ["Outdoor unit answer (kept, replaced or not present)", "Respuesta sobre la unidad exterior (conservada, reemplazada o no presente)"], fu_refrig: ["Refrigerant work answer", "Respuesta sobre el trabajo con refrigerante"] };
-  const unticked = applicableChecks(jobType, dvals).filter((k) => dvals[k] !== "1");
+  const ANS_NAME: Record<string, [string, string]> = { fu_furnace: ["Furnace answer (kept or replaced)", "Respuesta sobre el horno (conservado o reemplazado)"], fu_coil: ["Indoor coil answer (kept or replaced)", "Respuesta sobre el serpentín interior (conservado o reemplazado)"], fu_outdoor: ["Outdoor unit answer (kept, replaced or not present)", "Respuesta sobre la unidad exterior (conservada, reemplazada o no presente)"], fu_refrig: ["Refrigerant work answer", "Respuesta sobre el trabajo con refrigerante"] };
+  const unticked = applicableChecks(jobType, dvals).filter((k) => !checkConfirmed(jobType, dvals, k));
   const [answersErr, setAnswersErr] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const nav = useNavigate();
@@ -151,7 +154,7 @@ function NewPhotos() {
         return;
       }
       setAnswersErr(false);
-      const need = applicableChecks(dv.type || undefined, dv).filter((k) => dv[k] !== "1");
+      const need = applicableChecks(dv.type || undefined, dv).filter((k) => !checkConfirmed(dv.type || undefined, dv, k));
       if (need.length > 0) {
         setBusy(false); setBlocked(true);
         const names = need.map((k) => CHECK_NAMES[k]);
@@ -196,7 +199,14 @@ function NewPhotos() {
       const formDefaults: Record<string, string> = {};
       for (const k of ["type", "work"]) if (!(k in values)) formDefaults[k] = k === "type" ? "Heat pump change-out" : "Heat-pump change-out, same pad, left side yard";
       const r = await sendOfficePacket({ data: { token, jobId, employeeId, values, formDefaults, slots: local.map((x) => x.slot) } });
-      if (!r.ok) { if (r.answers) setAnswersErr(true); setStillUp(r.waiting); setBusy(false); return; }
+      if (!r.ok) {
+        if (r.answers) setAnswersErr(true);
+        if (r.checks.length > 0 && !r.answers) {
+          try { sessionStorage.setItem(CHECK_MSG_KEY, JSON.stringify(r.checks.map((k) => CHECK_NAMES[k]))); } catch { /* ignore */ }
+          setBusy(false); nav({ to: p("/new/checks"), hash: "final-checks-msg" }); return;
+        }
+        setStillUp(r.waiting); setBusy(false); return;
+      }
     } catch { setBusy(false); setSendErr(true); return; }
     const id = await finishCapture(jobId);
     setBusy(false);
@@ -241,10 +251,13 @@ function NewPhotos() {
       })}
       {isFurn && (
         <p className="cx-note" data-testid="photo-rules-note">
-          {dvals.fu_outdoor === "replaced" ? t("Outdoor unit replaced: the outdoor equipment photo is required.", "Unidad exterior reemplazada: la foto del equipo exterior es obligatoria.")
-            : dvals.fu_outdoor ? t("No outdoor equipment photo is needed: the outdoor unit was not replaced.", "No se necesita foto del equipo exterior: la unidad exterior no se reemplazó.")
-            : t("Outdoor unit answer missing: answer it on the Equipment step.", "Falta la respuesta de la unidad exterior: respóndala en el paso Equipo.")}{" "}
-          {dvals.fu_refrig === "yes" ? t("Refrigerant work done: the gauge or meter photo is required.", "Trabajo con refrigerante: la foto del manómetro o medidor es obligatoria.")
+          {[
+            [dvals.fu_furnace, "Furnace", "horno"], [dvals.fu_coil, "Indoor coil", "serpentín interior"], [dvals.fu_outdoor, "Outdoor unit", "unidad exterior"],
+          ].map(([v, en, es]) => v === "replaced" ? t(`${en} replaced: its own data plate photo is required. `, `${es}: se reemplazó, su propia foto de placa es obligatoria. `)
+            : v ? t(`${en} kept: no data plate photo is needed; a photo already saved stays. `, `${es}: conservado, no se necesita foto de placa; una foto ya guardada se conserva. `)
+            : t(`${en} answer missing: answer it on the Equipment step. `, `Falta la respuesta de ${es}: respóndala en el paso Equipo. `)).join("")}
+          {dvals.fu_outdoor === "replaced" ? t("Outdoor unit replaced: the outdoor equipment photo is required.", "Unidad exterior reemplazada: la foto del equipo exterior es obligatoria.") : ""}{" "}
+          {furnaceScope(dvals).refrigerant ? t("Refrigerant circuit work: the gauge or meter photo is required.", "Trabajo en el circuito de refrigerante: la foto del manómetro o medidor es obligatoria.")
             : dvals.fu_refrig ? t("No gauge photo is needed: no refrigerant work was done.", "No se necesita foto del manómetro: no hubo trabajo con refrigerante.")
             : t("Refrigerant work answer missing: answer it on the Equipment step.", "Falta la respuesta sobre refrigerante: respóndala en el paso Equipo.")}
         </p>
