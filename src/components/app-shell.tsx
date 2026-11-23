@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { BookOpen, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -25,6 +25,7 @@ function useNavGroups(): { label: string; links: NavLink[] }[] {
     { label: t("Pricing", "Precio"), links: [
       { label: "PermitDraft Core", to: "/", hash: "core-offer" },
       { label: t("Try Free Demo", "Probar la demo gratis"), to: "/demo" },
+      { label: t("Early Access", "Acceso anticipado"), to: "/early-access" },
     ] },
     { label: t("Resources", "Recursos"), links: [
       { label: t("Official resources", "Recursos oficiales"), to: "/resources" },
@@ -37,12 +38,13 @@ function useNavGroups(): { label: string; links: NavLink[] }[] {
 function PublicNav({ home }: { home?: boolean }) {
   const { t } = useLang();
   const groups = useNavGroups();
+  const path = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="hp-nav" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
       <Link to="/" activeOptions={{ exact: true, includeHash: false }}>{t("Home", "Inicio")}</Link>
       {groups.map((g) => (
         <DropdownMenu key={g.label} modal={false}>
-          <DropdownMenuTrigger className="hp-nav-trigger">{g.label}<ChevronDown size={16} aria-hidden /></DropdownMenuTrigger>
+          <DropdownMenuTrigger className="hp-nav-trigger" data-current={path === "/early-access" && g.links.some((l) => l.to === "/early-access") ? "true" : undefined}>{g.label}<ChevronDown size={16} aria-hidden /></DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="hp-nav-menu">
             {g.links.map((l) => (
               <DropdownMenuItem key={l.label} asChild><Link to={l.to as never} hash={l.hash}>{l.label}</Link></DropdownMenuItem>

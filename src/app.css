@@ -673,3 +673,12 @@ html:has(.pj){scroll-padding-top:10rem}
   .sg-demo-line{display:none}
 }
 @media (prefers-reduced-motion:reduce){.ap *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* Early Access page */
+.ea-page{display:grid;gap:.75rem;align-content:start}
+.ea-title{font-size:clamp(2.4rem,8vw,3.4rem);line-height:1.05;font-weight:800;letter-spacing:-.03em}
+.ea-card p,.ea-card li{color:#334155}
+.ea-card .ap-field label{line-height:1.45}
+.ea-card .ap-field{gap:.5rem;margin-top:.25rem}
+.ea-card h2+p{margin-top:.25rem}
+.hp-nav-trigger[data-current]{text-decoration:underline;text-underline-offset:8px;text-decoration-color:var(--pd-blue,#087EE8);text-decoration-thickness:2px}
