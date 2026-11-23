@@ -8,6 +8,8 @@ export type Member = { email: string; company_id: string; role: Role };
 export async function whoIs(db: SupabaseClient, token: string): Promise<{ user: User; email: string }> {
   const { data, error } = await db.auth.getUser(token);
   if (error || !data.user || !data.user.email) throw new Error("auth");
+  // Company access follows a confirmed address only: an account whose email is not yet confirmed is nobody's member.
+  if (!data.user.email_confirmed_at) throw new Error("auth");
   return { user: data.user, email: data.user.email.toLowerCase() };
 }
 

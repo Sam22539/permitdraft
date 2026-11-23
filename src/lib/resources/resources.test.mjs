@@ -27,7 +27,7 @@ test("counts separate actual coverage from selector coverage", () => {
   assert.equal(c.stateLinksTotal, 3 * R.STATE_KEYS.length);
   assert.equal(c.stateVerified, 5);
   assert.equal(c.statePending, 3 * R.STATE_KEYS.length - 5);
-  assert.equal(c.federal.verified, 2);
+  assert.equal(c.federal.verified, 9);
   assert.equal(c.federal.total, 17);
   assert.equal(c.stateVerified + c.stateNotApplicable + c.stateNotFound + c.statePending, c.stateLinksTotal);
 });

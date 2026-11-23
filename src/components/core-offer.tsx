@@ -10,6 +10,7 @@ import { useLang } from "../lib/lang";
 import { startCoreTrial } from "../lib/trial";
 import { sessionHeaders } from "../lib/payments/buy";
 import { Link } from "@tanstack/react-router";
+import { PasswordAccountForm } from "./account-form";
 
 const PRICE = "permitdraft_core_4900_usd_monthly";
 
@@ -62,19 +63,34 @@ export function useCoreAccess(): boolean | null {
   return trial.state === "active";
 }
 
-export function SignInForm() {
+/** Sign-in for Core: a PermitDraft password first, Google, and the emailed code kept as a fallback. */
+export function SignInForm({ onSignedIn }: { onSignedIn?: () => void } = {}) {
+  const { t } = useLang();
+  const [msg, setMsg] = useState("");
+  useEffect(() => {
+    finishGoogleSignIn(backend).then((r) => {
+      if (r === "signed-in") onSignedIn?.();
+      else if (r === "cancelled") setMsg(t("Google sign-in was cancelled.", "Se canceló el inicio de sesión con Google."));
+      else if (r === "failed" || r === "not-started") setMsg(t("Google sign-in did not complete. Please try again.", "El inicio de sesión con Google no se completó. Inténtelo de nuevo."));
+    }).catch(() => setMsg(t("Google sign-in did not complete. Please try again.", "El inicio de sesión con Google no se completó. Inténtelo de nuevo.")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div className="ap-form" data-testid="sign-in">
+      <PasswordAccountForm onSignedIn={onSignedIn} fallback={<EmailCodeSignIn onSignedIn={onSignedIn} />} />
+      <button type="button" className="ap-btn ghost" onClick={() => signInWithGoogle()}>{t("Sign in with Google", "Iniciar sesión con Google")}</button>
+      {msg && <p role="alert" className="ap-muted">{msg}</p>}
+    </div>
+  );
+}
+
+/** The emailed one-time code sign-in, kept as the fallback for anyone without a PermitDraft password. */
+function EmailCodeSignIn({ onSignedIn }: { onSignedIn?: () => void }) {
   const { t } = useLang();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  useEffect(() => {
-    finishGoogleSignIn(backend).then((r) => {
-      if (r === "cancelled") setMsg(t("Google sign-in was cancelled.", "Se canceló el inicio de sesión con Google."));
-      else if (r === "failed" || r === "not-started") setMsg(t("Google sign-in did not complete. Please try again.", "El inicio de sesión con Google no se completó. Inténtelo de nuevo."));
-    }).catch(() => setMsg(t("Google sign-in did not complete. Please try again.", "El inicio de sesión con Google no se completó. Inténtelo de nuevo.")));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setMsg(t("Enter a valid email address.", "Escriba un correo válido.")); return; }
@@ -91,12 +107,12 @@ export function SignInForm() {
     try {
       const { error } = await backend.auth.verifyOtp({ email: email.trim(), token: code, type: "email" });
       if (error) setMsg(t("That code did not work. Request a new code and try again.", "Ese código no funcionó. Pida un código nuevo e inténtelo de nuevo."));
+      else onSignedIn?.();
     } catch { setMsg(t("That code did not work. Request a new code and try again.", "Ese código no funcionó. Pida un código nuevo e inténtelo de nuevo.")); }
     setBusy(false);
   };
   return (
-    <div className="ap-form" data-testid="sign-in">
-      <button type="button" className="ap-btn ghost" onClick={() => signInWithGoogle()}>{t("Sign in with Google", "Iniciar sesión con Google")}</button>
+    <div className="ap-form" data-testid="code-sign-in">
       {step === "email" ? (
         <form onSubmit={send} className="ap-form" noValidate>
           <div className="ap-field"><Label htmlFor="si-email">{t("Email me a code", "Envíeme un código")}</Label>

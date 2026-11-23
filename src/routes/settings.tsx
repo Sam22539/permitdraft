@@ -19,6 +19,12 @@ export function SettingsScreen() {
         </div>
       </section>
       {!demo && (
+        <section className="ap-card" aria-labelledby="st-profile">
+          <h2 id="st-profile" className="ap-h2">{t("Profile and password", "Perfil y contraseña")}</h2>
+          <p className="ap-muted">{t("Your display name, verified work email, company, role and PermitDraft password: ", "Su nombre, correo de trabajo verificado, empresa, rol y contraseña de PermitDraft: ")}<Link to="/profile" className="underline font-semibold" data-testid="st-profile">{t("Profile", "Perfil")}</Link></p>
+        </section>
+      )}
+      {!demo && (
         <section className="ap-card" aria-labelledby="st-office">
           <h2 id="st-office" className="ap-h2">{t("Office handoff email", "Correo de entrega a oficina")}</h2>
           <p className="ap-muted">{t("Your company, its people and the verified office inbox that hears when a job is finished: ", "Su empresa, su gente y el buzón verificado de oficina que recibe aviso cuando se termina un trabajo: ")}<Link to="/office-setup" className="underline font-semibold" data-testid="st-office-setup">{t("Office setup", "Configuración de oficina")}</Link></p>
