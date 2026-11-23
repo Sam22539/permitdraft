@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
 import { useDemo } from "./demo";
+import { useCaptured } from "../lib/captured";
 
 type Row = { sent_by_name: string; sent_at: string; employee_id: string | null; photo_links: unknown[] };
 
@@ -10,6 +11,7 @@ export function PacketInfo({ jobId }: { jobId: string }) {
   const { t, lang } = useLang();
   const demo = useDemo();
   const [row, setRow] = useState<Row | null | undefined>(undefined);
+  const captured = useCaptured();
   useEffect(() => {
     if (demo) return;
     let live = true;
@@ -17,7 +19,18 @@ export function PacketInfo({ jobId }: { jobId: string }) {
       .then(({ data }) => { if (live) setRow((data as Row | null) ?? null); }, () => { if (live) setRow(null); });
     return () => { live = false; };
   }, [demo, jobId]);
-  if (demo || row === undefined) return null;
+  if (demo) {
+    // Demo: the identifier entered before the final handoff, kept with the practice job in this browser.
+    const by = captured.find((c) => c.id === jobId)?.submittedBy;
+    if (!by) return null;
+    return (
+      <div className="jb-meta" data-testid="submitted-by">
+        <p><strong>{t("Submitted by", "Enviado por")}</strong></p>
+        <p>{t("Employee ID or unit", "ID de empleado o unidad")} <span data-testid="submitted-by-id">{by}</span></p>
+      </div>
+    );
+  }
+  if (row === undefined) return null;
   if (!row) return <p className="jb-meta" data-testid="packet-none">{t("Packet: not sent from the phone yet.", "Paquete: todavía no enviado desde el teléfono.")}</p>;
   const when = new Date(row.sent_at).toLocaleString(lang === "es" ? "es" : "en-US");
   return (

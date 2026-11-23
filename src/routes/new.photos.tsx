@@ -29,6 +29,10 @@ const SLOTS: [Slot, string, string][] = [
   ["gauge", "Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
 ];
 
+/** Demo handoff ID: letters, digits and hyphens, kept as text so leading zeros stay (e.g. TECH-007, 00412). */
+const TECH_ID = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
+const SAMPLE_TECH_ID = "TECH-007";
+
 const WIDE: [string, string] = ["Whole unit, wide shot", "Unidad completa, foto general"];
 
 export function Photos() {
@@ -84,6 +88,7 @@ function NewPhotos() {
   const demo = useDemo();
   const [employeeId, setEmployeeId] = useState("");
   const [sendErr, setSendErr] = useState(false);
+  const [idErr, setIdErr] = useState<"" | "empty" | "chars">("");
   const [stillUp, setStillUp] = useState<number | null>(null);
   const waiting = demo ? pending : (stillUp ?? pending);
   // Core: keep saving photos to the database in the background so Finish has nothing left to wait for.
@@ -97,7 +102,16 @@ function NewPhotos() {
   async function finish() {
     setBusy(true); setFailed(false); setSendErr(false);
     if (demo) {
-      const id = await finishCapture();
+      const tech = employeeId.trim();
+      const problem = !tech ? "empty" : TECH_ID.test(tech) && tech.length <= 40 ? "" : "chars";
+      setIdErr(problem);
+      if (problem) {
+        setBusy(false);
+        const el = document.getElementById("emp-id");
+        el?.scrollIntoView({ block: "center" }); el?.focus({ preventScroll: true });
+        return;
+      }
+      const id = await finishCapture(undefined, tech);
       setBusy(false);
       if (!id) return setFailed(true);
       nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
@@ -150,6 +164,20 @@ function NewPhotos() {
         <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} tagUnit />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
+      {demo && (
+        <div className="ap-field" data-testid="tech-id-field">
+          <label htmlFor="emp-id">{t("Employee ID or technician unit number (required)", "ID de empleado o número de unidad del técnico (obligatorio)")}</label>
+          <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); if (idErr) setIdErr(""); }} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} inputMode="text" aria-invalid={idErr ? true : undefined} aria-describedby={idErr ? "emp-id-err" : "emp-id-hint"} data-testid="employee-id" />
+          {idErr ? (
+            <p id="emp-id-err" role="alert" className="cx-err" data-testid="employee-id-error">{idErr === "empty"
+              ? t("Enter your Employee ID or technician unit number before Finish.", "Ingrese su ID de empleado o número de unidad del técnico antes de Finalizar.")
+              : t("Use letters, numbers and hyphens only, for example TECH-007.", "Use solo letras, números y guiones, por ejemplo TECH-007.")}</p>
+          ) : (
+            <p id="emp-id-hint" className="cx-note">{t("Letters and numbers; leading zeros are kept. Shown to the office under Submitted by.", "Letras y números; los ceros a la izquierda se conservan. La oficina lo ve en Enviado por.")}</p>
+          )}
+          <button type="button" className="ap-btn ghost" data-testid="employee-id-sample" onClick={() => { setEmployeeId(SAMPLE_TECH_ID); setIdErr(""); }}>{t(`Use sample ${SAMPLE_TECH_ID}`, `Usar muestra ${SAMPLE_TECH_ID}`)}</button>
+        </div>
+      )}
       {!demo && (
         <div className="ap-field">
           <label htmlFor="emp-id">{t("Company employee ID (optional)", "ID de empleado de la empresa (opcional)")}</label>

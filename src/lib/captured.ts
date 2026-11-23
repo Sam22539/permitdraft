@@ -13,6 +13,8 @@ export type Captured = {
   photos: CapturedPhoto[];
   /** Item-level corrections saved on the review draft, by field key. The captured value above is never overwritten. */
   corrections?: Record<string, Correction>;
+  /** Demo only: the Employee ID or technician unit number entered before the final handoff, kept exactly as typed (trimmed). */
+  submittedBy?: string;
 };
 /**
  * A correction to one captured item, with the evidence for it. `flaggedAt` only means "awaiting office review":
@@ -58,7 +60,7 @@ export function useCaptured(): Captured[] { return useSyncExternalStore(subscrib
  * Save a job-scoped snapshot of the unfinished capture, then clear the unfinished draft.
  * Returns the new id, or null when anything failed — in that case nothing is cleared and nothing half-saved is left.
  */
-export async function finishCapture(idIn?: string): Promise<string | null> {
+export async function finishCapture(idIn?: string, submittedBy?: string): Promise<string | null> {
   const id = idIn ?? `cap-${Date.now().toString(36)}`;
   try {
     const values = readDraftValues();
@@ -66,7 +68,7 @@ export async function finishCapture(idIn?: string): Promise<string | null> {
     for (const k of Object.keys(DEFAULT_SHOWN)) if (!(k in values)) formDefaults[k] = DEFAULT_SHOWN[k];
     const copies = await copyPhotos(JOB_ID, id);
     const rec: Captured = {
-      id, finishedAt: Date.now(), values, formDefaults,
+      id, finishedAt: Date.now(), values, formDefaults, ...(submittedBy ? { submittedBy } : {}),
       photos: copies.map((c) => ({ ...(c.unit ? { unit: c.unit } : {}), slot: c.slot, key: c.key, name: c.name, type: c.type, savedAt: c.savedAt, uploaded: c.uploaded })),
     };
     const prev = read();
