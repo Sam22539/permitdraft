@@ -4,7 +4,8 @@ import { isDemo } from "./demo-mode";
 // Device-local photo store: real image blobs in IndexedDB, keyed by job + slot. Nothing is uploaded; every photo stays
 // "waiting to upload" because no server ever acknowledges it in this practice build.
 export const JOB_ID = "hp-1187";
-export type Slot = "plate" | "outdoor" | "gauge" | "wide";
+// "panel" is the demo's electrical panel label photo, taken beside the panel rating; it is never a required photo.
+export type Slot = "plate" | "outdoor" | "gauge" | "wide" | "panel";
 // SLOTS are the required photos (readiness). "wide" is an optional whole-unit shot and never blocks anything.
 export const SLOTS: Slot[] = ["plate", "outdoor", "gauge"];
 export const ALL_SLOTS: Slot[] = [...SLOTS, "wide"];
@@ -134,5 +135,5 @@ export async function copyPhotos(from: string, to: string): Promise<PhotoRec[]> 
 }
 
 export async function deleteJobPhotos(job: string): Promise<void> {
-  for (const s of ALL_SLOTS) { try { await run("readwrite", (st) => st.delete(keyOf(job, s))); } catch { /* ignore */ } }
+  for (const s of [...ALL_SLOTS, "panel" as Slot]) { try { await run("readwrite", (st) => st.delete(keyOf(job, s))); } catch { /* ignore */ } }
 }

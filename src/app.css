@@ -306,3 +306,15 @@ a.ap-job{border-left:6px solid #c2410c}
 .cx-dim{opacity:.55}
 .rd-capture{min-height:48px;width:fit-content}
 .rd-item.rd-focus{outline:3px solid #c2410c;outline-offset:2px;border-radius:8px;background:#fff7ed}
+/* Free demo capture steps: titles and focused fields stay clear of the sticky header, each reading or photo is its own
+   stacked group, and selected choices read at a glance. Scoped to the demo so Core screens are unchanged. */
+html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
+.cx-main:has(.ap-demo) .cx-head h1{overflow-wrap:anywhere}
+.cx-demo-group{display:grid;gap:12px;border:1.5px solid #d6dce8;border-radius:12px;padding:14px;background:#f8fafd;min-width:0}
+.cx-demo-group .ap-two{grid-template-columns:1fr}
+.cx-demo-opt{min-height:56px;font-size:1.1rem}
+.cx-demo-opt.on{background:#12264a;border-color:#12264a;color:#fff}
+.cx-demo-opt.on [data-slot=radio-group-item]{border-color:#fff;background:#fff}
+.cx-demo-check{flex-wrap:wrap;min-height:72px;border-width:2px}
+.cx-demo-check:not(.on){border-color:#c2410c}
+.cx-demo-check span.txt{min-width:10ch;font-weight:700}

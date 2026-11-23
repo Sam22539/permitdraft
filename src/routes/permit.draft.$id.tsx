@@ -26,6 +26,13 @@ const SLOT_LABEL: Record<Slot, [string, string]> = {
   outdoor: ["Outdoor unit with left side yard and clearance", "Unidad exterior con patio lateral izquierdo y espacio libre"],
   wide: ["Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)"],
   gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro o medidor de refrigerante"],
+  panel: ["Panel label photo", "Foto de la etiqueta del panel"],
+};
+/** The demo's capture labels, where they differ from Core's. */
+const DEMO_LABEL: Record<string, [string, string]> = {
+  work: ["Job notes", "Notas del trabajo"],
+  panel: ["Panel rating (amps)", "Capacidad nominal del panel (amperios)"],
+  duct: ["Was duct sealing performed?", "¿Se realizó el sellado de ductos?"],
 };
 
 const t0 = (x: readonly [string, string]) => x[0].toLowerCase();
@@ -175,8 +182,19 @@ export function Review() {
                 : f.kind === "check" ? t("Not ticked in the capture", "No marcado en la captura") : t(`Not entered in step ${f.step}`, `No ingresado en el paso ${f.step}`);
             return (
               <li key={f.key} className="ap-chk" style={{ display: "grid", gap: ".15rem" }} data-testid={`rv-${f.key}`}>
-                <span className="ap-muted">{t(...f.label)}</span>
+                <span className="ap-muted">{t(...((isDemoReview && DEMO_LABEL[f.key]) || f.label))}</span>
                 <strong>{shown || dash}</strong>
+                {isDemoReview && f.key === "panel" && (() => {
+                  const ref = cap.photos.find((x) => x.slot === "panel");
+                  if (!ref) return <span className="ap-next" data-testid="rv-panel-photo-none">{t("No panel label photo captured", "Sin foto de la etiqueta del panel")}</span>;
+                  return (
+                    <div className="ph-ev" data-testid="rv-panel-photo">
+                      {urls.panel ? <PhotoViewer src={urls.panel} alt={t(...SLOT_LABEL.panel)} testId="rv-view-panel" caption={<><p className="font-semibold">{t(...SLOT_LABEL.panel)}</p><p>{photoNote(ref)}</p></>} /> : <p className="ap-muted">{photoErr ? t("Could not read this photo on this device.", "No se pudo leer esta foto en este dispositivo.") : t("Loading photo…", "Cargando foto…")}</p>}
+                      <p className="font-semibold">{t(...SLOT_LABEL.panel)}</p>
+                      <p className="ap-muted text-sm">{photoNote(ref)}</p>
+                    </div>
+                  );
+                })()}
                 {READING_UNIT_KEY[f.key] && <span className="font-semibold" data-testid={`rv-unit-${f.key}`}>{t(...readingUnit(cap.values, f.key))}</span>}
                 <span className="ap-muted text-sm">{prov}</span>
                 {corr[f.key]?.flaggedAt && !corr[f.key]?.decision && <ConflictBox c={corr[f.key]} field={f.key} captured={shown} capturedSource={prov} />}
@@ -190,6 +208,22 @@ export function Review() {
 
       <section className="ap-card" data-testid="review-photos">
         <h2 className="ap-h2">{t("Photos", "Fotos")}</h2>
+        {isDemoReview && (() => {
+          const ref = cap.photos.find((x) => x.slot === "panel");
+          const rating = String(cap.values.panel ?? "").trim();
+          return (
+            <div className="ph-ev" data-testid="rv-photo-panel">
+              <p className="font-semibold">{t(...DEMO_LABEL.panel)}: <span data-testid="rv-panel-rating">{rating || dash}</span></p>
+              {ref ? (
+                <>
+                  {urls.panel ? <PhotoViewer src={urls.panel} alt={t(...SLOT_LABEL.panel)} testId="rv-view-panel-photo" caption={<><p className="font-semibold">{t(...SLOT_LABEL.panel)}</p><p>{photoNote(ref)}</p></>} /> : <p className="ap-muted">{photoErr ? t("Could not read this photo on this device.", "No se pudo leer esta foto en este dispositivo.") : t("Loading photo…", "Cargando foto…")}</p>}
+                  <p className="font-semibold">{t(...SLOT_LABEL.panel)}</p>
+                  <p className="ap-muted text-sm">{photoNote(ref)}</p>
+                </>
+              ) : <p className="ap-next">{t("No panel label photo captured", "Sin foto de la etiqueta del panel")}</p>}
+            </div>
+          );
+        })()}
         {[...SLOTS, ...(cap.photos.some((p) => p.slot === "wide") ? (["wide"] as Slot[]) : [])].map((s) => {
           const ref = cap.photos.find((p) => p.slot === s);
           return (
