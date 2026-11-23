@@ -60,7 +60,7 @@ export function Detail() {
     <AppPage bottom capture>
       {saved && (
         <div role="status" className="cx-card calm">
-          <p className="font-semibold">{t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.")}</p>
+          <p className="font-semibold">{demo ? t("Practice job saved. Not connected to real permit filing.", "Trabajo de práctica guardado. No está conectado a la presentación real de permisos.") : t("Sent to the office for review. This is not permit filing.", "Enviado a la oficina para revisión. No es la presentación del permiso.")}</p>
           {doneId && <Link to={p("/permit/draft/$id")} params={{ id: doneId } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>}
           {demo && doneId && <DemoFeedback />}
         </div>
