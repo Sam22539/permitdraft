@@ -230,7 +230,7 @@ function NewPhotos() {
             </ul>
           </details>
         )}
-        <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : t("Finish", "Finalizar")}</button>
+        <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : demo ? t("Finish sample job", "Finalizar trabajo de muestra") : t("Finish & Send to Office", "Finalizar y enviar a la oficina")}</button>
       </>}>
       {SLOTS.filter(([k]) => REQUIRED.includes(k) || !!photos[k]).map(([k, en0, es0]) => {
         const [en, es] = isFurn && k === "outdoor" ? ["Replaced outdoor unit, as installed", "Unidad exterior reemplazada, como quedó instalada"] : [en0, es0];
@@ -311,6 +311,32 @@ function NewPhotos() {
           <p className="cx-note">{t("Finish saves one private packet once every photo is saved, then emails your company's verified office inbox a link to review it. It is for office review only, not permit filing. Draft, not a guarantee of compliance. Contractor review and signature required.", "Finalizar guarda un paquete privado cuando todas las fotos estén guardadas y envía al buzón verificado de la oficina de su empresa un enlace para revisarlo. Es solo para revisión de oficina, no para presentar el permiso. Borrador, no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
         </>
       )}
+          <section className="cx-review" aria-labelledby="final-review-h" data-testid="final-review">
+        <h2 id="final-review-h">{t("Final review", "Revisión final")}</h2>
+        <p className="cx-note">{demo ? t("Check the sample job before you finish. Nothing is sent from the demo.", "Revise el trabajo de muestra antes de finalizar. La demo no envía nada.") : t("Check the job before you send it to your office for review. It is not a permit filing.", "Revise el trabajo antes de enviarlo a su oficina para revisión. No es la presentación de un permiso.")}</p>
+        {(() => {
+          const v = (k: string) => (dvals[k] ?? "").trim();
+          const none = t("Not entered", "Sin ingresar");
+          const allChecks = applicableChecks(jobType, dvals);
+          const sections: { title: string; step: string; rows: [string, string][] }[] = [
+            { title: t("Customer and job site", "Cliente y sitio"), step: "/new", rows: [[t("Homeowner", "Propietario"), v("name")], [t("Phone", "Teléfono"), v("phone")], [t("Address", "Dirección"), [v("addr"), v("city")].filter(Boolean).join(", ")]] },
+            { title: t("Equipment", "Equipo"), step: "/new/equipment", rows: [[t("Equipment type", "Tipo de equipo"), v("type")], [t("Manufacturer", "Fabricante"), v("maker") || v("fu_maker")], [t("Model", "Modelo"), v("model") || v("fu_model")], [t("Serial", "Serie"), v("serial") || v("fu_serial")]] },
+            { title: t("Work performed", "Trabajo realizado"), step: "/new/work", rows: [[t("Work notes", "Notas del trabajo"), v("work")], [t("Panel size (amps)", "Amperios del panel"), v("panel")]] },
+            { title: t("Checks", "Revisiones"), step: "/new/checks", rows: [[t("Final checks confirmed", "Verificaciones confirmadas"), `${allChecks.length - unticked.length} / ${allChecks.length}`]] },
+            { title: t("Photos and Employee ID", "Fotos e ID de empleado"), step: "/new/photos", rows: [[t("Photos attached", "Fotos adjuntas"), String(Object.keys(photos).length)], [t("Required photos missing", "Fotos requeridas faltantes"), demo ? "—" : String(missing.length)], [t("Employee ID", "ID de empleado"), (demo ? employeeId : assignedId || employeeId).trim()]] },
+          ];
+          return (
+            <div className="cx-review-grid">
+              {sections.map((sec) => (
+                <div key={sec.title} className="cx-review-sec">
+                  <div className="cx-review-top"><h3>{sec.title}</h3>{sec.step !== "/new/photos" && <Link to={p(sec.step) as never} className="underline font-semibold">{t("Edit", "Editar")}<span className="sr-only"> {sec.title}</span></Link>}</div>
+                  <dl>{sec.rows.map(([k, val]) => <div key={k}><dt>{k}</dt><dd className={val ? "" : "is-empty"}>{val || none}</dd></div>)}</dl>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </section>
     </StepShell>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -30,8 +31,9 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
   const [msg, setMsg] = useState("");
   const [ok, setOk] = useState("");
   const [sent, setSent] = useState(false);
+  const [show, setShow] = useState(false);
   const clean = email.trim().toLowerCase();
-  const go = (v: string) => { setTab(v); setMsg(""); setOk(""); setPassword(""); };
+  const go = (v: string) => { setTab(v); setMsg(""); setOk(""); setPassword(""); setShow(false); };
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg(""); setOk("");
@@ -90,7 +92,12 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
   );
   const passwordField = (id: string, isNew: boolean) => (
     <div className="ap-field"><Label htmlFor={id}>{isNew ? t("Create a PermitDraft password", "Cree una contraseña de PermitDraft") : t("PermitDraft password", "Contraseña de PermitDraft")}</Label>
-      <Input id={id} type="password" autoComplete={isNew ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} maxLength={200} minLength={isNew ? MIN_PASSWORD : undefined} required aria-describedby="acct-pw-note" /></div>
+      <div className="ap-pw">
+        <Input id={id} type={show ? "text" : "password"} autoComplete={isNew ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} maxLength={200} minLength={isNew ? MIN_PASSWORD : undefined} required aria-describedby="acct-pw-note" />
+        <button type="button" className="ap-pw-toggle" onClick={() => setShow((v) => !v)} aria-pressed={show} aria-controls={id} data-testid="pw-toggle">
+          {show ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}{show ? t("Hide", "Ocultar") : t("Show", "Mostrar")}
+        </button>
+      </div></div>
   );
 
   return (
@@ -106,7 +113,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
           <form onSubmit={signIn} className="ap-form" noValidate data-testid="pw-signin">
             {emailField("acct-in-email")}
             {passwordField("acct-in-pw", false)}
-            <button type="submit" className="ap-btn primary" disabled={busy} data-testid="pw-signin-submit">{t("Sign in", "Iniciar sesión")}</button>
+            <button type="submit" className="ap-btn primary" disabled={busy} data-testid="pw-signin-submit">{busy ? t("Signing in…", "Iniciando sesión…") : t("Log in", "Iniciar sesión")}</button>
             <button type="button" className="underline font-semibold text-left" onClick={() => go("forgot")} data-testid="forgot-link">{t("Forgot password?", "¿Olvidó su contraseña?")}</button>
           </form>
         </TabsContent>
@@ -115,7 +122,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
             {emailField("acct-up-email")}
             {passwordField("acct-up-pw", true)}
             <p className="ap-muted">{t(`At least ${MIN_PASSWORD} characters. We email you a link to confirm the address before you can sign in. Your company access comes only from your company admin's Office setup.`, `Al menos ${MIN_PASSWORD} caracteres. Le enviamos un enlace para confirmar la dirección antes de iniciar sesión. El acceso a su empresa viene solo de la Configuración de oficina de su administrador.`)}</p>
-            <button type="submit" className="ap-btn primary" disabled={busy} data-testid="pw-signup-submit">{t("Create account", "Crear cuenta")}</button>
+            <button type="submit" className="ap-btn primary" disabled={busy} data-testid="pw-signup-submit">{busy ? t("Creating account…", "Creando cuenta…") : t("Create account", "Crear cuenta")}</button>
           </form>
         </TabsContent>
         <TabsContent value="forgot">

@@ -6,10 +6,8 @@ import { joinPilot, US_STATES } from "../lib/pilot";
 import { AppPage } from "../components/app-shell";
 import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
-import { useSessionEmail } from "../components/core-offer";
-import { DEMO_PHOTO } from "../components/demo";
-import { Image } from "../image";
-import { BarChart3, Check, CheckSquare, ClipboardList, FilePlus2, Home, Layers, LogIn, MapPin, Play, Search, SearchCheck, Send, ShieldCheck, UserPlus } from "lucide-react";
+import { ScreenPreview, SignInCard } from "../components/home-hero";
+import { ArrowRight, BarChart3, ClipboardList, FilePlus2, Home, Layers, MapPin, Play, Search, SearchCheck, Send, ShieldCheck } from "lucide-react";
 import "../home.css";
 
 export const Route = createFileRoute("/")({
@@ -80,52 +78,6 @@ function PilotForm() {
   );
 }
 
-function SignInCard() {
-  const { t } = useLang();
-  const email = useSessionEmail();
-  return (
-    <section className="hp-signin" aria-labelledby="hp-signin-h" data-testid="home-sign-in">
-      <h2 id="hp-signin-h">{t("Log in to PermitDraft", "Inicie sesión en PermitDraft")}</h2>
-      {email ? (
-        <>
-          <p className="hp-small">{t("Signed in as", "Sesión iniciada como")} {email}</p>
-          <Link to="/jobs" className="ap-btn primary" data-testid="home-open-jobs">{t("Open my jobs", "Abrir mis trabajos")}</Link>
-          <Link to="/profile" className="ap-btn ghost">{t("Account", "Cuenta")}</Link>
-        </>
-      ) : (
-        <>
-          <p className="hp-small">{t("Open your jobs, drafts and office handoffs.", "Abra sus trabajos, borradores y entregas a la oficina.")}</p>
-          <Link to="/sign-in" className="ap-btn primary" data-testid="home-log-in"><LogIn size={20} aria-hidden />{t("Log in", "Iniciar sesión")}</Link>
-          <div className="hp-or"><span>{t("or", "o")}</span></div>
-          <Link to="/sign-in" className="ap-btn ghost" data-testid="home-create"><UserPlus size={20} aria-hidden />{t("Create account", "Crear cuenta")}</Link>
-          <p className="hp-small">{t("Forgot your password?", "¿Olvidó su contraseña?")} <Link to="/sign-in" className="underline font-semibold" data-testid="home-forgot">{t("Reset it on the sign-in page", "Restablézcala en la página de inicio de sesión")}</Link></p>
-        </>
-      )}
-    </section>
-  );
-}
-
-function DraftCard() {
-  const { t } = useLang();
-  const items = [
-    t("Job details captured", "Detalles del trabajo capturados"),
-    t("Equipment data plate photo", "Foto de la placa de datos del equipo"),
-    t("Checklist photos & notes", "Fotos y notas de la lista"),
-    t("Missing details flagged", "Detalles faltantes marcados"),
-  ];
-  return (
-    <div className="hp-draft" aria-label={t("Example permit draft card", "Tarjeta de ejemplo de borrador de permiso")} role="img">
-      <div className="hp-draft-brand"><Image src="/generated-assets/company-logo.png" alt="" width={22} height={22} /><span>Permit<b>Draft</b></span></div>
-      <p className="hp-draft-title">{t("Heat pump permit draft", "Borrador de permiso de bomba de calor")}</p>
-      <ul>
-        {items.map((i) => <li key={i}><CheckSquare size={16} aria-hidden />{i}</li>)}
-      </ul>
-      <p className="hp-draft-stamp"><Check size={18} aria-hidden />{t("Sent to office", "Enviado a la oficina")}</p>
-      <p className="hp-draft-note">{t("Draft for contractor review — not a filed permit", "Borrador para revisión del contratista: no es un permiso presentado")}</p>
-    </div>
-  );
-}
-
 function Start() {
   const { t } = useLang();
   const steps = [
@@ -147,18 +99,16 @@ function Start() {
         <div className="hp-hero-in">
           <div className="hp-copy">
             <p className="hp-eyebrow">{t("Residential HVAC permit paperwork", "Papeleo de permisos residenciales de HVAC")}</p>
-            <h1>{t("HVAC permit paperwork,", "Papeleo de permisos de HVAC,")} <span>{t("from the field to your office.", "del campo a su oficina.")}</span></h1>
-            <p className="hp-lead">{t("Capture job evidence in the field. When you tap Done, one private packet goes to your contractor’s office for review. It is not a permit filing.", "Capture la evidencia del trabajo en campo. Al tocar Listo, un paquete privado va a la oficina de su contratista para revisión. No es la presentación de un permiso.")}</p>
+            <h1>{t("From the Field to the", "Del campo a la")} <span>{t("Office.", "Oficina.")}</span></h1>
+            <p className="hp-lead">{t("Streamline HVAC and construction permit documentation with one complete platform. Capture jobsite details, equipment information, compliance checks, and required photographs, then send a finished documentation package directly to your office for review and processing.", "Simplifique la documentación de permisos de HVAC y construcción con una plataforma completa. Capture los detalles del sitio, la información del equipo, las revisiones de cumplimiento y las fotos requeridas, y luego envíe un paquete de documentación terminado directamente a su oficina para revisión y trámite.")}</p>
             <div className="hp-ctas">
-              <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try the free demo", "Probar la demo gratis")}</Link>
-              <a href="#core-offer" className="ap-btn hp-outline" data-testid="see-core-pricing">{t("View Pricing", "Ver precios")}</a>
+              <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try Free Demo", "Probar la demo gratis")}</Link>
+              <a href="#how" className="ap-btn hp-outline">{t("See How It Works", "Ver cómo funciona")}</a>
+              <a href="#core-offer" className="ap-btn hp-text" data-testid="see-core-pricing">{t("Get Started", "Comenzar")}<ArrowRight size={18} aria-hidden /></a>
             </div>
-            <p className="hp-sample">{t("No sign-in needed for the demo.", "La demo no requiere iniciar sesión.")} <Link to="/sample-job">{t("See a sample permit draft (sample data, not a real job)", "Ver un borrador de permiso de muestra (datos de muestra, no es un trabajo real)")}</Link></p>
+            <p className="hp-sample">{t("No sign-in needed for the demo. The packet goes to your office for review; it is not a permit filing.", "La demo no requiere iniciar sesión. El paquete va a su oficina para revisión; no es la presentación de un permiso.")} <Link to="/sample-job">{t("See a sample permit draft (sample data, not a real job)", "Ver un borrador de permiso de muestra (datos de muestra, no es un trabajo real)")}</Link></p>
           </div>
-          <div className="hp-visual">
-            <div className="hp-photo"><Image src={DEMO_PHOTO} alt={t("Heat pump outdoor unit data plate", "Placa de datos de una unidad exterior de bomba de calor")} width={1024} height={1024} priority /></div>
-            <DraftCard />
-          </div>
+          <ScreenPreview />
           <SignInCard />
         </div>
       </section>
@@ -175,7 +125,7 @@ function Start() {
         </ol>
       </section>
 
-      <section className="hp-benefits" aria-label={t("Why PermitDraft", "Por qué PermitDraft")}>
+      <section className="hp-benefits" id="features" aria-label={t("Features", "Funciones")}>
         {benefits.map((b) => (
           <div key={b.title} className="hp-benefit"><b.icon size={34} strokeWidth={1.75} aria-hidden /><div><h3>{b.title}</h3><p>{b.text}</p></div></div>
         ))}

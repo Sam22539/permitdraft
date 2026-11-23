@@ -74,6 +74,6 @@
 }
 
 @theme {
-  --font-heading: "Source Serif 4", Georgia, serif;
-  --font-sans: "Public Sans", system-ui, sans-serif;
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 }

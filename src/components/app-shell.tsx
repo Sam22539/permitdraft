@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Briefcase, Settings, UserRound } from "lucide-react";
+import { BookOpen, Briefcase, FilePlus2, Inbox, LayoutDashboard, Send, Settings, UserRound } from "lucide-react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { DemoBar, useCorePath, useDemo } from "./demo";
@@ -22,11 +22,14 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
         </div>
         {!mode && (
           <nav className="hp-nav" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
-            <a href={home ? "#how" : "/#how"}>{t("How it works", "Cómo funciona")}</a>
+            <Link to="/" activeOptions={{ exact: true, includeHash: false }}>{t("Home", "Inicio")}</Link>
+            <a href={home ? "#features" : "/#features"}>{t("Features", "Funciones")}</a>
+            <a href={home ? "#how" : "/#how"}>{t("How It Works", "Cómo funciona")}</a>
             <a href={home ? "#core-offer" : "/#core-offer"}>{t("Pricing", "Precio")}</a>
-            <Link to="/coverage">{t("Coverage", "Cobertura")}</Link>
             <Link to="/resources">{t("Resources", "Recursos")}</Link>
-            <Link to="/demo" className="hp-nav-cta">{t("Try the free demo", "Probar la demo gratis")}</Link>
+            <a href={home ? "#pilot" : "/#pilot"}>{t("Contact", "Contacto")}</a>
+            <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
+            <a href={home ? "#core-offer" : "/#core-offer"} className="hp-nav-cta">{t("Get Started", "Comenzar")}</a>
           </nav>
         )}
         <div className="ap-lang" role="group" aria-label="Language">
@@ -34,11 +37,16 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
           <button type="button" aria-pressed={lang === "es"} onClick={() => setLang("es")}>Español</button>
         </div>
       </div>
-      {!mode && !home && (
+      {!mode && (
         <nav className="ap-subnav" aria-label={t("Main", "Principal")}>
+          <a href={home ? "#features" : "/#features"}>{t("Features", "Funciones")}</a>
+          <a href={home ? "#how" : "/#how"}>{t("How It Works", "Cómo funciona")}</a>
+          <a href={home ? "#core-offer" : "/#core-offer"}>{t("Pricing", "Precio")}</a>
           <Link to="/coverage">{t("Coverage", "Cobertura")}</Link>
           <Link to="/resources">{t("Resources", "Recursos")}</Link>
-          <Link to="/demo" className="ap-subnav-cta">{t("Try the free demo", "Probar la demo gratis")}</Link>
+          <a href={home ? "#pilot" : "/#pilot"}>{t("Contact", "Contacto")}</a>
+          <Link to="/sign-in">{t("Log In", "Iniciar sesión")}</Link>
+          <Link to="/demo" className="ap-subnav-cta">{t("Try Free Demo", "Probar la demo gratis")}</Link>
         </nav>
       )}
     </div>
@@ -71,11 +79,44 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
   );
 }
 
+/** Computer screens: the fixed navy sidebar of Core and the demo, listing only screens that exist. */
+export function SideNav() {
+  const { t } = useLang();
+  const demo = useDemo();
+  const p = useCorePath();
+  const items: { to: string; icon: typeof Briefcase; label: string; exact?: boolean; testid?: string }[] = [
+    { to: p("/jobs"), icon: LayoutDashboard, label: t("Jobs dashboard", "Panel de trabajos"), exact: true },
+    { to: p("/new"), icon: FilePlus2, label: t("New job", "Nuevo trabajo"), exact: true },
+    { to: p("/office-handoff"), icon: Inbox, label: t("Office handoff", "Entrega a oficina") },
+    ...(demo ? [] : [{ to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") }]),
+    { to: "/resources", icon: BookOpen, label: t("Resources", "Recursos") },
+    { to: "/profile", icon: UserRound, label: t("Account", "Cuenta") },
+    { to: p("/settings"), icon: Settings, label: t("Settings", "Ajustes") },
+  ];
+  return (
+    <aside className="ap-side" aria-label={t("App menu", "Menú de la aplicación")}>
+      <Link to="/" className="ap-side-logo">
+        <Image src="/generated-assets/company-logo.png" alt="PermitDraft logo" width={32} height={32} />
+        <span>PermitDraft</span>
+      </Link>
+      <span className={`ap-mode ${demo ? "demo" : "core"}`}>{demo ? t("Demo · sample data", "Demo · datos de muestra") : "Core"}</span>
+      <nav className="ap-side-nav">
+        {items.map((i) => (
+          <Link key={i.to} to={i.to as never} activeOptions={{ exact: !!i.exact }} activeProps={{ className: "is-active", "aria-current": "page" } as never}>
+            <i.icon size={19} aria-hidden />{i.label}
+          </Link>
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
 export function AppPage({ children, bottom, wide, capture, home, core }: { children: React.ReactNode; bottom?: boolean; wide?: boolean; capture?: boolean; home?: boolean; core?: boolean }) {
   const { t } = useLang();
   const demo = useDemo();
   return (
-    <div className={`ap${capture ? " ap-capture" : ""}`}>
+    <div className={`ap${capture ? " ap-capture" : ""}${demo || bottom || core ? " ap-has-side" : ""}`}>
+      {(demo || bottom || core) && <SideNav />}
       <AppTop home={home} mode={demo ? "demo" : bottom || core ? "core" : undefined} />
       <main className={`${home ? "hp-main" : "ap-main"} ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{demo && <DemoBar />}{children}</main>
       <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>

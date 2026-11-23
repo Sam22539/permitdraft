@@ -75,8 +75,8 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
           <strong>{t(`Step ${n} of 5: ${STEP_NAMES[n - 1][0]}`, `Paso ${n} de 5: ${STEP_NAMES[n - 1][1]}`)}</strong>
         </p>
         <div role="progressbar" aria-label={t(`Step ${n} of 5`, `Paso ${n} de 5`)} aria-valuenow={n} aria-valuemin={0} aria-valuemax={5} className="mt-2">
-          <ol className="cx-dots" aria-hidden>
-            {STEP_NAMES.map((_, i) => <li key={i} className={i + 1 < n ? "done" : i + 1 === n ? "now" : ""} />)}
+          <ol className="cx-steps" aria-hidden>
+            {STEP_NAMES.map((s, i) => <li key={i} className={i + 1 < n ? "done" : i + 1 === n ? "now" : ""}><span><span className="cx-sn">{i + 1}</span><span className="cx-sl">{t(s[0], s[1])}</span></span></li>)}
           </ol>
         </div>
       </div>

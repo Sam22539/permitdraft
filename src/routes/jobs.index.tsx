@@ -11,6 +11,8 @@ import { usePhotos } from "../lib/photos";
 import { useCaptured, type Captured } from "../lib/captured";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { captureSummary } from "../lib/capture-fields";
+import { Input } from "../components/ui/input";
+import { Plus, Search } from "lucide-react";
 
 export const Route = createFileRoute("/jobs/")({
   head: () => ({ meta: [{ title: "Jobs — PermitDraft" }, { name: "description", content: "Your jobs, their status and the next step for each." }] }),
@@ -42,6 +44,8 @@ export function Jobs() {
   const jurs = useOfficeJurisdictions();
   const act = urgentAction(insp, todayIso());
   const [chip, setChip] = useState<Chip>("Awaiting review");
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<"recent" | "addr" | "status">("recent");
   const capJobs: (Job & { cap: Captured; awaiting: boolean })[] = captured.map((c) => {
     const sm = captureSummary(c, lang);
     // Awaiting office review: a captured draft the rules engine marks ready for office review.
@@ -50,32 +54,54 @@ export function Jobs() {
       status: (sm.missing > 0 ? "Missing info" : "Draft") as Status, next: undefined };
   });
   const all = [...capJobs, ...JOBS];
+  const needle = q.trim().toLowerCase();
+  const text = (j: Job & { cap?: Captured }) => [j.id, j.addr, j.who?.[1], j.cap?.values.name, j.cap?.values.city, j.cap?.values.zip, j.equip].filter(Boolean).join(" ").toLowerCase();
+  const order: Record<Status, number> = { Blocked: 0, "Missing info": 1, Draft: 2, Done: 3 };
   const shown = all.filter((j) =>
     chip === "Awaiting review" ? (j as { awaiting?: boolean }).awaiting === true : chip === "All" ? true : chip === "Drafts" ? j.status === "Draft" : chip === "Missing info" ? j.status === "Missing info" : j.status === "Missing info",
-  );
+  ).filter((j) => !needle || text(j).includes(needle))
+    .map((j, i) => ({ j, i }))
+    .sort((a, b) => sort === "addr" ? a.j.addr.localeCompare(b.j.addr) : sort === "status" ? order[a.j.status] - order[b.j.status] || a.i - b.i : a.i - b.i)
+    .map(({ j }) => j);
+  const awaitingCount = capJobs.filter((j) => j.awaiting).length;
   const count = (s: Status) => all.filter((j) => j.status === s).length;
 
   return (
     <AppPage bottom wide>
       <header className="jb-head">
-        <div className="jb-title">
-          <h1>{t("Jobs", "Trabajos")}</h1>
-          <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
+        <div className="jb-title-row">
+          <div className="jb-title">
+            <h1>{t("Jobs", "Trabajos")}</h1>
+            <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
+          </div>
+          <Link to={p("/new")} className="ap-btn primary jb-newbtn" data-testid="jobs-new"><Plus size={20} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
         </div>
         {trial.state === "active" && (() => { const d = daysLeft(trial.expiresAt); return (
           <p className="jb-trial" data-testid="trial-banner">{t(`${d} ${d === 1 ? "day" : "days"} left in your free trial`, `Quedan ${d} ${d === 1 ? "día" : "días"} de su prueba gratis`)} · <Link to="/" hash="core-offer" className="underline font-semibold">{t("See plan", "Ver plan")}</Link></p>
         ); })()}
       </header>
       {resume > 0 && (
-        <Link to={p(STEP_PATHS[resume - 1])} className="ap-btn primary" data-testid="resume-job">
+        <Link to={p(STEP_PATHS[resume - 1])} className="ap-btn ghost jb-resume" data-testid="resume-job">
           {t("Resume job", "Reanudar trabajo")} · {t(`Step ${resume} of 5`, `Paso ${resume} de 5`)}
         </Link>
       )}
       <p className="jb-meta"><Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link><Link to={p("/office-handoff")} className="underline font-semibold" data-testid="office-handoff-link">{t("Office handoff search", "Búsqueda de entrega a oficina")}</Link></p>
-      <div className="jb-counts">
-        <div className="jb-count"><strong>{count("Missing info")}</strong><span>{t("Missing info", "Falta información")}</span></div>
-        <div className="jb-count"><strong>0</strong><span>{t("Waiting on rater", "Esperando al evaluador")}</span></div>
-        <div className="jb-count"><strong>{count("Done")}</strong><span>{t("Done", "Listo")}</span></div>
+      <section className="jb-metrics" aria-label={t("Job counts", "Conteo de trabajos")}>
+        <div className="jb-metric blue"><strong>{all.length}</strong><span>{t("Total jobs", "Trabajos en total")}</span></div>
+        <div className="jb-metric slate"><strong>{count("Draft")}</strong><span>{t("Drafts in progress", "Borradores en curso")}</span></div>
+        <div className="jb-metric warn"><strong>{count("Missing info")}</strong><span>{t("Missing information", "Falta información")}</span></div>
+        <div className="jb-metric ok"><strong>{awaitingCount}</strong><span>{t("Ready for office review", "Listos para revisión de oficina")}</span></div>
+      </section>
+      <div className="jb-tools">
+        <div className="jb-search">
+          <Search size={18} aria-hidden />
+          <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("Search jobs by customer, address or job ID", "Buscar trabajos por cliente, dirección o ID")} placeholder={t("Search customer, address or job ID", "Buscar cliente, dirección o ID")} data-testid="jobs-search" />
+        </div>
+        <select className="jb-sort" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} aria-label={t("Sort jobs", "Ordenar trabajos")} data-testid="jobs-sort">
+          <option value="recent">{t("Sort: most recent", "Orden: más recientes")}</option>
+          <option value="addr">{t("Sort: address A–Z", "Orden: dirección A–Z")}</option>
+          <option value="status">{t("Sort: status (needs work first)", "Orden: estado (pendientes primero)")}</option>
+        </select>
       </div>
       <div className="jb-chipwrap">
         <div className="jb-chips" role="group" aria-label={t("Filter jobs", "Filtrar trabajos")}>
@@ -86,10 +112,12 @@ export function Jobs() {
       </div>
       {shown.length === 0 && (
         <div className="jb-empty" data-testid="jobs-empty">
-          <p>{chip === "Awaiting review" ? t("No drafts are awaiting office review right now.", "Ningún borrador espera revisión de oficina por ahora.") : t("No jobs match this filter.", "Ningún trabajo coincide con este filtro.")}</p>
-          <button type="button" className="ap-btn ghost" onClick={() => setChip("All")} data-testid="show-all-jobs">{t("Show all jobs", "Ver todos los trabajos")}</button>
+          <p>{needle ? t("No jobs match your search.", "Ningún trabajo coincide con su búsqueda.") : chip === "Awaiting review" ? t("No drafts are awaiting office review right now.", "Ningún borrador espera revisión de oficina por ahora.") : t("No jobs match this filter.", "Ningún trabajo coincide con este filtro.")}</p>
+          <button type="button" className="ap-btn ghost" onClick={() => { setChip("All"); setQ(""); }} data-testid="show-all-jobs">{t("Show all jobs", "Ver todos los trabajos")}</button>
         </div>
       )}
+      {shown.length > 0 && <div className="jb-list">
+      <div className="jb-colhead" aria-hidden><span>{t("Job · customer · status", "Trabajo · cliente · estado")}</span><span>{t("Actions", "Acciones")}</span></div>
       {shown.map((j) => {
         const body = (
           <>
@@ -135,6 +163,7 @@ export function Jobs() {
           <div key={j.id} className={`jb-job ${cls[j.status]}`}>{body}</div>
         );
       })}
+      </div>}
     </AppPage>
   );
 }
