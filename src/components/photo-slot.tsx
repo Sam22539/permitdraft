@@ -5,7 +5,7 @@ import { removePhoto, savePhoto, setPhotoUnit, type PhotoView, type Slot, type U
 
 export function PendingLabel({ p }: { p: PhotoView }) {
   const { t } = useLang();
-  return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Waiting to upload", "Esperando para subir")}</span>;
+  return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Saved on this device", "Guardada en este dispositivo")}</span>;
 }
 
 export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit, job, onChanged }: { job?: string; onChanged?: () => void | Promise<void>; tagUnit?: boolean; slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
