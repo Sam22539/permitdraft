@@ -111,6 +111,18 @@ function NewPhotos() {
   const missing = ready ? REQUIRED.filter((k) => !photos[k]) : [];
   const label = (k: Slot) => { const r = SLOTS.find(([x]) => x === k); return r ? t(r[1], r[2]) : k; };
   useEffect(() => { if (!demo) { const v = readEmp(); if (v) setEmployeeId(v); } }, [demo]);
+  // Core: the ID or unit number the company admin assigned, read-only here; it goes to the office with the packet automatically.
+  const [assignedId, setAssignedId] = useState<string | null>(null);
+  useEffect(() => {
+    if (demo) return;
+    let live = true;
+    backend.auth.getSession().then(({ data: s }) => {
+      const em = s.session?.user.email?.toLowerCase();
+      if (!em) return;
+      return Promise.resolve(backend.from("company_members").select("employee_id").eq("email", em).maybeSingle()).then(({ data }) => { if (live) setAssignedId((data?.employee_id as string | null) ?? null); });
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, [demo]);
   // Core: keep saving photos to the database in the background so Finish has nothing left to wait for.
   useEffect(() => {
     if (demo || pending === 0) return;
@@ -220,7 +232,13 @@ function NewPhotos() {
           <button type="button" className="ap-btn ghost" data-testid="employee-id-sample" onClick={() => { setEmployeeId(SAMPLE_TECH_ID); setIdErr(""); }}>{t(`Use sample ${SAMPLE_TECH_ID}`, `Usar muestra ${SAMPLE_TECH_ID}`)}</button>
         </div>
       )}
-      {!demo && (
+      {!demo && assignedId && (
+        <div className="ap-field" data-testid="assigned-id">
+          <p><strong>{t("Your employee ID or unit", "Su ID de empleado o unidad")}:</strong> <span data-testid="assigned-id-value">{assignedId}</span></p>
+          <p className="cx-note">{t("Assigned by your company admin. It goes to the office with this job, with your name and the time.", "Asignado por el administrador de su empresa. Va a la oficina con este trabajo, con su nombre y la hora.")}</p>
+        </div>
+      )}
+      {!demo && !assignedId && (
         <div className="ap-field">
           <label htmlFor="emp-id">{t("Company employee ID (optional)", "ID de empleado de la empresa (opcional)")}</label>
           <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); writeEmp(e.target.value); }} maxLength={40} autoComplete="off" data-testid="employee-id" />

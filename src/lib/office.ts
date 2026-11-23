@@ -5,7 +5,7 @@ export type OfficeSetup = {
   me: string;
   company: { id: string; name: string; role: Role } | null;
   inbox: { email: string | null; verifiedAt: string | null; pending: string | null; pendingUntil: string | null } | null;
-  members: { email: string; role: Role }[];
+  members: { email: string; role: Role; employeeId: string | null }[];
 };
 
 const tok = (d: unknown) => {
@@ -31,8 +31,8 @@ async function readSetup(token: string): Promise<OfficeSetup> {
   if (error || !co) throw new Error("read");
   let members: OfficeSetup["members"] = [];
   if (member.role === "admin") {
-    const { data } = await db.from("company_members").select("email, role").eq("company_id", member.company_id).order("added_at");
-    members = (data ?? []) as OfficeSetup["members"];
+    const { data } = await db.from("company_members").select("email, role, employee_id").eq("company_id", member.company_id).order("added_at");
+    members = ((data ?? []) as { email: string; role: Role; employee_id: string | null }[]).map((m) => ({ email: m.email, role: m.role, employeeId: m.employee_id }));
   }
   return {
     me: who.email,

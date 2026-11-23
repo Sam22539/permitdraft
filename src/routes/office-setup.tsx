@@ -7,10 +7,12 @@ import { Label } from "../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
+import { getBilling, getTeamDetails, setBillingAddress, setCompanyName, setEmployeeId, setMemberRole } from "../lib/account";
+import { ManageSubscriptionButton, useAccess } from "../lib/payments/buy";
 import { addMember, confirmInboxCode, createCompany, getOfficeSetup, removeMember, requestInboxCode, type OfficeSetup } from "../lib/office";
 
 export const Route = createFileRoute("/office-setup")({
-  head: () => ({ meta: [{ title: "Office setup — PermitDraft" }, { name: "description", content: "Set up your company, its technicians and office reviewers, and the verified office inbox that hears when a job is finished." }] }),
+  head: () => ({ meta: [{ title: "Company Settings and office setup — PermitDraft" }, { name: "description", content: "Set up your company, its technicians and office reviewers, and the verified office inbox that hears when a job is finished." }] }),
   component: OfficeSetupPage,
 });
 
@@ -35,11 +37,25 @@ function OfficeSetupPage() {
   const [mRole, setMRole] = useState<Role>("technician");
   const [inbox, setInbox] = useState("");
   const [code, setCode] = useState("");
+  const [coName, setCoName] = useState("");
+  const [bill, setBill] = useState({ line1: "", line2: "", city: "", state: "", zip: "" });
+  const [phones, setPhones] = useState<Record<string, string>>({});
+  const [ids, setIds] = useState<Record<string, string>>({});
+  const [smsg, setSmsg] = useState("");
+  const coreAccess = useAccess("permitdraft_core");
 
   useEffect(() => {
     if (!email) { setSetup(email === null ? null : undefined); return; }
     let live = true;
-    token().then((tk) => getOfficeSetup({ data: { token: tk } })).then((s) => { if (live) setSetup(s); }, () => { if (live) { setSetup(null); setMsg(t("Could not read your office setup. Reload to try again.", "No se pudo leer su configuración de oficina. Recargue para intentarlo de nuevo.")); } });
+    token().then(async (tk) => {
+      const s = await getOfficeSetup({ data: { token: tk } });
+      if (s.company?.role === "admin") {
+        const [b, d] = await Promise.all([getBilling({ data: { token: tk } }), getTeamDetails({ data: { token: tk } })]);
+        if (live && b) setBill(b);
+        if (live) { setPhones(Object.fromEntries(d.people.map((p) => [p.email, p.phone]))); setIds(Object.fromEntries(s.members.map((m) => [m.email, m.employeeId ?? ""]))); setCoName(s.company.name); }
+      }
+      return s;
+    }).then((s) => { if (live) setSetup(s); }, () => { if (live) { setSetup(null); setMsg(t("Could not read your office setup. Reload to try again.", "No se pudo leer su configuración de oficina. Recargue para intentarlo de nuevo.")); } });
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
@@ -58,7 +74,7 @@ function OfficeSetupPage() {
 
   return (
     <AppPage bottom>
-      <h1 className="text-3xl">{t("Office setup", "Configuración de oficina")}</h1>
+      <h1 className="text-3xl">{t("Company Settings and office setup", "Ajustes de la empresa y configuración de oficina")}</h1>
       <p className="ap-muted">{t("When a technician finishes a job, PermitDraft emails your company's verified office inbox a link to review it. Only signed-in office reviewers of your company can open it.", "Cuando un técnico termina un trabajo, PermitDraft envía al buzón verificado de su empresa un enlace para revisarlo. Solo los revisores de oficina de su empresa con sesión iniciada pueden abrirlo.")}</p>
 
       {email === null && (
@@ -116,15 +132,39 @@ function OfficeSetupPage() {
           </section>
 
           {admin && (
+            <section className="ap-card" aria-labelledby="os-biz" data-testid="os-business">
+              <h2 id="os-biz" className="ap-h2">{t("Business name", "Nombre de la empresa")}</h2>
+              <form className="ap-form" onSubmit={(e) => { e.preventDefault(); setSmsg(""); void (async () => { try { const r = await setCompanyName({ data: { token: await token(), name: coName } }); if (r.ok) { setSetup((x) => x && x.company ? { ...x, company: { ...x.company, name: coName.trim() } } : x); setSmsg(t("Business name saved.", "Nombre guardado.")); } else setSmsg(t("Could not save the name.", "No se pudo guardar el nombre.")); } catch { setSmsg(t("Could not save the name.", "No se pudo guardar el nombre.")); } })(); }}>
+                <div className="ap-field"><Label htmlFor="os-coname">{t("Business name", "Nombre de la empresa")}</Label>
+                  <Input id="os-coname" value={coName} maxLength={120} onChange={(e) => setCoName(e.target.value)} required data-testid="os-coname" /></div>
+                <button type="submit" className="ap-btn ghost" data-testid="os-coname-save">{t("Save business name", "Guardar nombre")}</button>
+              </form>
+              {smsg && <p role="status" className="ap-muted" data-testid="os-smsg">{smsg}</p>}
+            </section>
+          )}
+          {admin && (
             <section className="ap-card" aria-labelledby="os-people" data-testid="os-people">
               <h2 id="os-people" className="ap-h2">{t("People", "Personas")}</h2>
               <p className="ap-muted">{t("Add each person by the address they sign in with. Technicians' finished jobs go to this company; office reviewers and admins open them.", "Agregue a cada persona por el correo con el que inicia sesión. Los trabajos terminados de los técnicos van a esta empresa; los revisores de oficina y administradores los abren.")}</p>
-              <ul className="grid gap-2">
+              <ul className="grid gap-4">
                 {setup!.members.map((m) => (
-                  <li key={m.email} className="flex items-center justify-between gap-2" data-testid="os-member">
-                    <span className="break-all">{m.email} · {roleName(m.role)}</span>
+                  <li key={m.email} className="grid gap-2" data-testid="os-member">
+                    <span className="break-all font-semibold">{m.email}{phones[m.email] ? ` · ${phones[m.email]}` : ""}</span>
+                    {m.email === setup!.me ? (
+                      <span className="ap-muted">{roleName(m.role)} · {t("you cannot change your own role", "no puede cambiar su propio rol")}</span>
+                    ) : (
+                      <Select value={m.role} onValueChange={(v) => void run((tk) => setMemberRole({ data: { token: tk, email: m.email, role: v } }).then(async (r) => ({ ok: r.ok, setup: r.ok ? await getOfficeSetup({ data: { token: tk } }) : undefined })), () => t("Could not change that role.", "No se pudo cambiar ese rol."))}>
+                        <SelectTrigger className="w-full bg-white min-h-12" aria-label={t(`Role for ${m.email}`, `Rol de ${m.email}`)} data-testid="os-role"><SelectValue /></SelectTrigger>
+                        <SelectContent>{ROLES.map(([k, en, es]) => <SelectItem key={k} value={k}>{t(en, es)}</SelectItem>)}</SelectContent>
+                      </Select>
+                    )}
+                    <div className="flex gap-2 items-end">
+                      <div className="ap-field flex-1"><Label htmlFor={`os-id-${m.email}`}>{t("Employee ID or unit", "ID de empleado o unidad")}</Label>
+                        <Input id={`os-id-${m.email}`} value={ids[m.email] ?? ""} maxLength={40} autoComplete="off" onChange={(e) => setIds((x) => ({ ...x, [m.email]: e.target.value }))} data-testid="os-empid" /></div>
+                      <button type="button" className="ap-btn ghost !w-auto" disabled={busy} data-testid="os-empid-save" onClick={() => void run((tk) => setEmployeeId({ data: { token: tk, email: m.email, employeeId: ids[m.email] ?? "" } }).then(async (r) => ({ ok: r.ok, reason: r.reason, setup: r.ok ? await getOfficeSetup({ data: { token: tk } }) : undefined })), (r) => r === "taken" ? t("That ID is already used in your company.", "Ese ID ya se usa en su empresa.") : t("Could not save that ID. Use letters, numbers and hyphens.", "No se pudo guardar ese ID. Use letras, números y guiones."))}>{t("Save ID", "Guardar ID")}</button>
+                    </div>
                     {m.email !== setup!.me && (
-                      <button type="button" className="underline font-semibold" disabled={busy} onClick={() => void run((tk) => removeMember({ data: { token: tk, email: m.email } }), () => t("Could not remove that person.", "No se pudo quitar a esa persona."))}>{t("Remove", "Quitar")}</button>
+                      <button type="button" className="underline font-semibold text-left" disabled={busy} onClick={() => void run((tk) => removeMember({ data: { token: tk, email: m.email } }), () => t("Could not remove that person.", "No se pudo quitar a esa persona."))}>{t("Remove", "Quitar")}</button>
                     )}
                   </li>
                 ))}
@@ -139,6 +179,22 @@ function OfficeSetupPage() {
                   </Select></div>
                 <button type="submit" className="ap-btn ghost" disabled={busy} data-testid="os-add">{t("Add person", "Agregar persona")}</button>
               </form>
+            </section>
+          )}
+          {admin && (
+            <section className="ap-card" aria-labelledby="os-bill" data-testid="os-billing">
+              <h2 id="os-bill" className="ap-h2">{t("Billing", "Facturación")}</h2>
+              <form className="ap-form" onSubmit={(e) => { e.preventDefault(); setSmsg(""); void (async () => { try { const r = await setBillingAddress({ data: { token: await token(), ...bill } }); setSmsg(r.ok ? t("Billing address saved.", "Dirección de facturación guardada.") : t("Could not save the address.", "No se pudo guardar la dirección.")); } catch { setSmsg(t("Could not save the address.", "No se pudo guardar la dirección.")); } })(); }}>
+                {([["line1", "Street address", "Dirección"], ["line2", "Suite or unit (optional)", "Suite o unidad (opcional)"], ["city", "City", "Ciudad"], ["state", "State", "Estado"], ["zip", "ZIP code", "Código postal"]] as const).map(([k, en, es]) => (
+                  <div className="ap-field" key={k}><Label htmlFor={`os-b-${k}`}>{t(en, es)}</Label>
+                    <Input id={`os-b-${k}`} value={bill[k]} maxLength={k === "zip" ? 20 : 200} onChange={(e) => setBill((b) => ({ ...b, [k]: e.target.value }))} data-testid={`os-b-${k}`} /></div>
+                ))}
+                <button type="submit" className="ap-btn ghost" data-testid="os-bill-save">{t("Save billing address", "Guardar dirección de facturación")}</button>
+              </form>
+              <p className="ap-muted">{t("Card details are never stored here. Subscription changes open Stripe's own page for your account.", "Los datos de la tarjeta nunca se guardan aquí. Los cambios de suscripción abren la página de Stripe de su cuenta.")}</p>
+              {coreAccess === true
+                ? <ManageSubscriptionButton priceHandle="permitdraft_core_4900_usd_monthly" className="ap-btn ghost" data-testid="os-manage-sub">{t("Manage subscription", "Administrar suscripción")}</ManageSubscriptionButton>
+                : coreAccess === false ? <p className="ap-muted" data-testid="os-no-sub">{t("No active Core subscription on your admin account.", "No hay suscripción activa de Core en su cuenta de administrador.")}</p> : null}
             </section>
           )}
           {(co.role === "office" || admin) && <Link to="/office-handoff" className="ap-btn ghost">{t("Open office handoff", "Abrir entrega a oficina")}</Link>}

@@ -2,7 +2,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 export type Role = "admin" | "office" | "technician";
-export type Member = { email: string; company_id: string; role: Role };
+export type Member = { email: string; company_id: string; role: Role; employee_id?: string | null };
 
 /** Who is asking: the signed-in account from its token, by its confirmed sign-in address. */
 export async function whoIs(db: SupabaseClient, token: string): Promise<{ user: User; email: string }> {
@@ -15,7 +15,7 @@ export async function whoIs(db: SupabaseClient, token: string): Promise<{ user: 
 
 /** The asker's company membership, read on the server from their verified address, never from the page. */
 export async function membership(db: SupabaseClient, email: string): Promise<Member | null> {
-  const { data, error } = await db.from("company_members").select("email, company_id, role").eq("email", email).maybeSingle();
+  const { data, error } = await db.from("company_members").select("email, company_id, role, employee_id").eq("email", email).maybeSingle();
   if (error) throw new Error("read");
   return (data as Member | null) ?? null;
 }
@@ -73,11 +73,13 @@ export async function sendOfficeNotice(db: SupabaseClient, packetId: string, sen
     return "failed";
   }
   const when = new Date(sentAt).toUTCString();
+  const { data: pkRow } = await db.from("office_packets").select("sent_by_name, employee_id").eq("id", packetId).maybeSingle();
+  const by = `${pkRow?.sent_by_name ?? "Technician"}${pkRow?.employee_id ? ` (ID ${pkRow.employee_id})` : ""}`;
   const sent = await sendEmail({
     to: c.to,
     subject: "A job packet is ready for office review",
-    text: `A technician finished a job in PermitDraft Core and its packet is ready for office review.\n\nSubmitted: ${when}\nPacket: ${packetId}\n\nOpen this packet, signed in with your company account:\n${link}\n\nThe packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.`,
-    html: `<p>A technician finished a job in PermitDraft Core and its packet is ready for office review.</p><p>Submitted: ${esc(when)}<br>Packet: ${esc(packetId)}</p><p>Open this packet, signed in with your company account:<br><a href="${esc(link)}">${esc(link)}</a></p><p>The packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.</p>`,
+    text: `A technician finished a job in PermitDraft Core and its packet is ready for office review.\n\nSubmitted by: ${by}\nSubmitted: ${when}\nPacket: ${packetId}\n\nOpen this packet, signed in with your company account:\n${link}\n\nThe packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.`,
+    html: `<p>A technician finished a job in PermitDraft Core and its packet is ready for office review.</p><p>Submitted by: ${esc(by)}<br>Submitted: ${esc(when)}<br>Packet: ${esc(packetId)}</p><p>Open this packet, signed in with your company account:<br><a href="${esc(link)}">${esc(link)}</a></p><p>The packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.</p>`,
     idempotencyKey: c.key,
   }, { capture });
   const ok = sent.status === "queued" || sent.status === "captured";

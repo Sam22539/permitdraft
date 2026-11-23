@@ -5,6 +5,9 @@ import { SignInForm, useSessionEmail } from "../components/core-offer";
 import { backend } from "../lib/backend";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
+import { markPacketReceived, requestCorrection } from "../lib/account";
+import { Textarea } from "../components/ui/textarea";
+import { Label } from "../components/ui/label";
 
 export const Route = createFileRoute("/office-review/$id")({
   head: () => ({ meta: [{ title: "Office review — PermitDraft" }, { name: "description", content: "A finished job's packet, for your company's signed-in office reviewers." }, { name: "robots", content: "noindex" }] }),
@@ -44,6 +47,28 @@ function OfficeReview() {
     return () => { live = false; };
   }, [email, id]);
 
+  const [reqs, setReqs] = useState<{ id: string; note: string; requested_by: string; created_at: string }[]>([]);
+  const [note, setNote] = useState("");
+  const [cmsg, setCmsg] = useState("");
+  const [cbusy, setCbusy] = useState(false);
+  const loadReqs = (pid: string) => Promise.resolve(backend.from("correction_requests").select("id, note, requested_by, created_at").eq("packet_id", pid).order("created_at", { ascending: false })).then(({ data }) => setReqs((data as typeof reqs | null) ?? []));
+  useEffect(() => {
+    if (!pk) return;
+    void loadReqs(pk.id);
+    // Opening the packet as the company's office records its receipt (once) and tells the submitter if they asked to hear.
+    backend.auth.getSession().then(({ data }) => { const tk = data.session?.access_token; if (tk) return markPacketReceived({ data: { token: tk, packetId: pk.id } }); }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pk?.id]);
+  const ask = async (e: React.FormEvent) => {
+    e.preventDefault(); if (!pk || !note.trim()) return;
+    setCbusy(true); setCmsg("");
+    try {
+      const { data } = await backend.auth.getSession();
+      const r = await requestCorrection({ data: { token: data.session?.access_token ?? "", packetId: pk.id, note } });
+      if (r.ok) { setNote(""); setCmsg(t("Correction request saved.", "Solicitud de corrección guardada.")); await loadReqs(pk.id); } else setCmsg(t("Could not save the request.", "No se pudo guardar la solicitud."));
+    } catch { setCmsg(t("Could not save the request.", "No se pudo guardar la solicitud.")); }
+    setCbusy(false);
+  };
   const fields = pk ? { ...(pk.captured_fields?.formDefaults ?? {}), ...(pk.captured_fields?.values ?? {}) } : {};
   return (
     <AppPage>
@@ -69,6 +94,18 @@ function OfficeReview() {
             <p data-testid="or-submitted"><strong>{t("Submitted by", "Enviado por")}</strong> {pk.sent_by_name}{pk.employee_id ? ` · ${t("Employee ID", "ID de empleado")} ${pk.employee_id}` : ""}</p>
             <p className="ap-muted">{new Date(pk.sent_at).toLocaleString(lang === "es" ? "es" : "en-US")}</p>
             <p className="ap-muted">{t("For office review only, not permit filing. Draft, not a guarantee of compliance. Contractor review and signature required.", "Solo para revisión de oficina, no para presentar el permiso. Borrador, no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
+          </section>
+          <section className="ap-card" aria-labelledby="or-corr" data-testid="or-corrections">
+            <h2 id="or-corr" className="ap-h2">{t("Correction requests", "Solicitudes de corrección")}</h2>
+            <form onSubmit={ask} className="ap-form">
+              <div className="ap-field"><Label htmlFor="or-note">{t("What needs correcting?", "¿Qué hay que corregir?")}</Label>
+                <Textarea id="or-note" value={note} maxLength={1000} onChange={(e) => setNote(e.target.value)} data-testid="or-note" /></div>
+              <button type="submit" className="ap-btn primary" disabled={cbusy || !note.trim()} data-testid="or-ask">{t("Ask technician for a correction", "Pedir una corrección al técnico")}</button>
+              {cmsg && <p role="status" className="ap-muted" data-testid="or-corr-msg">{cmsg}</p>}
+            </form>
+            <ul className="grid gap-2">
+              {reqs.map((r) => <li key={r.id} data-testid="or-corr-item">{r.note} <span className="ap-muted">· {r.requested_by} · {new Date(r.created_at).toLocaleString(lang === "es" ? "es" : "en-US")}</span></li>)}
+            </ul>
           </section>
           <section className="ap-card" aria-labelledby="or-fields">
             <h2 id="or-fields" className="ap-h2">{t("Captured details", "Datos capturados")}</h2>

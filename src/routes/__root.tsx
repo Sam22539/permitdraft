@@ -8,6 +8,7 @@ import {
 import "../styles.css";
 import { useEffect } from "react";
 import { LangProvider } from "../lib/lang";
+import { LangSync } from "../components/lang-sync";
 
 // Link previews read the Open Graph and X tags below; og:title and og:description repeat the page's own title and description.
 const title = "PermitDraft — traceable permit drafts for HVAC offices";
@@ -54,7 +55,7 @@ function WebsiteDocument() {
         <HeadContent />
       </head>
       <body>
-        <LangProvider><Outlet /></LangProvider>
+        <LangProvider><LangSync /><Outlet /></LangProvider>
         <Scripts />
       </body>
     </html>
