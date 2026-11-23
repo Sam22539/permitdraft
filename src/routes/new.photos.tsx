@@ -232,6 +232,7 @@ function NewPhotos() {
         )}
         <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : demo ? t("Finish sample job", "Finalizar trabajo de muestra") : t("Finish & Send to Office", "Finalizar y enviar a la oficina")}</button>
       </>}>
+      <div className="cx-tiles">
       {SLOTS.filter(([k]) => REQUIRED.includes(k) || !!photos[k]).map(([k, en0, es0]) => {
         const [en, es] = isFurn && k === "outdoor" ? ["Replaced outdoor unit, as installed", "Unidad exterior reemplazada, como quedó instalada"] : [en0, es0];
         const needed = REQUIRED.includes(k);
@@ -251,7 +252,7 @@ function NewPhotos() {
         );
       })}
       {isFurn && (
-        <p className="cx-note" data-testid="photo-rules-note">
+        <p className="cx-note cx-tile-wide" data-testid="photo-rules-note">
           {[
             [dvals.fu_furnace, "Furnace", "horno"], [dvals.fu_coil, "Indoor coil", "serpentín interior"], [dvals.fu_outdoor, "Outdoor unit", "unidad exterior"],
           ].map(([v, en, es]) => v === "replaced" ? t(`${en} replaced: its own data plate photo is required. `, `${es}: se reemplazó, su propia foto de placa es obligatoria. `)
@@ -269,6 +270,7 @@ function NewPhotos() {
           <strong className={photos.wide ? "cx-ok" : "ap-muted"}>{photos.wide ? t("Attached", "Adjunta") : t("Optional", "Opcional")}</strong>
         </div>
         <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} tagUnit />
+      </div>
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       {demo && (

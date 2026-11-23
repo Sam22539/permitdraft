@@ -261,13 +261,6 @@ export function Review() {
       )}
 
       <Link to={p("/jobs")} className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
-      {isDemoReview && (
-        <section className="ap-card" data-testid="demo-early-access" aria-labelledby="dea-h">
-          <h2 className="ap-h2" id="dea-h">{t("Want this for your crew?", "¿Quiere esto para su equipo?")}</h2>
-          <p className="ap-muted">{t("Which missing detail sends a job back to your crew most often? Tell us on the early access form, or keep exploring the demo.", "¿Qué dato que falta devuelve más trabajos a su equipo? Cuéntenos en el formulario de acceso anticipado, o siga explorando la demo.")}</p>
-          <Link to="/" hash="pilot" className="ap-btn primary" data-testid="demo-early-access-link">{t("Get Early Access", "Obtener acceso anticipado")}</Link>
-        </section>
-      )}
     </AppPage>
   );
 }

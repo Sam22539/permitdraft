@@ -67,7 +67,6 @@ function Coverage() {
         <h2 className="ap-h2">{t("Las Vegas, Nevada", "Las Vegas, Nevada")}</h2>
         <p>{t("Service for residential HVAC contractors in Las Vegas, Nevada is effective November 23, 2026 (Pacific time).", "El servicio para contratistas residenciales de HVAC en Las Vegas, Nevada rige desde el 23 de noviembre de 2026 (hora del Pacífico).")}</p>
         <p className="ap-muted">{t("Permit documentation for contractor review is offered; local rule checks and direct filing are not. Official City of Las Vegas and Clark County pages are listed as reference only on Resources; the County reference is not a service area expansion.", "Se ofrece documentación de permisos para revisión del contratista; la verificación de reglas locales y la presentación directa no. Las páginas oficiales de la Ciudad de Las Vegas y del Condado de Clark se listan solo como referencia en Recursos; la referencia del Condado no amplía el área de servicio.")} <Link to="/resources" hash="las-vegas-reference" className="underline font-semibold">{t("Las Vegas references", "Referencias de Las Vegas")}</Link></p>
-        <p><Link to="/" hash="pilot" className="underline font-semibold" data-testid="coverage-las-vegas-request">{t("Request Las Vegas early access", "Solicitar acceso anticipado para Las Vegas")}</Link></p>
       </section>
       <section id="cv-statuses" className="ap-card">
         <h2 className="ap-h2">{t("Two different statuses", "Dos estados distintos")}</h2>

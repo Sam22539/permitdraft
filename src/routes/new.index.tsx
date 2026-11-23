@@ -42,7 +42,7 @@ export function NewJob({ lookup = false }: { lookup?: boolean } = {}) {
       <StepHead n={1} title={["New job", "Nuevo trabajo"]} />
       <p className="cx-note">{t("Fields marked * are needed for the paperwork. Your work saves as you go.", "Los campos marcados con * son necesarios para el papeleo. Su trabajo se guarda mientras avanza.")}</p>
       
-      <form className="cx-card" onSubmit={next} data-saved={draft ? "yes" : "no"}>
+      <form className="cx-card cx-grid2" onSubmit={next} data-saved={draft ? "yes" : "no"}>
         <div className="cx-field"><Label htmlFor="n">{t("Homeowner name *", "Nombre del propietario *")}</Label><Input id="n" value={f.name} onChange={set("name")} autoComplete="off" /></div>
         <div className="cx-field"><Label htmlFor="p">{t("Phone", "Teléfono")}</Label><Input id="p" type="tel" value={f.phone} onChange={set("phone")} /></div>
         <div className="cx-field"><Label htmlFor="a">{t("Job site address *", "Dirección del sitio *")}</Label>{lookup && d.fixState === "off"

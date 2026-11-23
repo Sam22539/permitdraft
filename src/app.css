@@ -430,7 +430,7 @@ html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
 .ap-subnav a[aria-current=page]{color:#fff;text-decoration:underline;text-underline-offset:6px;text-decoration-color:#fb923c;text-decoration-thickness:2px}
 .ap-subnav .ap-subnav-cta{margin-left:auto;color:#fdba74}
 @media (min-width:1024px){.ap-subnav{display:none}}
-/* Card headings without their own class (Early Access, Core offer) keep the bold card-heading weight */
+/* Card headings without their own class (Core offer) keep the bold card-heading weight */
 .ap-card>h2:not([class]){font-size:1.2rem;font-weight:800;line-height:1.25;color:#152235}
 .ap-card>h2:not([class]):not(:first-child){font-size:1.05rem;margin-top:.5rem}
 .ap-card>h3:not([class]){font-size:1.05rem;font-weight:700;color:#152235}
@@ -581,3 +581,49 @@ html:has(.pj){scroll-padding-top:10rem}
 .cx-review dd.is-empty{color:#B42318}
 .cx-review dd.is-empty::before{content:"! ";font-weight:800}
 @media (min-width:768px){.jb-resume{justify-self:start;width:auto;padding:0 1.5rem}}
+
+/* Public menu: dropdown tabs on computers, a folding menu on phones */
+@media (min-width:1024px){
+  .ap-top:not(.ap-top-app) .hp-nav{gap:.25rem}
+  .ap-top:not(.ap-top-app) .hp-nav > a,.hp-nav-trigger{color:var(--pd-head,#152235);min-height:44px;display:inline-flex;align-items:center;gap:.25rem;padding:0 .7rem;font-weight:600;font-size:.95rem;border-radius:.5rem}
+  .ap-top:not(.ap-top-app) .hp-nav > a[aria-current=page]:not(.hp-nav-cta){text-decoration:none;box-shadow:inset 0 -3px 0 #F4770B;border-radius:0}
+  .hp-nav-trigger:hover,.hp-nav-trigger[data-state=open]{background:#F4F7FB}
+  .hp-nav-trigger[data-state=open] svg{transform:rotate(180deg)}
+  .hp-nav .hp-nav-login{border:1.5px solid #DCE3E9;border-radius:.5rem;margin-left:.75rem}
+  .hp-nav .hp-nav-cta{color:#111A26;margin-left:.25rem}
+}
+.hp-nav-menu{min-width:15rem;padding:.35rem}
+.hp-nav-menu a{min-height:44px;font-size:.95rem;font-weight:600;color:#152235;cursor:pointer}
+.hp-mnav{background:#fff;border-bottom:1px solid #DCE3E9}
+.hp-mnav-bar{display:flex;align-items:center;gap:.5rem;padding:.4rem 1rem}
+.hp-mnav-toggle{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:0 .8rem;border:1.5px solid #DCE3E9;border-radius:.5rem;font-weight:700;color:#152235}
+.hp-mnav-login{margin-left:auto;min-height:44px;display:inline-flex;align-items:center;padding:0 .6rem;font-weight:700;color:#152235}
+.hp-mnav .hp-nav-cta{min-height:44px;display:inline-flex;align-items:center;padding:0 .9rem;border-radius:.5rem;background:#F4770B;color:#111A26;font-weight:700}
+.hp-mnav-panel{padding:0 1rem .75rem;border-top:1px solid #DCE3E9;max-height:calc(100vh - 140px);overflow-y:auto}
+.hp-mnav-home{display:flex;align-items:center;min-height:48px;font-weight:700;color:#152235;border-bottom:1px solid #DCE3E9}
+.hp-mnav-group{font-size:1rem;font-weight:700;color:#152235;min-height:48px;align-items:center}
+.hp-mnav-links{display:grid}
+.hp-mnav-links a{display:flex;align-items:center;min-height:44px;padding-left:.75rem;color:#334155;font-weight:600;font-size:.98rem}
+@media (min-width:1024px){.hp-mnav{display:none}}
+
+
+/* Capture steps on computers: two-column job site, nameplate beside its fields, photos tiled */
+.cx-tiles{display:grid;gap:16px}
+@media (min-width:1024px){
+  .ap-has-side .cx-main:has(.cx-grid2,.cx-plate-split,.cx-tiles){max-width:1080px}
+  .cx-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px}
+  .cx-grid2 > :not(.cx-field){grid-column:1/-1}
+  .cx-plate-split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;align-items:start}
+  .cx-plate-photo,.cx-plate-fields{display:grid;gap:16px;align-content:start}
+  .cx-tiles{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .cx-tiles .cx-tile-wide{grid-column:1/-1}
+}
+@media (max-width:1023px){.cx-plate-split,.cx-plate-photo,.cx-plate-fields{display:grid;gap:16px}}
+@media (min-width:1024px){.ap-side-nav a.is-active{background:#F4770B;color:#111A26;border-left-color:#F4770B;border-radius:8px;font-weight:700}}
+@media (min-width:1024px){
+  :is(.cx-plate-photo,.cx-tiles) .ph-thumb{flex-direction:column;align-items:stretch}
+  :is(.cx-plate-photo,.cx-tiles) .ph-thumb img{width:100%;height:auto;aspect-ratio:4/3}
+  .cx-tiles .ph-slot .ap-btn{padding-left:.5rem;padding-right:.5rem}
+}
+@media (min-width:1024px){.cx-tiles{align-items:start}.cx-tiles .cx-shot{align-content:start}}
+.ap .jb-chip[aria-pressed=true]{background:#F4770B;border-color:#F4770B;color:#111A26}

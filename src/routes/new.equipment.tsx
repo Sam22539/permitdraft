@@ -71,12 +71,12 @@ export function Equipment() {
           <option value="Central AC change-out">{t("Central AC change-out", "Cambio de aire acondicionado central")}</option>
           <option value="Furnace + coil change-out">{t("Furnace + coil change-out", "Cambio de horno + serpentín")}</option>
         </select></div>
-      {(!isFurn || photos.plate) && (
+      {isFurn ? (
+        <>
+          {(!isFurn || photos.plate) && (
         <PhotoSlot slot="plate" label={isFurn ? ["Earlier data plate photo (kept as evidence)", "Foto anterior de la placa de datos (se conserva como evidencia)"] : ["Data plate photo", "Foto de la placa de datos"]} photo={photos.plate} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
       )}
       <p className="cx-note">{isFurn ? t("Answer what was replaced. Each replaced item needs its own data plate photo; kept equipment needs none, and photos already saved stay.", "Responda qué se reemplazó. Cada equipo reemplazado necesita su propia foto de placa; el equipo conservado no necesita ninguna, y las fotos ya guardadas se conservan.") : t("Read the model and serial from the data plate photo. Missing values stay NEEDED.", "Lea el modelo y el número de serie de la foto de la placa. Los valores faltantes quedan como NECESARIO.")}</p>
-      {isFurn ? (
-        <>
           <h2 className="cx-h">{t("Furnace nameplate", "Placa del horno")}</h2>
           {scopeSelect("fu_furnace", "ffu", ["Furnace: kept or replaced *", "Horno: conservado o reemplazado *"], FU_FURNACE_OPTS, "fu-furnace")}
           {plateShot("plate_furnace", sc.furnace, ["Furnace data plate photo", "Foto de la placa de datos del horno"])}
@@ -111,7 +111,14 @@ export function Equipment() {
           </p>
         </>
       ) : (
-        <>
+        <div className="cx-plate-split">
+          <div className="cx-plate-photo">
+            {(!isFurn || photos.plate) && (
+              <PhotoSlot slot="plate" label={isFurn ? ["Earlier data plate photo (kept as evidence)", "Foto anterior de la placa de datos (se conserva como evidencia)"] : ["Data plate photo", "Foto de la placa de datos"]} photo={photos.plate} takeLabel={["Take data plate photo", "Tomar foto de la placa de datos"]} />
+            )}
+            <p className="cx-note">{isFurn ? t("Answer what was replaced. Each replaced item needs its own data plate photo; kept equipment needs none, and photos already saved stay.", "Responda qué se reemplazó. Cada equipo reemplazado necesita su propia foto de placa; el equipo conservado no necesita ninguna, y las fotos ya guardadas se conservan.") : t("Read the model and serial from the data plate photo. Missing values stay NEEDED.", "Lea el modelo y el número de serie de la foto de la placa. Los valores faltantes quedan como NECESARIO.")}</p>
+          </div>
+          <div className="cx-plate-fields">
           <h2 className="cx-h">{isHp ? t("Outdoor heat pump nameplate", "Placa de la bomba de calor exterior") : t("Outdoor AC nameplate", "Placa del aire acondicionado exterior")}</h2>
           {field(p + "maker", "mf", isHp ? ["Outdoor heat pump manufacturer", "Fabricante de la bomba de calor exterior"] : ["Outdoor AC manufacturer", "Fabricante del aire acondicionado exterior"])}
           {field(p + "model", "mo", isHp ? ["Outdoor heat pump model number *", "Número de modelo de la bomba de calor exterior *"] : ["Outdoor AC model number *", "Número de modelo del aire acondicionado exterior *"])}
@@ -124,7 +131,9 @@ export function Equipment() {
             </select></div>
           {field(p + "loc", "ol", ["Outdoor unit location", "Ubicación de la unidad exterior"])}
           <p className="cx-note">{t("Model", "Modelo")}: <strong>{val(p + "model") || needed}</strong> · {t("Serial", "Serie")}: <strong>{val(p + "serial") || needed}</strong> · {t("Refrigerant", "Refrigerante")}: <strong>{val(p + "refrig") || needed}</strong></p>
-        </>
+
+          </div>
+        </div>
       )}
     </StepShell>
   );

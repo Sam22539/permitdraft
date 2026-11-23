@@ -3,7 +3,6 @@ import { Loader2 } from "lucide-react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { SignInForm, useSessionEmail } from "./core-offer";
-import { DEMO_PHOTO } from "./demo";
 
 /** The home page's account panel: the site's own sign-in, create-account and reset form. */
 export function SignInCard() {
@@ -40,8 +39,8 @@ export function ScreenPreview() {
     ["92 Placeholder Ct", t("Ductless mini-split", "Mini-split sin ductos"), t("Draft", "Borrador"), false],
   ];
   return (
-    <div className="hp-devices" role="img" aria-label={t("Sample PermitDraft screens: the Jobs dashboard on a laptop and Step 1 of a new job on a phone, filled with the demo's sample job", "Pantallas de muestra de PermitDraft: el panel de trabajos en una laptop y el Paso 1 de un trabajo nuevo en un teléfono, con el trabajo de muestra de la demo")}>
-      <div className="hp-photo"><Image src={DEMO_PHOTO} alt="" width={1024} height={1024} priority /></div>
+    <div className="hp-devices" role="img" aria-label={t("Sample PermitDraft screens: the Jobs dashboard on a laptop beside an outdoor condenser, filled with the demo's sample job", "Pantallas de muestra de PermitDraft: el panel de trabajos en una laptop junto a una unidad exterior, con el trabajo de muestra de la demo")}>
+      <div className="hp-photo"><Image src="/generated-assets/07845502ccc4fa8e1a8c5493226e58e5cb230ccb49320202394999a723c45628.webp" alt="" width={1200} height={800} priority /></div>
       <div className="hp-laptop" aria-hidden>
         <div className="hp-screen">
           <div className="hp-scr-side"><Image src="/generated-assets/company-logo.png" alt="" width={18} height={18} /><i className="on" /><i /><i /><i /><i /></div>
@@ -56,16 +55,6 @@ export function ScreenPreview() {
           </div>
         </div>
         <div className="hp-base" />
-      </div>
-      <div className="hp-phone" aria-hidden>
-        <div className="hp-ph-in">
-          <span className="hp-ph-step">{t("Step 1 of 5 · Job site", "Paso 1 de 5 · Sitio")}</span>
-          <span className="hp-ph-bars"><i className="on" /><i /><i /><i /><i /></span>
-          <span className="hp-ph-l">{t("Homeowner", "Propietario")}</span><span className="hp-ph-f">Marcus Reyes</span>
-          <span className="hp-ph-l">{t("Street address", "Dirección")}</span><span className="hp-ph-f">4412 Alder Court</span>
-          <span className="hp-ph-l">{t("City", "Ciudad")}</span><span className="hp-ph-f">Sacramento</span>
-          <span className="hp-ph-cta">{t("Next", "Siguiente")}</span>
-        </div>
       </div>
       <span className="hp-sample-tag">{t("Sample screens · sample job", "Pantallas de muestra · trabajo de muestra")}</span>
     </div>

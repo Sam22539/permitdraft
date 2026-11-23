@@ -94,7 +94,7 @@
   .hp-band{padding:1.25rem 2rem 1.5rem}
 }
 @media (max-width:1023px){.hp-signin{order:2}.hp-visual{order:3}}
-.hp-signup #core-offer,.hp-signup #pilot{scroll-margin-top:7rem}
+.hp-signup #core-offer{scroll-margin-top:7rem}
 
 /* ── Bright hero: white ground, navy words, orange "Office", real sign-in panel and sample screens ── */
 .hp-hero{background:linear-gradient(180deg,#fff 0%,#fff 60%,#F4F7FB 100%);color:#152235;padding:2.25rem 1rem 5.5rem;border-bottom:1px solid #DCE3E9}
@@ -171,3 +171,26 @@
 .hp-main{overflow-x:clip}
 .hp-copy h1 span{color:#E86A00}
 @media (min-width:640px){.hp-ctas .ap-btn.hp-text{padding:0 .75rem}}
+
+/* ── Reference layout: dropdown tabs, split hero with condenser photo and laptop, navy/orange corner, icon strip ── */
+.hp-hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#F7F9FC 100%);padding-bottom:2rem}
+.hp-hero-in{position:relative;z-index:1}
+.hp-devices .hp-photo{inset:0 0 14% 0}
+.hp-devices .hp-photo img{object-position:50% 55%}
+.hp-laptop{width:72%;right:4%;bottom:0}
+.hp-corner{position:absolute;right:0;bottom:0;width:min(34vw,420px);height:min(22vw,260px);pointer-events:none;background:linear-gradient(to top left,#F4770B 0 22%,transparent 22.2%),linear-gradient(to top left,#111A26 0 38%,transparent 38.2%);z-index:0}
+.hp-flow{margin-top:-1.5rem;z-index:2}
+@media (min-width:1024px){
+  .hp-hero{padding:3.25rem 2.5rem 5.5rem}
+  .hp-hero-in{max-width:1360px;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-areas:"copy devices";align-items:center;gap:2.5rem}
+  .hp-devices{min-height:470px}
+  .hp-flow{margin-top:-3.5rem}
+}
+@media (min-width:1280px){
+  .hp-hero-in{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-areas:"copy devices"}
+  .hp-devices{min-height:520px}
+}
+@media (min-width:1024px) and (max-width:1279px){.hp-hero-in{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (max-width:1023px){.hp-devices{min-height:300px}.hp-corner{width:45vw;height:30vw}}
+@media (max-width:639px){.hp-laptop{width:86%;right:2%}.hp-devices{min-height:260px}}
+.hp-signup .ap-signup{grid-template-columns:minmax(0,1fr);max-width:560px;width:100%}

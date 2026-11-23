@@ -1,9 +1,96 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Briefcase, FilePlus2, Inbox, LayoutDashboard, Send, Settings, UserRound } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, Briefcase, ChevronDown, FilePlus2, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { DemoBar, useCorePath, useDemo } from "./demo";
 import "../app.css";
+
+type NavLink = { label: string; to: string; hash?: string };
+/** The public site's menu groups: each opens an existing section or page. */
+function useNavGroups(): { label: string; links: NavLink[] }[] {
+  const { t } = useLang();
+  return [
+    { label: t("Features", "Funciones"), links: [
+      { label: t("Benefits", "Beneficios"), to: "/", hash: "features" },
+      { label: t("What PermitDraft covers", "Qué cubre PermitDraft"), to: "/coverage" },
+    ] },
+    { label: t("How It Works", "Cómo funciona"), links: [
+      { label: t("The five-step workflow", "El flujo de cinco pasos"), to: "/", hash: "how" },
+      { label: t("Sample permit draft", "Borrador de permiso de muestra"), to: "/sample-job" },
+      { label: t("Sample office handoff", "Entrega a oficina de muestra"), to: "/demo/office-handoff" },
+    ] },
+    { label: t("Pricing", "Precio"), links: [
+      { label: "PermitDraft Core", to: "/", hash: "core-offer" },
+      { label: t("Try Free Demo", "Probar la demo gratis"), to: "/demo" },
+    ] },
+    { label: t("Resources", "Recursos"), links: [
+      { label: t("Official resources", "Recursos oficiales"), to: "/resources" },
+      { label: t("HVAC permits", "Permisos de HVAC"), to: "/hvac-permits" },
+      { label: t("Heat pump paperwork checklist", "Lista de papeleo de bomba de calor"), to: "/heat-pump-paperwork-checklist" },
+    ] },
+  ];
+}
+
+function PublicNav({ home }: { home?: boolean }) {
+  const { t } = useLang();
+  const groups = useNavGroups();
+  return (
+    <nav className="hp-nav" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
+      <Link to="/" activeOptions={{ exact: true, includeHash: false }}>{t("Home", "Inicio")}</Link>
+      {groups.map((g) => (
+        <DropdownMenu key={g.label} modal={false}>
+          <DropdownMenuTrigger className="hp-nav-trigger">{g.label}<ChevronDown size={16} aria-hidden /></DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="hp-nav-menu">
+            {g.links.map((l) => (
+              <DropdownMenuItem key={l.label} asChild><Link to={l.to as never} hash={l.hash}>{l.label}</Link></DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ))}
+      <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
+      <Link to="/" hash="core-offer" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+    </nav>
+  );
+}
+
+/** Phones: one Menu button at the top opens the same groups, each folding open. */
+function PublicNavPhone({ home }: { home?: boolean }) {
+  const { t } = useLang();
+  const groups = useNavGroups();
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+  return (
+    <div className="hp-mnav">
+      <div className="hp-mnav-bar">
+        <button type="button" className="hp-mnav-toggle" aria-expanded={open} aria-controls="hp-mnav-panel" onClick={() => setOpen(!open)} data-testid="phone-menu">
+          {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}{t("Menu", "Menú")}
+        </button>
+        <Link to="/sign-in" className="hp-mnav-login">{t("Log In", "Iniciar sesión")}</Link>
+        <Link to="/" hash="core-offer" className="hp-nav-cta">{t("Get Started", "Comenzar")}</Link>
+      </div>
+      {open && (
+        <nav id="hp-mnav-panel" className="hp-mnav-panel" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
+          <Link to="/" onClick={close} className="hp-mnav-home">{t("Home", "Inicio")}</Link>
+          <Accordion type="multiple">
+            {groups.map((g) => (
+              <AccordionItem key={g.label} value={g.label}>
+                <AccordionTrigger className="hp-mnav-group">{g.label}</AccordionTrigger>
+                <AccordionContent>
+                  <ul className="hp-mnav-links">
+                    {g.links.map((l) => <li key={l.label}><Link to={l.to as never} hash={l.hash} onClick={close}>{l.label}</Link></li>)}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </nav>
+      )}
+    </div>
+  );
+}
 
 export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" } = {}) {
   const { lang, setLang, t } = useLang();
@@ -20,35 +107,13 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
           </Link>
           {mode && <span className={`ap-mode ${mode}`} data-testid="mode-label">{mode === "demo" ? "Demo" : "Core"}</span>}
         </div>
-        {!mode && (
-          <nav className="hp-nav" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
-            <Link to="/" activeOptions={{ exact: true, includeHash: false }}>{t("Home", "Inicio")}</Link>
-            <a href={home ? "#features" : "/#features"}>{t("Features", "Funciones")}</a>
-            <a href={home ? "#how" : "/#how"}>{t("How It Works", "Cómo funciona")}</a>
-            <a href={home ? "#core-offer" : "/#core-offer"}>{t("Pricing", "Precio")}</a>
-            <Link to="/resources">{t("Resources", "Recursos")}</Link>
-            <a href={home ? "#pilot" : "/#pilot"}>{t("Contact", "Contacto")}</a>
-            <Link to="/sign-in" className="hp-nav-login">{t("Log In", "Iniciar sesión")}</Link>
-            <a href={home ? "#core-offer" : "/#core-offer"} className="hp-nav-cta">{t("Get Started", "Comenzar")}</a>
-          </nav>
-        )}
+        {!mode && <PublicNav home={home} />}
         <div className="ap-lang" role="group" aria-label="Language">
           <button type="button" aria-pressed={lang === "en"} onClick={() => setLang("en")}>English</button>
           <button type="button" aria-pressed={lang === "es"} onClick={() => setLang("es")}>Español</button>
         </div>
       </div>
-      {!mode && (
-        <nav className="ap-subnav" aria-label={t("Main", "Principal")}>
-          <a href={home ? "#features" : "/#features"}>{t("Features", "Funciones")}</a>
-          <a href={home ? "#how" : "/#how"}>{t("How It Works", "Cómo funciona")}</a>
-          <a href={home ? "#core-offer" : "/#core-offer"}>{t("Pricing", "Precio")}</a>
-          <Link to="/coverage">{t("Coverage", "Cobertura")}</Link>
-          <Link to="/resources">{t("Resources", "Recursos")}</Link>
-          <a href={home ? "#pilot" : "/#pilot"}>{t("Contact", "Contacto")}</a>
-          <Link to="/sign-in">{t("Log In", "Iniciar sesión")}</Link>
-          <Link to="/demo" className="ap-subnav-cta">{t("Try Free Demo", "Probar la demo gratis")}</Link>
-        </nav>
-      )}
+      {!mode && <PublicNavPhone home={home} />}
     </div>
   );
 }
@@ -86,7 +151,7 @@ export function SideNav() {
   const p = useCorePath();
   const items: { to: string; icon: typeof Briefcase; label: string; exact?: boolean; testid?: string }[] = [
     { to: p("/jobs"), icon: LayoutDashboard, label: t("Jobs dashboard", "Panel de trabajos"), exact: true },
-    { to: p("/new"), icon: FilePlus2, label: t("New job", "Nuevo trabajo"), exact: true },
+    { to: p("/new"), icon: FilePlus2, label: t("New job", "Nuevo trabajo") },
     { to: p("/office-handoff"), icon: Inbox, label: t("Office handoff", "Entrega a oficina") },
     ...(demo ? [] : [{ to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") }]),
     { to: "/resources", icon: BookOpen, label: t("Resources", "Recursos") },
