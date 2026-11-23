@@ -66,7 +66,7 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     // The admin-assigned ID comes from the company's own record; the typed one is only a fallback where none is assigned.
     const assignedId = (member as { employee_id?: string | null } | null)?.employee_id ?? null;
     const row = {
-      user_id: uid, job_id: data.jobId, company_id: member?.company_id ?? null, notify_status: "saved", sent_by_name: name.slice(0, 200), employee_id: assignedId || data.employeeId || null,
+      user_id: uid, job_id: data.jobId, company_id: member?.company_id ?? null, notify_status: "saved", open_tracked: true, sent_by_name: name.slice(0, 200), employee_id: assignedId || data.employeeId || null,
       captured_fields: { values: data.values, formDefaults: data.formDefaults },
       photo_links: [
         ...photos.map((p) => ({ photoId: p.id, slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),

@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
+import { HandoffReceipt, RECEIPT_COLUMNS, type ReceiptRow } from "./handoff-receipt";
 
-type Row = { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string };
+type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string };
 
 /** Core Office Handoff: the company's finished-job packets a signed-in office reviewer or admin may open (database rules decide). */
 export function CompanyPackets() {
@@ -20,7 +21,7 @@ export function CompanyPackets() {
       if (!live) return;
       setRole(m?.role ?? null);
       if (!m || (m.role !== "admin" && m.role !== "office")) return;
-      const { data } = await backend.from("office_packets").select("id, job_id, sent_by_name, employee_id, sent_at").eq("company_id", m.company_id).order("sent_at", { ascending: false }).limit(50);
+      const { data } = await backend.from("office_packets").select(`id, job_id, sent_by_name, employee_id, sent_at, ${RECEIPT_COLUMNS}`).eq("company_id", m.company_id).order("sent_at", { ascending: false }).limit(50);
       if (live) setRows((data as Row[] | null) ?? []);
     })().catch(() => { if (live) setRole(null); });
     return () => { live = false; };
@@ -41,6 +42,7 @@ export function CompanyPackets() {
             <li key={r.id} data-testid="company-packet">
               <Link to="/office-review/$id" params={{ id: r.id }} className="underline font-semibold">{t("Job", "Trabajo")} {r.job_id}</Link>
               <span className="ap-muted"> · {r.sent_by_name}{r.employee_id ? ` · ${r.employee_id}` : ""} · {new Date(r.sent_at).toLocaleString(lang === "es" ? "es" : "en-US")}</span>
+              <div className="mt-1"><HandoffReceipt row={r} heading={false} /></div>
             </li>
           ))}
         </ul>

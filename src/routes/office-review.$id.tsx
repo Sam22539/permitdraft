@@ -55,10 +55,23 @@ function OfficeReview() {
   useEffect(() => {
     if (!pk) return;
     void loadReqs(pk.id);
-    // Opening the packet as the company's office records its receipt (once) and tells the submitter if they asked to hear.
-    backend.auth.getSession().then(({ data }) => { const tk = data.session?.access_token; if (tk) return markPacketReceived({ data: { token: tk, packetId: pk.id } }); }).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pk?.id]);
+  const [opened, setOpened] = useState(false);
+  const [openErr, setOpenErr] = useState(false);
+  // Only this deliberate button records the office opening (once, server side): loading or prefetching the link never does.
+  const openPacket = async () => {
+    if (!pk) return;
+    setOpenErr(false);
+    try {
+      const { data } = await backend.auth.getSession();
+      const tk = data.session?.access_token;
+      if (!tk) throw new Error("auth");
+      const r = await markPacketReceived({ data: { token: tk, packetId: pk.id } });
+      if (!r.ok) throw new Error("denied");
+      setOpened(true);
+    } catch { setOpenErr(true); }
+  };
   const ask = async (e: React.FormEvent) => {
     e.preventDefault(); if (!pk || !note.trim()) return;
     setCbusy(true); setCmsg("");
@@ -87,7 +100,15 @@ function OfficeReview() {
           <p className="ap-muted">{t(`Signed in as ${email}. Only signed-in office reviewers and admins of the company that finished the job can open it. Ask your company's admin to add you in `, `Sesión iniciada como ${email}. Solo los revisores de oficina y administradores de la empresa que terminó el trabajo pueden abrirlo. Pida al administrador de su empresa que lo agregue en `)}<Link to="/office-setup" className="underline font-semibold">{t("Office setup", "Configuración de oficina")}</Link>.</p>
         </section>
       )}
-      {pk && (
+      {pk && !opened && (
+        <section className="ap-card" aria-labelledby="or-gate" data-testid="or-gate">
+          <h2 id="or-gate" className="ap-h2">{t("Job", "Trabajo")} {pk.job_id}</h2>
+          <p>{t("Opening the packet records the time for your company's office. It refers to the packet only, not the email, and it is not filing.", "Abrir el paquete registra la hora para la oficina de su empresa. Se refiere solo al paquete, no al correo, y no es una presentación.")}</p>
+          <button type="button" className="ap-btn primary" onClick={() => { void openPacket(); }} data-testid="or-open">{t("Open packet", "Abrir paquete")}</button>
+          {openErr && <p role="alert" className="cx-err">{t("Could not open the packet. Try again.", "No se pudo abrir el paquete. Intente de nuevo.")}</p>}
+        </section>
+      )}
+      {pk && opened && (
         <>
           <section className="ap-card" aria-labelledby="or-sent" data-testid="or-packet">
             <h2 id="or-sent" className="ap-h2">{t("Job", "Trabajo")} {pk.job_id}</h2>

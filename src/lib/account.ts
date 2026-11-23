@@ -172,6 +172,8 @@ export const markPacketReceived = createServerFn({ method: "POST" })
     const { db, office, who, member } = await ctx(data.token);
     const pk = await packetFor(db, member, data.packetId);
     if (!pk) return { ok: false as const };
+    // The sender's own view never counts as the office opening it.
+    if (pk.user_id === who.user.id) return { ok: true as const, first: false };
     if (pk.office_received_at) return { ok: true as const, first: false };
     const { data: upd } = await db.from("office_packets").update({ office_received_at: new Date().toISOString(), office_received_by: who.email }).eq("id", pk.id).is("office_received_at", null).select("id");
     if (!upd?.length) return { ok: true as const, first: false };

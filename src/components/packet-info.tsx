@@ -5,9 +5,10 @@ import { useDemo } from "./demo";
 import { useCaptured } from "../lib/captured";
 import { Link } from "@tanstack/react-router";
 import { retryOfficeNotice } from "../lib/packet";
+import { HandoffReceipt, RECEIPT_COLUMNS, type ReceiptRow } from "./handoff-receipt";
 
 type Notice = "saved" | "sending" | "accepted" | "failed" | "not_configured" | null;
-type Row = { sent_by_name: string; sent_at: string; employee_id: string | null; photo_links: unknown[]; notify_status: Notice };
+type Row = ReceiptRow & { sent_by_name: string; sent_at: string; employee_id: string | null; photo_links: unknown[]; notify_status: Notice };
 
 /** Office review: who sent this job's packet from the phone, and when. Core only; nothing in the demo. */
 export function PacketInfo({ jobId }: { jobId: string }) {
@@ -20,7 +21,7 @@ export function PacketInfo({ jobId }: { jobId: string }) {
   useEffect(() => {
     if (demo) return;
     let live = true;
-    backend.auth.getSession().then(({ data: sess }) => { const sessionUser = sess.session?.user.id; return Promise.resolve(backend.from("office_packets").select("sent_by_name, sent_at, employee_id, photo_links, notify_status").eq("user_id", sessionUser ?? "").eq("job_id", jobId).maybeSingle())
+    backend.auth.getSession().then(({ data: sess }) => { const sessionUser = sess.session?.user.id; return Promise.resolve(backend.from("office_packets").select(`sent_by_name, sent_at, employee_id, photo_links, ${RECEIPT_COLUMNS}`).eq("user_id", sessionUser ?? "").eq("job_id", jobId).maybeSingle())
       .then(({ data }) => { if (live) setRow((data as Row | null) ?? null); }); }).catch(() => { if (live) setRow(null); });
     return () => { live = false; };
   }, [demo, jobId, tick]);
@@ -62,15 +63,11 @@ export function PacketInfo({ jobId }: { jobId: string }) {
       {` · ${t(`${row.photo_links.length} photo(s) saved`, `${row.photo_links.length} foto(s) guardada(s)`)}`}
       {` · ${t("For office review only, not permit filing.", "Solo para revisión de oficina, no para presentar el permiso.")}`}
     </p>
-    <p className="jb-meta" role="status" data-testid="office-email-status" data-status={n ?? "legacy"}>
-      {n === null && t("Packet saved privately. No office email: it was saved before office emails started.", "Paquete guardado en privado. Sin correo a la oficina: se guardó antes de que empezaran los correos.")}
-      {n === "saved" && t("Packet saved. Office email not sent yet.", "Paquete guardado. El correo a la oficina todavía no se envió.")}
-      {n === "sending" && t("Packet saved. Sending the office email…", "Paquete guardado. Enviando el correo a la oficina…")}
-      {n === "accepted" && t("Packet saved. Office email accepted for delivery to your company's verified office inbox.", "Paquete guardado. Correo a la oficina aceptado para entrega en el buzón verificado de su empresa.")}
-      {n === "failed" && t("Packet saved. The office email failed, so the office has not been told.", "Paquete guardado. El correo a la oficina falló, así que la oficina no fue avisada.")}
-      {n === "not_configured" && <>{t("Packet saved. Office email not sent: your company has no verified office inbox yet. ", "Paquete guardado. Correo a la oficina no enviado: su empresa todavía no tiene un buzón de oficina verificado. ")}<Link to="/office-setup" className="underline font-semibold">{t("Office setup", "Configuración de oficina")}</Link></>}
-    </p>
-    {(n === "failed" || n === "not_configured" || n === "saved") && (
+    <div className="jb-meta" data-testid="office-email-status" data-status={n ?? "legacy"}>
+      <HandoffReceipt row={row} />
+      {n === "not_configured" && <p><Link to="/office-setup" className="underline font-semibold">{t("Office setup", "Configuración de oficina")}</Link></p>}
+    </div>
+    {(n === "failed" || n === "not_configured" || n === "saved" || (n === "sending" && !!row.notify_claimed_at && Date.now() - new Date(row.notify_claimed_at).getTime() > 120000)) && (
       <button type="button" className="ap-btn ghost" disabled={busy} onClick={() => { void retry(); }} data-testid="office-email-retry">{busy ? t("Trying…", "Intentando…") : t("Try the office email again", "Intentar de nuevo el correo a la oficina")}</button>
     )}
     </>
