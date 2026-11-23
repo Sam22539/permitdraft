@@ -77,7 +77,7 @@ function SavedJobPhoto({ id, slot, rule }: { id: string; slot?: string; rule?: s
         <PhotoSlot slot={k} job={id} onChanged={() => syncCapturePhotos(id).then(() => {})} label={[en, es]} photo={photos[k]} takeLabel={["Add photo", "Agregar foto"]} tagUnit={k === "plate"} />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
-      <p className="cx-note">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>
+      <p className="cx-note">{t("Photos are saved to this job as you add them.", "Las fotos se guardan en este trabajo al agregarlas.")}</p>
     </StepShell>
   );
 }
