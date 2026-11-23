@@ -12,7 +12,7 @@ import { useCaptured, type Captured } from "../lib/captured";
 import { evaluateCapture, useOfficeJurisdictions } from "../lib/rules/use-evaluation";
 import { captureSummary } from "../lib/capture-fields";
 import { Input } from "../components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { BookOpen, Briefcase, FilePlus2, FileText, Plus, Search } from "lucide-react";
 
 export const Route = createFileRoute("/jobs/")({
   head: () => ({ meta: [{ title: "Jobs — PermitDraft" }, { name: "description", content: "Your jobs, their status and the next step for each." }] }),
@@ -92,7 +92,13 @@ export function Jobs() {
         <div className="jb-metric warn"><strong>{count("Missing info")}</strong><span>{t("Missing information", "Falta información")}</span></div>
         <div className="jb-metric ok"><strong>{awaitingCount}</strong><span>{t("Ready for office review", "Listos para revisión de oficina")}</span></div>
       </section>
-      <div className="jb-tools">
+      <nav className="jb-shortcuts" aria-label={t("Shortcuts", "Accesos rápidos")}>
+        <Link to={p("/new")} className="jb-short"><FilePlus2 size={22} aria-hidden />{t("New Job", "Nuevo trabajo")}</Link>
+        <Link to={p("/jobs")} hash="job-list" className="jb-short"><Briefcase size={22} aria-hidden />{t("My Jobs", "Mis trabajos")}</Link>
+        <Link to={p("/office-handoff")} className="jb-short"><FileText size={22} aria-hidden />{t("Permit Packages", "Paquetes de permiso")}</Link>
+        <Link to="/resources" className="jb-short"><BookOpen size={22} aria-hidden />{t("Resources", "Recursos")}</Link>
+      </nav>
+      <div className="jb-tools" id="job-list">
         <div className="jb-search">
           <Search size={18} aria-hidden />
           <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("Search jobs by customer, address or job ID", "Buscar trabajos por cliente, dirección o ID")} placeholder={t("Search customer, address or job ID", "Buscar cliente, dirección o ID")} data-testid="jobs-search" />

@@ -4,6 +4,7 @@ import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
 import { useCorePath, useDemo } from "./demo";
 import { useEffect, useRef } from "react";
+import { ChevronLeft } from "lucide-react";
 
 /** On a phone, keeps a step's own Next or Finish button (and the message about it) pinned above the bottom menu,
  *  or above the keyboard while one is open. On a computer it sits in the card exactly as before. */
@@ -99,6 +100,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
   const demo = useDemo();
   return (
     <AppPage bottom capture>
+      {!fixBar && <Link to={p(back)} className="cx-topback" data-testid="step-top-back"><ChevronLeft size={20} aria-hidden />{t("Back", "Atrás")}</Link>}
       <StepHead n={n} title={title} />
       <p className="cx-note">{t(...sub).split(" · ").slice(1).join(" · ") || t(...sub)}</p>
       <section className="cx-card">

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, Briefcase, ChevronDown, FilePlus2, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, X } from "lucide-react";
+import { BookOpen, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -118,28 +118,41 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
   );
 }
 
+/** Phones and tablets: Home | Jobs | + New job | Permits | More, each opening a screen that exists. */
 export function BottomBar({ current: _current }: { current?: "jobs" }) {
   const { t } = useLang();
+  const demo = useDemo();
   const p = useCorePath();
   return (
-    <nav className="ap-bottom" aria-label="Main">
-      <Link to={p("/jobs")} activeProps={{ className: "ap-tab is-active" }} className="ap-tab">
+    <nav className="ap-bottom" aria-label={t("App menu", "Menú de la aplicación")}>
+      <Link to={p("/jobs")} activeOptions={{ exact: true, includeHash: false }} activeProps={{ className: "ap-tab is-active", "aria-current": "page" } as never} className="ap-tab" data-testid="nav-home">
+        <Home size={22} aria-hidden />
+        {t("Home", "Inicio")}
+      </Link>
+      <Link to={p("/jobs")} hash="job-list" className="ap-tab" data-testid="nav-jobs">
         <Briefcase size={22} aria-hidden />
         {t("Jobs", "Trabajos")}
       </Link>
-      <Link to={p("/new")} className="ap-new">{t("+ New job", "+ Nuevo trabajo")}</Link>
-      <Link to="/resources" className="ap-tab">
-        <BookOpen size={22} aria-hidden />
-        {t("Resources", "Recursos")}
+      <Link to={p("/new")} className="ap-new" aria-label={t("New job", "Nuevo trabajo")} data-testid="nav-new">
+        <span className="ap-new-dot" aria-hidden><Plus size={26} strokeWidth={2.5} /></span>
+        <span className="ap-new-label">{t("New Job", "Nuevo")}</span>
       </Link>
-      <Link to="/profile" className="ap-tab" activeProps={{ className: "ap-tab is-active" }} data-testid="nav-account">
-        <UserRound size={22} aria-hidden />
-        {t("Account", "Cuenta")}
+      <Link to={p("/office-handoff")} className="ap-tab" activeProps={{ className: "ap-tab is-active", "aria-current": "page" } as never} data-testid="nav-permits">
+        <FileText size={22} aria-hidden />
+        {t("Permits", "Permisos")}
       </Link>
-      <Link to={p("/settings")} className="ap-tab" activeProps={{ className: "ap-tab is-active" }} data-testid="nav-settings">
-        <Settings size={22} aria-hidden />
-        {t("Settings", "Ajustes")}
-      </Link>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger className="ap-tab" data-testid="nav-more">
+          <Ellipsis size={22} aria-hidden />
+          {t("More", "Más")}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="end" sideOffset={8} className="ap-more-menu">
+          {!demo && <DropdownMenuItem asChild><Link to="/my-handoffs"><Send size={18} aria-hidden />{t("Sent to office", "Enviados a la oficina")}</Link></DropdownMenuItem>}
+          <DropdownMenuItem asChild><Link to="/profile" data-testid="nav-account"><UserRound size={18} aria-hidden />{t("Account", "Cuenta")}</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to={p("/settings") as never} data-testid="nav-settings"><Settings size={18} aria-hidden />{t("Settings", "Ajustes")}</Link></DropdownMenuItem>
+          <DropdownMenuItem asChild><Link to="/resources"><BookOpen size={18} aria-hidden />{t("Resources", "Recursos")}</Link></DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 }
