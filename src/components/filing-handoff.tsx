@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { useLang } from "../lib/lang";
-import { AREA_NOTE, AUTHORITIES, HANDOFF_CHECKED_ON, HANDOFF_STATES, IDAHO_REFERENCES, KIND_LABEL } from "../lib/filing-handoff";
+import { AREA_NOTE, AUTHORITIES, HANDOFF_CHECKED_ON, HANDOFF_STATES, IDAHO_REFERENCES, KIND_LABEL, LAS_VEGAS_REFERENCES } from "../lib/filing-handoff";
 
 /** Official filing handoff: the contractor picks and confirms the authority; the link only opens its official page. Nothing is sent or filed. */
 export function FilingHandoff() {
@@ -99,6 +99,31 @@ export function IdahoReference() {
             <ul className="rs-list">
               {"portal" in r && r.portal && <li><a href={r.portal.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="idaho-link" data-primary="true">{t(...r.portal.label)}</a></li>}
               <li><a href={r.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="idaho-link">{"portal" in r ? t("Official guidance: ", "Orientación oficial: ") : ""}{r.pageTitle}</a></li>
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Las Vegas: reference-only links. Not a filing handoff, not a local rule check, and the County is not a service area. */
+export function LasVegasReference() {
+  const { t } = useLang();
+  return (
+    <section id="las-vegas-reference" className="ap-card" aria-labelledby="lv-h" data-testid="las-vegas-reference">
+      <h2 id="lv-h" className="ap-h2">{t("Las Vegas, Nevada (reference only)", "Las Vegas, Nevada (solo referencia)")}</h2>
+      <p className="ap-muted">{t(
+        "Plain links to official pages. The City of Las Vegas and Clark County are separate offices: confirm which one has jurisdiction for the job's exact address, never by its postal city, because some addresses with a Las Vegas mailing name are in unincorporated Clark County. PermitDraft prepares permit documentation for contractor review only. Local rule checks and direct filing are not offered in this rollout, and the Clark County link is not a service area expansion.",
+        "Enlaces simples a páginas oficiales. La Ciudad de Las Vegas y el Condado de Clark son oficinas distintas: confirme cuál tiene jurisdicción para la dirección exacta del trabajo, nunca por su ciudad postal, porque algunas direcciones con nombre postal de Las Vegas están en el Condado de Clark no incorporado. PermitDraft prepara documentación de permisos solo para revisión del contratista. La verificación de reglas locales y la presentación directa no se ofrecen en este lanzamiento, y el enlace del Condado de Clark no amplía el área de servicio.",
+      )}</p>
+      <ul className="rs-list">
+        {LAS_VEGAS_REFERENCES.map((r) => (
+          <li key={r.id} data-testid={`lv-${r.id}`}>
+            <strong>{t(...r.name)}</strong>
+            <p className="ap-muted">{t(...r.note)}</p>
+            <ul className="rs-list">
+              <li><a href={r.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="lv-link">{r.pageTitle}</a> <span className="ap-muted">· {t("opened", "abierta")} {HANDOFF_CHECKED_ON}</span></li>
             </ul>
           </li>
         ))}

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
-// Rollout: residential HVAC contractors in California, Arizona and Texas only. Rows saved earlier with other states are kept as they are.
-export const US_STATES = ["California","Arizona","Texas"] as const;
+// Rollout: residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada only (not the rest of Nevada), effective Nov 23, 2026 Pacific. Rows saved earlier with other states are kept as they are.
+export const US_STATES = ["California","Arizona","Texas","Las Vegas, Nevada"] as const;
 
 type Input = { company: string; contact: string; email: string; state: string; paperworkDelay?: string };
 

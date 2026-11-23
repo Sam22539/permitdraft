@@ -1,14 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
 import { useLang } from "../lib/lang";
-import { FilingHandoff, IdahoReference } from "../components/filing-handoff";
+import { FilingHandoff, IdahoReference, LasVegasReference } from "../components/filing-handoff";
 import {
   CATEGORIES, DATASET_VERSION, FEDERAL, GENERATED_ON, STAGES, STATES, STATE_LINKS, completeness, isOutbound, isStateCode, type Category, type ResourceLink, type Stage,
 } from "../lib/resources/data";
 
 type Search = { state?: string; stage?: Stage; cat?: Category };
 export const Route = createFileRoute("/resources")({
-  head: () => ({ meta: [{ title: "Official resources — PermitDraft" }, { name: "description", content: "Public official links for residential HVAC contractors in California, Arizona and Texas, plus federal references. Only pages PermitDraft actually opened are marked verified." }] }),
+  head: () => ({ meta: [{ title: "Official resources — PermitDraft" }, { name: "description", content: "Public official links for residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada, plus federal references. Only pages PermitDraft actually opened are marked verified." }] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     state: isStateCode(s.state) ? s.state : undefined,
     stage: STAGES.some((x) => x.id === s.stage) ? (s.stage as Stage) : undefined,
@@ -46,7 +46,7 @@ function Resources() {
   return (
     <AppPage>
       <h1 className="text-3xl">{t("Official resources", "Recursos oficiales")}</h1>
-      <p className="ap-muted">{t("Public links to official agencies for residential HVAC work in California, Arizona and Texas, plus federal references. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo residencial de HVAC en California, Arizona y Texas, más referencias federales. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
+      <p className="ap-muted">{t("Public links to official agencies for residential HVAC work in California, Arizona, Texas and Las Vegas, Nevada (not the rest of Nevada), plus federal references. They are for reference only: they do not check any law, do not change a job's readiness and are not part of permit eligibility.", "Enlaces públicos a agencias oficiales para trabajo residencial de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada), más referencias federales. Son solo de referencia: no verifican ninguna ley, no cambian la preparación de un trabajo y no forman parte de la elegibilidad del permiso.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
 
       <section className="ap-card" aria-labelledby="rs-checklist" data-testid="resources-checklist">
@@ -56,6 +56,7 @@ function Resources() {
       </section>
 
       <FilingHandoff />
+      <LasVegasReference />
       <IdahoReference />
 
       <section className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>

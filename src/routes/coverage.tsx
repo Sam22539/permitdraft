@@ -6,21 +6,20 @@ import { useLang } from "../lib/lang";
 import { AUTHORITIES, HANDOFF_STATES } from "../lib/filing-handoff";
 
 export const Route = createFileRoute("/coverage")({
-  head: () => ({ meta: [{ title: "Coverage — PermitDraft" }, { name: "description", content: "PermitDraft’s documentation workflow is open to residential HVAC contractors in California, Arizona and Texas. See what it checks today and what verified rule coverage it does not yet have." }] }),
+  head: () => ({ meta: [{ title: "Coverage — PermitDraft" }, { name: "description", content: "PermitDraft’s documentation workflow is open to residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada. See what it checks today and what verified rule coverage it does not yet have." }] }),
   component: Coverage,
 });
 
 function Coverage() {
   const { t } = useLang();
-  const started = Date.now() >= Date.UTC(2026, 10, 23, 8); // Nov 23, 2026 00:00 Pacific (UTC-8)
   return (
     <AppPage>
       <h1 className="text-3xl">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</h1>
       <p className="ap-muted">{t("Today PermitDraft runs a documentation checklist for every job: it makes sure the details and photos an office needs are captured. It does not yet check any law, code or local rule, anywhere.", "Hoy PermitDraft corre una lista de documentación en cada trabajo: verifica que se capturen los datos y fotos que una oficina necesita. Todavía no verifica ninguna ley, código ni regla local, en ningún lugar.")}</p>
       <p className="rd-notice">{t("Draft only. Not a guarantee of compliance. Contractor review and signature required.", "Solo borrador. No garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
       <section className="ap-card" data-testid="coverage-national">
-        <h2 className="ap-h2">{t("California, Arizona and Texas: workflow open, verified rules not yet", "California, Arizona y Texas: flujo abierto, reglas verificadas aún no")}</h2>
-        <p>{t("The documentation workflow (job details, photos, notes, office review) is open to residential HVAC contractors in California, Arizona and Texas only. Verified permit rules currently cover no state, county or city, including those three states. The official pages below are handoff references only. For any other jurisdiction, the permit office, dates, fees and requirements are unverified: the office must confirm them.", "El flujo de documentación (datos del trabajo, fotos, notas, revisión de oficina) está abierto solo a contratistas residenciales de HVAC en California, Arizona y Texas. Las reglas de permisos verificadas hoy no cubren ningún estado, condado ni ciudad, incluidos esos tres estados. Las páginas oficiales de abajo son solo referencias de entrega. Para cualquier otra jurisdicción, la oficina de permisos, las fechas, las tarifas y los requisitos no están verificados: la oficina debe confirmarlos.")}</p>
+        <h2 className="ap-h2">{t("California, Arizona, Texas and Las Vegas: workflow open, verified rules not yet", "California, Arizona, Texas y Las Vegas: flujo abierto, reglas verificadas aún no")}</h2>
+        <p>{t("The documentation workflow (job details, photos, notes, office review) is open to residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada only (not the rest of Nevada). Verified permit rules currently cover no state, county or city, including those areas. The official pages below are handoff references only. For any other jurisdiction, the permit office, dates, fees and requirements are unverified: the office must confirm them.", "El flujo de documentación (datos del trabajo, fotos, notas, revisión de oficina) está abierto solo a contratistas residenciales de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada). Las reglas de permisos verificadas hoy no cubren ningún estado, condado ni ciudad, incluidas esas áreas. Las páginas oficiales de abajo son solo referencias de entrega. Para cualquier otra jurisdicción, la oficina de permisos, las fechas, las tarifas y los requisitos no están verificados: la oficina debe confirmarlos.")}</p>
       </section>
       <section className="ap-card" data-testid="coverage-matrix">
         <h2 className="ap-h2">{t("Coverage by kind of job", "Cobertura por tipo de trabajo")}</h2>
@@ -51,10 +50,9 @@ function Coverage() {
       ))}
       <section className="ap-card" data-testid="coverage-las-vegas">
         <h2 className="ap-h2">{t("Las Vegas, Nevada", "Las Vegas, Nevada")}</h2>
-        <p>{started
-          ? t("Documentation support for Las Vegas only began on November 23, 2026 (Pacific time).", "El apoyo de documentación solo para Las Vegas comenzó el 23 de noviembre de 2026 (hora del Pacífico).")
-          : t("Documentation support for Las Vegas only starts on November 23, 2026 (Pacific time). Until that date it is not available.", "El apoyo de documentación solo para Las Vegas comienza el 23 de noviembre de 2026 (hora del Pacífico). Hasta esa fecha no está disponible.")}</p>
-        <p className="ap-muted">{t("Las Vegas only, not the rest of Nevada. PermitDraft has no verified local rules and no official permit handoff for Las Vegas yet.", "Solo Las Vegas, no el resto de Nevada. PermitDraft aún no tiene reglas locales verificadas ni una entrega oficial de permisos para Las Vegas.")}</p>
+        <p>{t("Service for residential HVAC contractors in Las Vegas, Nevada is effective November 23, 2026 (Pacific time). It covers Las Vegas only, not the rest of Nevada.", "El servicio para contratistas residenciales de HVAC en Las Vegas, Nevada rige desde el 23 de noviembre de 2026 (hora del Pacífico). Cubre solo Las Vegas, no el resto de Nevada.")}</p>
+        <p className="ap-muted">{t("Permit documentation for contractor review is offered. Local rule checks and direct filing are not offered for this rollout, and PermitDraft has no verified local rules for Las Vegas. Official City of Las Vegas and Clark County pages are listed as reference only on Resources; the County reference is not a service area expansion.", "Se ofrece documentación de permisos para revisión del contratista. La verificación de reglas locales y la presentación directa no se ofrecen en este lanzamiento, y PermitDraft no tiene reglas locales verificadas para Las Vegas. Las páginas oficiales de la Ciudad de Las Vegas y del Condado de Clark se listan solo como referencia en Recursos; la referencia del Condado no amplía el área de servicio.")} <Link to="/resources" hash="las-vegas-reference" className="underline font-semibold">{t("Las Vegas references", "Referencias de Las Vegas")}</Link></p>
+        <p><Link to="/" hash="pilot" className="underline font-semibold" data-testid="coverage-las-vegas-request">{t("Request Las Vegas early access", "Solicitar acceso anticipado para Las Vegas")}</Link></p>
       </section>
       <section className="ap-card">
         <h2 className="ap-h2">{t("Two different statuses", "Dos estados distintos")}</h2>

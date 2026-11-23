@@ -8,7 +8,7 @@ import { CoreOffer } from "../components/core-offer";
 import { useLang } from "../lib/lang";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "PermitDraft — permit paperwork before you leave the driveway" }, { name: "description", content: "Add job details, take the checklist photos, review the draft and export. A documentation workflow for residential HVAC contractors in California, Arizona and Texas." }] }),
+  head: () => ({ meta: [{ title: "PermitDraft — permit paperwork before you leave the driveway" }, { name: "description", content: "Add job details, take the checklist photos, review the draft and export. A documentation workflow for residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada." }] }),
   component: Start,
 });
 
@@ -29,7 +29,7 @@ function PilotForm() {
     return (
       <div className="ap-signup-col"><section className="ap-card" id="pilot" data-testid="pilot-done" role="status">
         <h2>{t("Thanks — we received your Early Access signup.", "Gracias: recibimos su registro de acceso anticipado.")}</h2>
-        <p className="ap-muted">{t("We saved your details for", "Guardamos sus datos de")} {f.company} {t("with the work email", "con el correo de trabajo")} {f.email}. {t("Signing up for Early Access is not the same as starting the free 14-day PermitDraft Core trial, and it does not create an account or start the trial for you.", "Registrarse para el acceso anticipado no es lo mismo que comenzar la prueba gratis de 14 días de PermitDraft Core, y no crea una cuenta ni inicia la prueba por usted.")}</p>
+        <p className="ap-muted">{t("We saved your details for", "Guardamos sus datos de")} {f.company} {t("with the work email", "con el correo de trabajo")} {f.email}. {t("Service area:", "Área de servicio:")} {f.state}. {t("Signing up for Early Access is not the same as starting the free 14-day PermitDraft Core trial, and it does not create an account or start the trial for you.", "Registrarse para el acceso anticipado no es lo mismo que comenzar la prueba gratis de 14 días de PermitDraft Core, y no crea una cuenta ni inicia la prueba por usted.")}</p>
         <h3>{t("What to do next", "Qué hacer ahora")}</h3>
         <p>{t("To start the free 14-day Core trial yourself, go to", "Para comenzar usted mismo la prueba gratis de 14 días de Core, vaya a")} <a href="#core-offer" className="underline font-semibold" data-testid="pilot-done-trial">{t("PermitDraft Core on this page", "PermitDraft Core en esta página")}</a>{t(", sign in with Google or an emailed code, then choose “Start free trial”. No card is needed.", ", inicie sesión con Google o con un código enviado por correo y elija «Comenzar prueba gratis». No se necesita tarjeta.")}</p>
         <p>{t("Want to see the workflow first? ", "¿Quiere ver el flujo primero? ")}<Link to="/demo" className="underline font-semibold" data-testid="pilot-done-demo">{t("Try the free PermitDraft Demo", "Probar la demo gratuita de PermitDraft")}</Link>{t(": every step, no sign-in or card.", ": todos los pasos, sin iniciar sesión ni tarjeta.")}</p>
@@ -39,7 +39,7 @@ function PilotForm() {
     <div className="ap-signup-col">
     <section className="ap-card" aria-labelledby="pe-h" data-testid="pilot-info">
       <h2 id="pe-h">{t("Who qualifies for the pilot", "Quién califica para el piloto")}</h2>
-      <p className="ap-muted">{t("Licensed residential HVAC contractors in California, Arizona or Texas with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs.", "Contratistas residenciales de HVAC con licencia en California, Arizona o Texas y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales.")}</p>
+      <p className="ap-muted">{t("Licensed residential HVAC contractors in California, Arizona, Texas or Las Vegas, Nevada (not the rest of Nevada) with 1–15 techs doing residential AC, heat pump, or furnace-and-coil change-outs.", "Contratistas residenciales de HVAC con licencia en California, Arizona, Texas o Las Vegas, Nevada (no el resto de Nevada) y de 1 a 15 técnicos que hacen cambios de aire acondicionado, bomba de calor o furnace y serpentín residenciales.")}</p>
       <h2 id="pw-h">{t("What you’ll try", "Qué probará")}</h2>
       <ul className="ap-list">
         <li>{t("Capturing job photos and notes.", "Capturar fotos y notas del trabajo.")}</li>
@@ -51,15 +51,15 @@ function PilotForm() {
     </section>
     <section className="ap-card" id="pilot" aria-labelledby="pilot-h">
       <h2 id="pilot-h">{t("Get Early Access", "Obtenga acceso anticipado")}</h2>
-      <p className="ap-muted">{t("Residential HVAC companies in California, Arizona or Texas: tell us who you are. Las Vegas, Nevada is included from November 23, 2026 (Pacific time), for documentation support only, not the rest of Nevada.", "Empresas residenciales de HVAC en California, Arizona o Texas: díganos quién es. Las Vegas, Nevada se incluye desde el 23 de noviembre de 2026 (hora del Pacífico), solo para apoyo de documentación, no el resto de Nevada.")}</p>
+      <p className="ap-muted">{t("Residential HVAC companies in California, Arizona, Texas or Las Vegas, Nevada: tell us who you are. Service for Las Vegas, Nevada starts November 23, 2026 (Pacific time) and covers Las Vegas only, not the rest of Nevada. A request does not enroll you automatically.", "Empresas residenciales de HVAC en California, Arizona, Texas o Las Vegas, Nevada: díganos quién es. El servicio para Las Vegas, Nevada comienza el 23 de noviembre de 2026 (hora del Pacífico) y cubre solo Las Vegas, no el resto de Nevada. Una solicitud no lo inscribe automáticamente.")}</p>
       <form onSubmit={submit} className="ap-form" noValidate>
         <div className="ap-field"><Label htmlFor="pc">{t("HVAC company name *", "Nombre de la empresa de HVAC *")}</Label><Input id="pc" name="company" value={f.company} onChange={set("company")} maxLength={150} autoComplete="organization" /></div>
         <div className="ap-field"><Label htmlFor="pn">{t("Contact name *", "Nombre de contacto *")}</Label><Input id="pn" name="contact" value={f.contact} onChange={set("contact")} maxLength={100} autoComplete="name" /></div>
         <div className="ap-field"><Label htmlFor="pe">{t("Work email *", "Correo de trabajo *")}</Label><Input id="pe" name="email" type="email" value={f.email} onChange={set("email")} maxLength={200} autoComplete="email" /></div>
         <div className="ap-field">
-          <Label htmlFor="pk">{t("State *", "Estado *")}</Label>
+          <Label htmlFor="pk">{t("State or service area *", "Estado o área de servicio *")}</Label>
           <select id="pk" name="state" value={f.state} onChange={set("state")} className="border-input bg-white rounded-md border px-3" style={{ height: 56, fontSize: "1.1rem" }}>
-            <option value="">{t("Choose a state", "Elija un estado")}</option>
+            <option value="">{t("Choose a state or Las Vegas", "Elija un estado o Las Vegas")}</option>
             {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
@@ -93,7 +93,7 @@ function Start() {
           <li key={i}><span className="ap-num">{i + 1}</span><span>{s}</span></li>
         ))}
       </ol>
-      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to residential HVAC contractors in California, Arizona and Texas only. PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant. Las Vegas, Nevada: documentation support from November 23, 2026 (Pacific time), with no verified local rules and no official permit handoff.", "Cobertura honesta: el flujo de documentación está abierto solo a contratistas residenciales de HVAC en California, Arizona y Texas. PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. Las Vegas, Nevada: apoyo de documentación desde el 23 de noviembre de 2026 (hora del Pacífico), sin reglas locales verificadas ni entrega oficial de permisos.")}</p>
+      <p className="rd-cov" data-testid="landing-coverage">{t("Honest coverage: the documentation workflow is open to residential HVAC contractors in California, Arizona, Texas and Las Vegas, Nevada only (not the rest of Nevada; Las Vegas from November 23, 2026, Pacific time). PermitDraft checks that your paperwork is complete. Verified permit rules are not available in any state yet: it does not check any law or local rule, and it never says a job is compliant. Permit documentation is for contractor review only: local rule checks and direct filing are not offered in this rollout.", "Cobertura honesta: el flujo de documentación está abierto solo a contratistas residenciales de HVAC en California, Arizona, Texas y Las Vegas, Nevada (no el resto de Nevada; Las Vegas desde el 23 de noviembre de 2026, hora del Pacífico). PermitDraft verifica que su papeleo esté completo. Aún no hay reglas de permisos verificadas en ningún estado: no verifica ninguna ley ni regla local, y nunca dice que un trabajo cumple. La documentación de permisos es solo para revisión del contratista: la verificación de reglas locales y la presentación directa no se ofrecen en este lanzamiento.")}</p>
       <Link to="/demo" className="ap-btn primary" data-testid="try-demo">{t("Try the free demo", "Probar la demo gratis")}</Link>
       <a href="#core-offer" className="ap-core-jump" data-testid="see-core-pricing">{t("See Core pricing", "Ver precio de Core")}</a>
       <Link to="/sample-job" className="ap-btn ghost">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link>
