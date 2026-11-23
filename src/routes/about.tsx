@@ -40,8 +40,7 @@ function About() {
       <section className="lp-sec ab-sec" aria-labelledby="ab-who">
         <h2 id="ab-who" className="lp-h2">{t("Who We Are", "Quiénes somos")}</h2>
         <p className="ap-muted">{t("Permitting is part of every project, but the paperwork is often slow, complicated and scattered across systems. PermitDraft was created to change that.", "Los permisos son parte de cada proyecto, pero el papeleo suele ser lento, complicado y estar disperso en varios sistemas. PermitDraft nació para cambiar eso.")}</p>
-        <p className="ap-muted">{t("Today, a technician gathers job details, equipment information, photos and checks in the field. PermitDraft prepares an evidence-linked permit draft from them and sends the package to the contractor’s office for review. The contractor’s office handles filing with the permitting authority.", "Hoy, un técnico reúne en campo los datos del trabajo, la información del equipo, fotos y verificaciones. PermitDraft prepara con ellos un borrador de permiso vinculado a su evidencia y envía el paquete a la oficina del contratista para su revisión. La oficina del contratista se encarga de presentarlo ante la autoridad de permisos.")}</p>
-        <p className="ap-muted">{t("One platform. One process. From the field to your office.", "Una plataforma. Un proceso. Del campo a su oficina.")}</p>
+        <p className="ap-muted">{t("PermitDraft prepares permit paperwork for contractor review. The contractor files with the local permitting authority.", "PermitDraft prepara el papeleo de permisos para la revisión del contratista. El contratista lo presenta ante la autoridad local de permisos.")}</p>
       </section>
 
       <section className="lp-sec ab-sec" aria-labelledby="ab-mission">
