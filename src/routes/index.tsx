@@ -153,7 +153,7 @@ function Start() {
               <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try the free demo", "Probar la demo gratis")}</Link>
               <a href="#core-offer" className="ap-btn hp-outline" data-testid="see-core-pricing">{t("View Pricing", "Ver precios")}</a>
             </div>
-            <p className="hp-sample">{t("No sign-in needed for the demo.", "La demo no requiere iniciar sesión.")} <Link to="/sample-job">{t("See a sample permit draft", "Ver un borrador de permiso de muestra")}</Link></p>
+            <p className="hp-sample">{t("No sign-in needed for the demo.", "La demo no requiere iniciar sesión.")} <Link to="/sample-job">{t("See a sample permit draft (sample data, not a real job)", "Ver un borrador de permiso de muestra (datos de muestra, no es un trabajo real)")}</Link></p>
           </div>
           <div className="hp-visual">
             <div className="hp-photo"><Image src={DEMO_PHOTO} alt={t("Heat pump outdoor unit data plate", "Placa de datos de una unidad exterior de bomba de calor")} width={1024} height={1024} priority /></div>
