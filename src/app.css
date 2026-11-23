@@ -708,3 +708,13 @@ html:has(.pj){scroll-padding-top:10rem}
 .gs-wrap .ap-subscribe-actions{display:grid;gap:.75rem;margin-top:.5rem}
 .gs-wrap .ap-subscribe-actions .ap-btn.primary{background:#F4770B;color:#111A26;opacity:1;font-weight:800}
 .gs-wrap .ap-subscribe-actions .ap-btn.ghost{font-weight:600;min-height:44px}
+.hp-mnav-panel{padding-bottom:.25rem}
+.hp-mnav-home,.hp-mnav-group{min-height:48px;padding-top:0;padding-bottom:0;font-size:1rem;line-height:1.2}
+.hp-mnav-group{width:100%}
+.hp-mnav-panel [data-slot=accordion-item]{border-bottom:1px solid #E6ECF1}
+.hp-mnav-panel [data-slot=accordion-item]:last-child{border-bottom:0}
+.hp-mnav-panel [data-slot=accordion-content]>div{padding-bottom:.4rem}
+.hp-mnav-links a{min-height:44px;font-size:.95rem}
+.hp-mnav-price{display:grid;gap:.1rem;margin:0 0 .35rem .75rem;padding:.55rem .75rem;border-left:3px solid #F4770B;background:#F6F8FA;border-radius:.25rem;font-size:.9rem;color:#334155}
+.hp-mnav-price-name{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748B}
+.hp-mnav-price strong{color:#152235;font-size:1rem}

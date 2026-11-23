@@ -9,7 +9,7 @@ import { DemoBar, useCorePath, useDemo } from "./demo";
 import "../app.css";
 
 type NavLink = { label: string; to: string; hash?: string };
-type NavGroup = { label: string; note?: string; links: NavLink[] };
+type NavGroup = { label: string; note?: string; price?: [string, string, string]; links: NavLink[] };
 /** The public site's menu groups: each opens an existing section or page. */
 function useNavGroups(): NavGroup[] {
   const { t } = useLang();
@@ -23,7 +23,7 @@ function useNavGroups(): NavGroup[] {
       { label: t("Sample permit draft", "Borrador de permiso de muestra"), to: "/sample-job" },
       { label: t("Sample office handoff", "Entrega a oficina de muestra"), to: "/demo/office-handoff" },
     ] },
-    { label: t("Pricing", "Precio"), note: t("PermitDraft Core: US$49/month, renews monthly. 14-day free trial, no card needed.", "PermitDraft Core: US$49/mes, se renueva mensualmente. Prueba gratis de 14 días, sin tarjeta."), links: [
+    { label: t("Pricing", "Precio"), price: [t("PermitDraft Core", "PermitDraft Core"), t("US$49/month, renews monthly", "US$49/mes, se renueva mensualmente"), t("14-day free trial, no card needed", "Prueba gratis de 14 días, sin tarjeta")], note: t("PermitDraft Core: US$49/month, renews monthly. 14-day free trial, no card needed.", "PermitDraft Core: US$49/mes, se renueva mensualmente. Prueba gratis de 14 días, sin tarjeta."), links: [
       { label: t("Start with PermitDraft Core", "Comenzar con PermitDraft Core"), to: "/get-started" },
       { label: t("Try Free Demo", "Probar la demo gratis"), to: "/demo" },
       { label: t("Early Access", "Acceso anticipado"), to: "/early-access" },
@@ -79,12 +79,12 @@ function PublicNavPhone({ home }: { home?: boolean }) {
       {open && (
         <nav id="hp-mnav-panel" className="hp-mnav-panel" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
           <Link to="/" onClick={close} className="hp-mnav-home">{t("Home", "Inicio")}</Link>
-          <Accordion type="multiple">
+          <Accordion type="single" collapsible>
             {groups.map((g) => (
               <AccordionItem key={g.label} value={g.label}>
                 <AccordionTrigger className="hp-mnav-group">{g.label}</AccordionTrigger>
                 <AccordionContent>
-                  {g.note && <p className="hp-nav-note" data-testid="pricing-note-phone">{g.note}</p>}
+                  {g.price && <div className="hp-mnav-price" data-testid="pricing-note-phone"><span className="hp-mnav-price-name">{g.price[0]}</span><strong>{g.price[1]}</strong><span>{g.price[2]}</span></div>}
                   <ul className="hp-mnav-links">
                     {g.links.map((l) => <li key={l.label}><Link to={l.to as never} hash={l.hash} onClick={close}>{l.label}</Link></li>)}
                   </ul>
