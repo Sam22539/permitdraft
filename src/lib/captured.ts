@@ -14,7 +14,7 @@ export type Captured = {
   photos: CapturedPhoto[];
   /** Item-level corrections saved on the review draft, by field key. The captured value above is never overwritten. */
   corrections?: Record<string, Correction>;
-  /** Demo only: the Employee ID or technician unit number entered before the final handoff, kept exactly as typed (trimmed). */
+  /** Demo only: the Employee ID entered before the final handoff, kept exactly as typed (trimmed). */
   submittedBy?: string;
 };
 /**

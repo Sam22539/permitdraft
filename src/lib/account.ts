@@ -117,7 +117,7 @@ export const setMemberRole = createServerFn({ method: "POST" })
     return { ok: !error && !!rows?.length, reason: "save" as const };
   });
 
-/** Admin only: assigns (or clears) the employee ID or unit number of a member of the admin's own company. */
+/** Admin only: assigns (or clears) the Employee ID of a member of the admin's own company. */
 export const setEmployeeId = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string; email: string; employeeId: string }) => {
     const id = clip(d?.employeeId, 40);

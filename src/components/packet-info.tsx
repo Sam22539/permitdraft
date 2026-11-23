@@ -46,7 +46,7 @@ export function PacketInfo({ jobId }: { jobId: string }) {
     return (
       <div className="jb-meta" data-testid="submitted-by">
         <p><strong>{t("Submitted by", "Enviado por")}</strong></p>
-        <p>{t("Employee ID or unit", "ID de empleado o unidad")} <span data-testid="submitted-by-id">{by}</span></p>
+        <p>{t("Employee ID", "ID de empleado")} <span data-testid="submitted-by-id">{by}</span></p>
       </div>
     );
   }

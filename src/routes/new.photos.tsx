@@ -111,7 +111,7 @@ function NewPhotos() {
   const missing = ready ? REQUIRED.filter((k) => !photos[k]) : [];
   const label = (k: Slot) => { const r = SLOTS.find(([x]) => x === k); return r ? t(r[1], r[2]) : k; };
   useEffect(() => { if (!demo) { const v = readEmp(); if (v) setEmployeeId(v); } }, [demo]);
-  // Core: the ID or unit number the company admin assigned, read-only here; it goes to the office with the packet automatically.
+  // Core: the Employee ID the company admin assigned, read-only here; it goes to the office with the packet automatically.
   const [assignedId, setAssignedId] = useState<string | null>(null);
   useEffect(() => {
     if (demo) return;
@@ -220,11 +220,11 @@ function NewPhotos() {
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       {demo && (
         <div className="ap-field" data-testid="tech-id-field">
-          <label htmlFor="emp-id">{t("Employee ID or technician unit number (required)", "ID de empleado o número de unidad del técnico (obligatorio)")}</label>
+          <label htmlFor="emp-id">{t("Employee ID (required)", "ID de empleado (obligatorio)")}</label>
           <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); if (idErr) setIdErr(""); }} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} inputMode="text" aria-invalid={idErr ? true : undefined} aria-describedby={idErr ? "emp-id-err" : "emp-id-hint"} data-testid="employee-id" />
           {idErr ? (
             <p id="emp-id-err" role="alert" className="cx-err" data-testid="employee-id-error">{idErr === "empty"
-              ? t("Enter your Employee ID or technician unit number before Finish.", "Ingrese su ID de empleado o número de unidad del técnico antes de Finalizar.")
+              ? t("Enter your Employee ID before Finish.", "Ingrese su ID de empleado antes de Finalizar.")
               : t("Use letters, numbers and hyphens only, for example TECH-007.", "Use solo letras, números y guiones, por ejemplo TECH-007.")}</p>
           ) : (
             <p id="emp-id-hint" className="cx-note">{t("Letters and numbers; leading zeros are kept. Shown to the office under Submitted by.", "Letras y números; los ceros a la izquierda se conservan. La oficina lo ve en Enviado por.")}</p>
@@ -234,7 +234,7 @@ function NewPhotos() {
       )}
       {!demo && assignedId && (
         <div className="ap-field" data-testid="assigned-id">
-          <p><strong>{t("Your employee ID or unit", "Su ID de empleado o unidad")}:</strong> <span data-testid="assigned-id-value">{assignedId}</span></p>
+          <p><strong>{t("Your Employee ID", "Su ID de empleado")}:</strong> <span data-testid="assigned-id-value">{assignedId}</span></p>
           <p className="cx-note">{t("Assigned by your company admin. It goes to the office with this job, with your name and the time.", "Asignado por el administrador de su empresa. Va a la oficina con este trabajo, con su nombre y la hora.")}</p>
         </div>
       )}

@@ -156,7 +156,7 @@ function ProfileCards({ me }: { me: Me }) {
           <div><dt className="font-semibold">{t("Work email", "Correo de trabajo")}</dt>
             <dd className="ap-muted"><span data-testid="pf-email">{me.email}</span>{" "}
               <span className={`pf-badge ${verified ? "ok" : "no"}`} data-testid="pf-verified">{verified ? t("Verified", "Verificado") : t("Not verified", "Sin verificar")}</span></dd></div>
-          <div><dt className="font-semibold">{t("Employee ID or unit", "ID de empleado o unidad")}</dt>
+          <div><dt className="font-semibold">{t("Employee ID", "ID de empleado")}</dt>
             <dd className="ap-muted" data-testid="pf-empid">{empId ?? t("Not assigned yet. Your company admin assigns it.", "Aún sin asignar. Su administrador lo asigna.")}</dd></div>
         </dl>
         {!verified && vStep === "idle" && <button type="button" className="ap-btn ghost" onClick={() => void sendCode()} data-testid="pf-verify">{t("Verify my email", "Verificar mi correo")}</button>}

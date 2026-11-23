@@ -159,7 +159,7 @@ function OfficeSetupPage() {
                       </Select>
                     )}
                     <div className="flex gap-2 items-end">
-                      <div className="ap-field flex-1"><Label htmlFor={`os-id-${m.email}`}>{t("Employee ID or unit", "ID de empleado o unidad")}</Label>
+                      <div className="ap-field flex-1"><Label htmlFor={`os-id-${m.email}`}>{t("Employee ID", "ID de empleado")}</Label>
                         <Input id={`os-id-${m.email}`} value={ids[m.email] ?? ""} maxLength={40} autoComplete="off" onChange={(e) => setIds((x) => ({ ...x, [m.email]: e.target.value }))} data-testid="os-empid" /></div>
                       <button type="button" className="ap-btn ghost !w-auto" disabled={busy} data-testid="os-empid-save" onClick={() => void run((tk) => setEmployeeId({ data: { token: tk, email: m.email, employeeId: ids[m.email] ?? "" } }).then(async (r) => ({ ok: r.ok, reason: r.reason, setup: r.ok ? await getOfficeSetup({ data: { token: tk } }) : undefined })), (r) => r === "taken" ? t("That ID is already used in your company.", "Ese ID ya se usa en su empresa.") : t("Could not save that ID. Use letters, numbers and hyphens.", "No se pudo guardar ese ID. Use letras, números y guiones."))}>{t("Save ID", "Guardar ID")}</button>
                     </div>
