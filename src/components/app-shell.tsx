@@ -20,10 +20,10 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
           </Link>
           {mode && <span className={`ap-mode ${mode}`} data-testid="mode-label">{mode === "demo" ? "Demo" : "Core"}</span>}
         </div>
-        {home && (
-          <nav className="hp-nav" aria-label={t("Home page", "Página de inicio")}>
-            <a href="#how">{t("How it works", "Cómo funciona")}</a>
-            <a href="#core-offer">{t("Pricing", "Precio")}</a>
+        {!mode && (
+          <nav className="hp-nav" aria-label={home ? t("Home page", "Página de inicio") : t("Main", "Principal")}>
+            <a href={home ? "#how" : "/#how"}>{t("How it works", "Cómo funciona")}</a>
+            <a href={home ? "#core-offer" : "/#core-offer"}>{t("Pricing", "Precio")}</a>
             <Link to="/coverage">{t("Coverage", "Cobertura")}</Link>
             <Link to="/resources">{t("Resources", "Recursos")}</Link>
             <Link to="/demo" className="hp-nav-cta">{t("Try the free demo", "Probar la demo gratis")}</Link>
@@ -34,6 +34,13 @@ export function AppTop({ home, mode }: { home?: boolean; mode?: "demo" | "core" 
           <button type="button" aria-pressed={lang === "es"} onClick={() => setLang("es")}>Español</button>
         </div>
       </div>
+      {!mode && !home && (
+        <nav className="ap-subnav" aria-label={t("Main", "Principal")}>
+          <Link to="/coverage">{t("Coverage", "Cobertura")}</Link>
+          <Link to="/resources">{t("Resources", "Recursos")}</Link>
+          <Link to="/demo" className="ap-subnav-cta">{t("Try the free demo", "Probar la demo gratis")}</Link>
+        </nav>
+      )}
     </div>
   );
 }
