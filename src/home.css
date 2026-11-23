@@ -202,3 +202,9 @@
 .hp-band-places li{border:1.5px solid #F4770B;color:#FDBA74;border-radius:.4rem;padding:.25rem .65rem;font-weight:700;font-size:.95rem}
 .hp-band-link{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 @media(min-width:768px){.hp-band-in{flex-direction:row;flex-wrap:wrap;align-items:center;gap:.75rem 1.5rem}.hp-band-link{margin-left:auto}}
+
+.ap-btn.hp-navy{border:2px solid #111A26;color:#111A26;background:#fff;min-height:48px}
+.ap-btn.hp-navy:hover{background:#111A26;color:#fff}
+@media (min-width:640px){.hp-ctas{grid-template-columns:auto auto auto}.hp-ctas .ap-btn.hp-navy{padding:0 1.1rem}}
+@media (min-width:640px) and (max-width:1100px){.hp-ctas{grid-template-columns:auto auto;}}
+@media (min-width:640px){.hp-ctas .ap-btn{white-space:nowrap}.hp-ctas .ap-btn.hp-navy{padding:0 1rem}}

@@ -36,8 +36,9 @@ function Start() {
             <div className="hp-ctas">
               <Link to="/demo" className="ap-btn primary" data-testid="try-demo"><Play size={18} fill="currentColor" aria-hidden />{t("Try Free Demo", "Probar la demo gratis")}</Link>
               <a href="#how" className="ap-btn hp-outline">{t("See How It Works", "Ver cómo funciona")}</a>
+              <Link to="/sample-job" className="ap-btn hp-navy" data-testid="view-sample-packet">{t("View Sample Packet", "Ver paquete de muestra")}</Link>
             </div>
-            <p className="hp-sample">{t("No sign-in needed for the demo. The packet goes to your office for review; it is not a permit filing.", "La demo no requiere iniciar sesión. El paquete va a su oficina para revisión; no es la presentación de un permiso.")} <Link to="/sample-job">{t("See a sample permit draft (sample data, not a real job)", "Ver un borrador de permiso de muestra (datos de muestra, no es un trabajo real)")}</Link></p>
+            <p className="hp-sample">{t("No sign-in needed for the demo.", "La demo no requiere iniciar sesión.")}</p>
           </div>
           <ScreenPreview />
         </div>
