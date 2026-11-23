@@ -65,8 +65,8 @@ export function DemoBar() {
   const [busy, setBusy] = useState(false);
   return (
     <section className="ap-demo" aria-label={t("Free demo", "Demo gratis")} data-testid="demo-bar">
-      <p><strong>{t("Free demo", "Demo gratis")}</strong> · {t("Every step unlocked, no sign-in, no card. Practice data stays in this browser, apart from real jobs; nothing is sent or filed.", "Todos los pasos abiertos, sin iniciar sesión ni tarjeta. Los datos de práctica quedan en este navegador, aparte de los trabajos reales; no se envía ni presenta nada.")}</p>
-      <p>
+      <p><strong>{t("Sample job, nothing is sent or filed.", "Trabajo de muestra, no se envía ni presenta nada.")}</strong> {t("No sign-in or card. Practice data stays in this browser, apart from real jobs.", "Sin iniciar sesión ni tarjeta. Los datos de práctica quedan en este navegador, aparte de los trabajos reales.")}</p>
+      <p className="ap-demo-links">
         <Link to="/" hash="core-offer" className="underline font-semibold">{t("See Core plans", "Ver planes de Core")}</Link>
         {" · "}
         <Dialog>

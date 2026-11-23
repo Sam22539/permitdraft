@@ -66,7 +66,7 @@ export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit, job, onChang
         </button>
         <button type="button" className="ap-btn ghost" disabled={busy} onClick={() => file.current?.click()}>{t("Choose file", "Elegir archivo")}</button>
       </div>
-      {photo && <button type="button" className="ap-btn ghost" onClick={remove}>{t("Remove photo", "Quitar foto")}</button>}
+      {photo && <button type="button" className="ph-remove" onClick={remove}>{t("Remove photo", "Quitar foto")}</button>}
       {busy && <p role="status" className="ap-muted">{t("Saving…", "Guardando…")}</p>}
       {ok && !busy && <p role="status" className="font-semibold">{t("Photo saved on this device. Waiting to upload.", "Foto guardada en este dispositivo. Esperando para subir.")}</p>}
       {err && <p role="alert" className="ph-err">{err}</p>}

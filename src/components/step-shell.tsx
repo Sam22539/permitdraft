@@ -2,7 +2,7 @@ import { ResourceLink } from "./resource-link";
 import { Link } from "@tanstack/react-router";
 import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
-import { useCorePath } from "./demo";
+import { useCorePath, useDemo } from "./demo";
 import { useEffect, useRef } from "react";
 
 /** On a phone, keeps a step's own Next or Finish button (and the message about it) pinned above the bottom menu,
@@ -96,6 +96,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
 }) {
   const { t } = useLang();
   const p = useCorePath();
+  const demo = useDemo();
   return (
     <AppPage bottom capture>
       <StepHead n={n} title={title} />
@@ -110,7 +111,7 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
       </section>
       {fixBar}
       <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />
-      <p className="cx-note">{t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.")}</p>
+      <p className="cx-note">{demo ? t("Practice screen with a sample job. Not connected to real permit filing.", "Pantalla de práctica con un trabajo de muestra. No está conectada a la presentación real de permisos.") : t("Not connected to real permit filing.", "No está conectada a la presentación real de permisos.")}</p>
     </AppPage>
   );
 }

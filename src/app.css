@@ -332,3 +332,49 @@ html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
 .pf-badge.no{background:#fee2e2;color:#7f1d1d}
 .cv-areas{display:flex;flex-wrap:wrap;gap:.5rem;list-style:none;padding:0;margin:.5rem 0}
 .cv-areas li{border:1.5px solid #12264a;border-radius:.4rem;padding:.3rem .75rem;font-weight:700;color:#12264a;background:#fff}
+/* Mode label (Demo / Core) beside the logo on app screens */
+.ap-brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.ap-mode{display:inline-flex;align-items:center;min-height:26px;padding:0 .6rem;border-radius:999px;font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.ap-mode.demo{background:#c2410c;color:#fff}
+.ap-mode.core{background:#fff;color:#12264a}
+.ap-demo{padding:.6rem .9rem;gap:.15rem;font-size:.95rem;line-height:1.4}
+.ap-demo-links{font-size:.95rem}
+.ap-demo-links a,.ap-demo-links button{display:inline-flex;align-items:center;min-height:40px}
+/* Step headings and focused fields stay clear of the sticky header (computer) and bottom menu */
+@media (min-width:900px){
+  html:has(.ap-top){scroll-padding-top:120px}
+  html:has(.ap-bottom){scroll-padding-bottom:104px}
+}
+/* Phone: app screens scroll their header away; on capture steps the menu sits at the end of the page,
+   so the step's one primary action is the only bar pinned to the screen. */
+@media (max-width:899px){
+  .ap-top-app{position:static}
+  .ap-top-app .ap-bar{min-height:52px;padding:.25rem .75rem}
+  .ap-top-app .ap-lang button{min-height:44px;padding:0 .75rem;font-size:.95rem}
+  html:has(.ap-top-app):has(.cx-head),html:has(.ap-demo):has(.cx-head){scroll-padding-top:16px}
+  .ap-capture .ap-bottom{position:relative;left:auto;transform:none;margin:0 auto;bottom:auto}
+  .ap-capture .ap-foot.has-bottom,.ap:has(.cx-pin).ap-capture .ap-foot.has-bottom{padding-bottom:1.5rem}
+  .ap-capture:has(.cx-pin){padding-bottom:calc(var(--cx-pin-h,80px) + env(safe-area-inset-bottom))}
+  .ap-capture .cx-pin{bottom:0;padding-bottom:calc(12px + env(safe-area-inset-bottom));max-height:calc(100dvh - 120px)}
+  html:has(.ap-capture .cx-pin){scroll-padding-bottom:calc(var(--cx-pin-h,80px) + 16px + env(safe-area-inset-bottom))}
+  html[data-cx-kb] .ap-capture .cx-pin{bottom:var(--cx-kb,0px);padding-bottom:12px}
+  .ap-capture .cx-actions{gap:0}
+}
+@media (max-width:360px){.ap-top-app .ap-logo span{display:none}}
+@media (max-width:440px){
+  .ap-top-app .ap-brand{gap:.4rem}
+  .ap-top-app .ap-logo{gap:.4rem}
+  .ap-top-app .ap-lang button{padding:0 .55rem;font-size:.9rem;min-width:44px}
+  .ap-mode{font-size:.7rem;padding:0 .45rem;min-height:22px}
+}
+/* Photo controls: a quiet remove action and large unit choices */
+.ph-remove{justify-self:center;display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;font-weight:700;color:#9a3412;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.ph-remove:focus-visible{outline:3px solid #c2410c;outline-offset:2px;border-radius:.375rem}
+.ph-unit input[type=radio]{width:22px;height:22px;accent-color:#12264a}
+.ph-unit label{font-weight:600}
+/* Core offer: the subscription action leads; managing an existing subscription is quieter */
+.ap-subscribe-actions .ap-btn.ghost{min-height:48px;border-width:1.5px;font-size:1rem}
+/* Jobs counts: number over label on a phone so the three tiles line up */
+@media (max-width:520px){.jb-count{flex-direction:column;align-items:center;gap:4px;text-align:center}}
+/* Field labels read at body size on step screens */
+.cx-field>label,.cx-field>[data-slot=label]{font-size:1rem;line-height:1.35}

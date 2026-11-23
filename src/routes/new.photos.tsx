@@ -250,14 +250,14 @@ function NewPhotos() {
       )}
       <div className="cx-shot" data-testid="wide-shot">
         <div className="cx-shot-top">
-          <span>{t("Whole unit, wide shot (optional)", "Unidad completa, foto general (opcional)")}</span>
+          <span>{t("Whole unit, wide shot", "Unidad completa, foto general")}</span>
           <strong className={photos.wide ? "cx-ok" : "ap-muted"}>{photos.wide ? t("Attached", "Adjunta") : t("Optional", "Opcional")}</strong>
         </div>
         <PhotoSlot slot="wide" label={WIDE} photo={photos.wide} takeLabel={["Add wide photo", "Agregar foto general"]} tagUnit />
       </div>
       {loadError && <p role="alert" className="cx-err">{t("Could not read saved photos on this device.", "No se pudieron leer las fotos guardadas en este dispositivo.")}</p>}
       {demo && (
-        <div className="ap-field" data-testid="tech-id-field">
+        <div className="cx-field" data-testid="tech-id-field">
           <label htmlFor="emp-id">{t("Employee ID (required)", "ID de empleado (obligatorio)")}</label>
           <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); if (idErr) setIdErr(""); }} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} inputMode="text" aria-invalid={idErr ? true : undefined} aria-describedby={idErr ? "emp-id-err" : "emp-id-hint"} data-testid="employee-id" />
           {idErr ? (
@@ -277,7 +277,7 @@ function NewPhotos() {
         </div>
       )}
       {!demo && !assignedId && (
-        <div className="ap-field">
+        <div className="cx-field">
           <label htmlFor="emp-id">{t("Company employee ID (optional)", "ID de empleado de la empresa (opcional)")}</label>
           <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); writeEmp(e.target.value); }} maxLength={40} autoComplete="off" data-testid="employee-id" />
         </div>

@@ -192,8 +192,8 @@ export function CoreGate({ children }: { children: React.ReactNode }) {
   const access = useCoreAccess();
   if (access === true) return <>{children}</>;
   return (
-    <AppPage>
-      <h1>{t("PermitDraft Core", "PermitDraft Core")}</h1>
+    <AppPage core>
+      <h1 className="cx-h1">{t("PermitDraft Core", "PermitDraft Core")}</h1>
       {access === null ? (
         <p className="ap-muted" role="status">{t("Checking your access…", "Comprobando su acceso…")}</p>
       ) : (
