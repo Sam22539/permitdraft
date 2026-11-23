@@ -105,6 +105,7 @@ function NewPhotos() {
   const ANS_NAME: Record<string, [string, string]> = { fu_outdoor: ["Outdoor unit answer (kept, replaced or not present)", "Respuesta sobre la unidad exterior (conservada, reemplazada o no presente)"], fu_refrig: ["Refrigerant work answer", "Respuesta sobre el trabajo con refrigerante"] };
   const unticked = applicableChecks(jobType, dvals).filter((k) => dvals[k] !== "1");
   const [answersErr, setAnswersErr] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -140,19 +141,19 @@ function NewPhotos() {
   }, [demo, pending]);
   useEffect(() => { if (!demo && pending === 0) setStillUp(null); }, [demo, pending]);
   async function finish() {
-    setBusy(true); setFailed(false); setSendErr(false);
+    setBusy(true); setFailed(false); setSendErr(false); setBlocked(false);
     {
       const dv = readDraftValues();
       const ans = furnaceAnswers(dv.type || undefined, dv);
       if (ans.missing.length > 0 || ans.contradiction) {
-        setBusy(false); setAnswersErr(true);
+        setBusy(false); setAnswersErr(true); setBlocked(true);
         document.getElementById("finish-needs")?.scrollIntoView({ block: "center" });
         return;
       }
       setAnswersErr(false);
       const need = applicableChecks(dv.type || undefined, dv).filter((k) => dv[k] !== "1");
       if (need.length > 0) {
-        setBusy(false);
+        setBusy(false); setBlocked(true);
         const names = need.map((k) => CHECK_NAMES[k]);
         try { sessionStorage.setItem(CHECK_MSG_KEY, JSON.stringify(names)); } catch { /* ignore */ }
         nav({ to: p("/new/checks"), hash: "final-checks-msg" });
@@ -177,7 +178,7 @@ function NewPhotos() {
     }
     setTried(true);
     if (missing.length > 0) {
-      setBusy(false);
+      setBusy(false); setBlocked(true);
       document.getElementById(`shot-${missing[0]}`)?.scrollIntoView({ block: "center" });
       return;
     }
@@ -209,15 +210,15 @@ function NewPhotos() {
         {!demo && sendErr && <p role="alert" className="cx-err" data-testid="send-error">{t("Could not save the office packet. Your job is still editable: try Finish again.", "No se pudo guardar el paquete de oficina. Su trabajo sigue editable: intente Finalizar de nuevo.")}</p>}
         {failed && <p role="alert" className="cx-err" data-testid="finish-error">{t("Could not save this job on this device. Nothing was cleared: your capture is still here. Try Finish again.", "No se pudo guardar este trabajo en este dispositivo. No se borró nada: su captura sigue aquí. Intente Finalizar de nuevo.")}</p>}
         {(fa.missing.length > 0 || fa.contradiction || unticked.length > 0 || (!demo && ready && missing.length > 0)) && (
-          <div id="finish-needs" role={answersErr ? "alert" : "status"} className={answersErr ? "cx-err" : "cx-note"} data-testid="finish-needs">
-            <p><strong>{t("Still needed before Finish:", "Falta antes de Finalizar:")}</strong></p>
+          <details id="finish-needs" open={blocked || answersErr} onToggle={(e) => { if (!e.currentTarget.open) setBlocked(false); }} role={answersErr ? "alert" : "status"} className={answersErr ? "cx-err" : "cx-note"} data-testid="finish-needs">
+            <summary className="cursor-pointer"><strong>{t("Still needed before Finish", "Falta antes de Finalizar")} ({fa.missing.length + (fa.contradiction ? 1 : 0) + unticked.length + (!demo && ready ? missing.length : 0)})</strong></summary>
             <ul>
               {fa.missing.map((k) => <li key={k}>{t("Answer: " + ANS_NAME[k][0], "Respuesta: " + ANS_NAME[k][1])} <Link to={p("/new/equipment")} className="underline">{t("Equipment step", "Paso Equipo")}</Link></li>)}
               {fa.contradiction && <li>{t("Conflicting answers: outdoor unit not present but refrigerant work done. Change one on the Equipment step.", "Respuestas en conflicto: unidad exterior no presente pero con trabajo de refrigerante. Cambie una en el paso Equipo.")}</li>}
-              {unticked.map((k) => <li key={k}>{t("Final check: " + CHECK_NAMES[k][0], "Verificación final: " + CHECK_NAMES[k][1])}</li>)}
+              {unticked.map((k) => <li key={k}><Link to={p("/new/checks")} className="underline">{t("Final check: " + CHECK_NAMES[k][0], "Verificación final: " + CHECK_NAMES[k][1])}</Link></li>)}
               {!demo && ready && missing.map((k) => <li key={k}>{t("Photo: " + label(k), "Foto: " + label(k))}</li>)}
             </ul>
-          </div>
+          </details>
         )}
         <button type="button" onClick={finish} disabled={busy} className="ap-btn primary" data-testid="finish">{busy ? t("Saving…", "Guardando…") : t("Finish", "Finalizar")}</button>
       </>}>
@@ -284,8 +285,8 @@ function NewPhotos() {
       )}
       {demo ? (
         <>
-          <p className="ph-pend" data-testid="pending-count">{t(`${pending} photo(s) waiting to upload`, `${pending} foto(s) esperando para subir`)}</p>
-          <p className="cx-note">{t("Photos are saved on this device only. Uploading is not connected in this practice version.", "Las fotos se guardan solo en este dispositivo. La subida no está conectada en esta versión de práctica.")}</p>
+          <p className="ph-pend" data-testid="pending-count">{t(`${Object.values(photos).filter(Boolean).length} photo(s) saved on this device`, `${Object.values(photos).filter(Boolean).length} foto(s) guardada(s) en este dispositivo`)}</p>
+          <p className="cx-note">{t("Photos stay on this device. Nothing is sent anywhere.", "Las fotos se quedan en este dispositivo. No se envía nada a ningún sitio.")}</p>
         </>
       ) : (
         <>
