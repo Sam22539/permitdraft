@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
 import { useLang } from "../lib/lang";
-import { FilingHandoff } from "../components/filing-handoff";
+import { FilingHandoff, IdahoReference } from "../components/filing-handoff";
 import {
   CATEGORIES, DATASET_VERSION, FEDERAL, GENERATED_ON, STAGES, STATES, STATE_LINKS, completeness, isOutbound, isStateCode, type Category, type ResourceLink, type Stage,
 } from "../lib/resources/data";
@@ -56,6 +56,7 @@ function Resources() {
       </section>
 
       <FilingHandoff />
+      <IdahoReference />
 
       <section className="ap-card rs-filters" aria-label={t("Filters", "Filtros")}>
         <label htmlFor="rs-state" className="font-semibold">{t("State", "Estado")}</label>

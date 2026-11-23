@@ -19,13 +19,14 @@ export interface OrderLine {
 }
 
 /**
- * Whether Foundable takes `code` as a line's item code (`metadata.sku`), by its order rule: one short word of English letters,
- * digits and signs, with no space, such as the id the maker or warehouse that ships the item knows it by ("TEE-BLU-M"), never
- * its size and colour written out ("Blue / M"). Foundable refuses a whole order for one code it does not take, so priceCart
- * from cart.server.ts refuses such a cart item before any order is made.
+ * Whether Foundable takes `code` as a line's item code (`metadata.sku`), by its order rule: the item's SKU on one line, 1 to 100
+ * characters with no control or invisible character, no space at either end and no accent mark first, such as the id the maker
+ * or warehouse that ships it knows it by ("TEE-BLU-M") or a store's own ("HB WHOLE"); its size and colour go in its name.
+ * Foundable refuses a whole order for one code it does not take, so priceCart from cart.server.ts refuses such a cart item
+ * before any order is made.
  */
 export function isItemCode(code: unknown): code is string {
-  return typeof code === "string" && /^[!-~]{1,100}$/.test(code);
+  return typeof code === "string" && /^(?![\s\p{M}])[^\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]{1,100}(?<!\s)$/u.test(code);
 }
 
 /** A delivery estimate's bound, in Stripe's fields. */

@@ -35,7 +35,7 @@ function Coverage() {
           <h2 className="ap-h2">{t(...s.name)}</h2>
           <p className="ap-muted">{t("Official permit pages, opened in a new tab. They are a handoff only: PermitDraft files nothing and checks no local rule.", "Páginas oficiales de permisos, en una pestaña nueva. Son solo una entrega: PermitDraft no presenta nada ni verifica reglas locales.")}</p>
           <ul className="rs-list">
-            {AUTHORITIES.filter((x) => x.state === s.code).map((x) => (
+            {AUTHORITIES.filter((x) => x.state === s.code && !x.handoffOnly).map((x) => (
               <li key={x.id}>
                 <strong>{t(...x.name)}</strong> <span className="ap-muted">· {x.area === "county" ? t("county service area", "área de servicio del condado") : t("city limits", "límites de la ciudad")}</span>
                 <ul className="rs-list">

@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { useLang } from "../lib/lang";
-import { AREA_NOTE, AUTHORITIES, HANDOFF_CHECKED_ON, HANDOFF_STATES, KIND_LABEL } from "../lib/filing-handoff";
+import { AREA_NOTE, AUTHORITIES, HANDOFF_CHECKED_ON, HANDOFF_STATES, IDAHO_REFERENCES, KIND_LABEL } from "../lib/filing-handoff";
 
 /** Official filing handoff: the contractor picks and confirms the authority; the link only opens its official page. Nothing is sent or filed. */
 export function FilingHandoff() {
@@ -17,8 +17,8 @@ export function FilingHandoff() {
     <section id="filing-handoff" className="ap-card fh" aria-labelledby="fh-h" data-testid="filing-handoff">
       <h2 id="fh-h" className="ap-h2">{t("Official HVAC filing handoff", "Entrega para presentar el permiso de HVAC")}</h2>
       <p className="ap-muted">{t(
-        "For the initial shortlist of ten permitting authorities below. PermitDraft does not file permits, does not check local rules and sends nothing: you file through the authority's own channel.",
-        "Para la lista inicial de diez autoridades de permisos de abajo. PermitDraft no presenta permisos, no verifica reglas locales y no envía nada: usted presenta por el canal propio de la autoridad.",
+        "For the permitting authorities listed below. PermitDraft does not file permits, does not check local rules and sends nothing: you file through the authority's own channel.",
+        "Para las autoridades de permisos de la lista de abajo. PermitDraft no presenta permisos, no verifica reglas locales y no envía nada: usted presenta por el canal propio de la autoridad.",
       )}</p>
 
       <h3 className="fh-step">{t("1. Check the exact address and its authority", "1. Verifique la dirección exacta y su autoridad")}</h3>
@@ -61,18 +61,15 @@ export function FilingHandoff() {
       ) : (
         <div className="fh-out" data-testid="fh-out">
           <span className="rs-badge" data-testid="fh-kind">{t(...KIND_LABEL[a.kind])}</span>
-          {a.links ? (
-            <>
-              <p className="ap-muted">{name}:</p>
-              <ul className="rs-list" data-testid="fh-links">
-                {a.links.map((l) => <li key={l.url}><a href={l.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{t(...l.label)}</a></li>)}
-              </ul>
-              <ul className="rs-list" data-testid="fh-scope">
-                {a.scope?.map((x) => <li key={x[0]} className="ap-muted">{t(...x)}</li>)}
-              </ul>
-            </>
-          ) : (
-            <p className="ap-muted">{t(`${name}:`, `${name}:`)} <a href={a.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{a.pageTitle}</a></p>
+          <p className="ap-muted">{name}:</p>
+          <ul className="rs-list" data-testid="fh-links">
+            {(a.portals ?? []).map((l) => <li key={l.url}><a href={l.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link" data-primary="true">{t(...l.label)}</a></li>)}
+            {(a.links ?? [{ label: [a.pageTitle, a.pageTitle] as [string, string], url: a.url }]).filter((l) => !a.portals?.some((p) => p.url === l.url)).map((l) => <li key={l.url}><a href={l.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="fh-link">{a.portals ? t("Official guidance: ", "Orientación oficial: ") : ""}{t(...l.label)}</a></li>)}
+          </ul>
+          {a.scope && (
+            <ul className="rs-list" data-testid="fh-scope">
+              {a.scope.map((x) => <li key={x[0]} className="ap-muted">{t(...x)}</li>)}
+            </ul>
           )}
           <p className="ap-muted">{t(
             `Opens the official page in a new tab (opened ${HANDOFF_CHECKED_ON}). Nothing about the job or customer is sent, and opening it does not file anything. Follow that authority's instructions for how and where to file.`,
@@ -80,6 +77,32 @@ export function FilingHandoff() {
           )}</p>
         </div>
       )}
+    </section>
+  );
+}
+
+/** Idaho: reference-only links, kept apart from the selectable handoff above. */
+export function IdahoReference() {
+  const { t } = useLang();
+  return (
+    <section id="idaho-reference" className="ap-card" aria-labelledby="id-h" data-testid="idaho-reference">
+      <h2 id="id-h" className="ap-h2">{t("Idaho (reference only)", "Idaho (solo referencia)")}</h2>
+      <p className="ap-muted">{t(
+        "Idaho is not part of the filing handoff above. These are plain links to official pages. The state and the city are separate offices: confirm which one has jurisdiction and scope for the job's exact address, and do not treat them as interchangeable.",
+        "Idaho no forma parte de la entrega de arriba. Son enlaces simples a páginas oficiales. El estado y la ciudad son oficinas distintas: confirme cuál tiene jurisdicción y alcance para la dirección exacta del trabajo y no las trate como intercambiables.",
+      )}</p>
+      <ul className="rs-list">
+        {IDAHO_REFERENCES.map((r) => (
+          <li key={r.id} data-testid={`idaho-${r.id}`}>
+            <strong>{t(...r.name)}</strong>
+            <p className="ap-muted">{t(...r.note)}</p>
+            <ul className="rs-list">
+              {"portal" in r && r.portal && <li><a href={r.portal.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="idaho-link" data-primary="true">{t(...r.portal.label)}</a></li>}
+              <li><a href={r.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="underline font-semibold" data-testid="idaho-link">{"portal" in r ? t("Official guidance: ", "Orientación oficial: ") : ""}{r.pageTitle}</a></li>
+            </ul>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
