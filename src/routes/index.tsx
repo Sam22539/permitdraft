@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppPage } from "../components/app-shell";
 import { useLang } from "../lib/lang";
 import { ScreenPreview } from "../components/home-hero";
-import { BarChart3, ClipboardList, FilePlus2, Home, Layers, MapPin, Play, Search, SearchCheck, Send, ShieldCheck } from "lucide-react";
+import { BarChart3, ClipboardList, FilePlus2, Layers, MapPin, Play, Search, SearchCheck, Send, ShieldCheck } from "lucide-react";
 import "../home.css";
 
 export const Route = createFileRoute("/")({
@@ -64,12 +64,10 @@ function Start() {
 
       <section className="hp-band" aria-label={t("Coverage", "Cobertura")}>
         <div className="hp-band-in">
-          <div className="hp-serving"><MapPin size={22} aria-hidden /><strong>{t("Currently serving", "Servicio actual")}</strong>
-            <ul>{places.map((p) => <li key={p}>{p}</li>)}</ul>
-          </div>
-          <p className="hp-built"><Home size={20} aria-hidden />{t("Built for residential HVAC contractors", "Hecho para contratistas residenciales de HVAC")}</p>
+          <h2 className="hp-band-h"><MapPin size={22} aria-hidden />{t("Coverage for residential HVAC contractors", "Cobertura para contratistas residenciales de HVAC")}</h2>
+          <ul className="hp-band-places">{places.map((p) => <li key={p}>{p}</li>)}</ul>
+          <Link className="hp-band-link" data-testid="landing-coverage" to="/coverage">{t("View coverage details", "Ver detalles de cobertura")}</Link>
         </div>
-        <p className="hp-cov" data-testid="landing-coverage">{t("Documentation support in each area; verified local rules are not covered yet.", "Apoyo de documentación en cada área; las reglas locales verificadas aún no están cubiertas.")} <Link to="/coverage">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link></p>
       </section>
 
     </AppPage>
