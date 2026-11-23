@@ -59,6 +59,17 @@ export function OfficeHandoff() {
         <p className="ap-muted">{t("Ready for office review is not ready for filing. Filing always shows Not ready.", "Listo para revisión de oficina no es listo para presentar. Presentar siempre muestra No está listo.")}</p>
       </header>
       {!demo && <CompanyPackets />}
+      {demo && (
+        <div className="jb-job draft" data-testid="oh-example">
+          <div className="jb-top">
+            <span className="jb-addr">{t("Example: heat-pump handoff", "Ejemplo: entrega de bomba de calor")}</span>
+            <span className="jb-badge draft">{t("Example", "Ejemplo")}</span>
+          </div>
+          <p className="jb-meta">{t("Job EX-1001 · Employee ID TECH-0427 · Ready for office review", "Trabajo EX-1001 · ID de empleado TECH-0427 · Listo para revisión de oficina")}</p>
+          <p className="jb-meta">{t("Fictional sample data. Nothing is sent or filed.", "Datos ficticios de ejemplo. No se envía ni se presenta nada.")}</p>
+          <Link to="/demo/office-example" className="ap-btn primary" data-testid="oh-view-example">{t("View example", "Ver ejemplo")}</Link>
+        </div>
+      )}
       <div className="ap-field">
         <label htmlFor="oh-q">{t("Job number, address or customer name", "Número de trabajo, dirección o nombre del cliente")}</label>
         <Input id="oh-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder={t("e.g. Alder or cap-", "p. ej. Alder o cap-")} data-testid="oh-search" />
