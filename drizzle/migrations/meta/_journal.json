@@ -78,6 +78,13 @@
       "when": 1795399037777,
       "tag": "0010_remove_temporary_check_fixture_companies",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795399376309,
+      "tag": "0011_add_table_for_extra_job_photos_panel_label",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { backend } from "./backend";
-import { loadPhotos, markUploaded, JOB_ID, ALL_SLOTS, type PhotoRec } from "./photos";
+import { loadPhotos, markUploaded, JOB_ID, ALL_SLOTS, EXTRA_SLOTS, type PhotoRec } from "./photos";
 
 const ID_KEY = "permitdraft-core-draft-job-id";
 /** The id the unfinished Core job keeps from its first photo until Finish; its photos and packet are saved under it. */
@@ -40,14 +40,21 @@ export function syncPhotos(jobId: string): Promise<number> {
       const uid = sess.session?.user.id;
       const recs = await loadPhotos(JOB_ID);
       if (!uid) return recs.filter((r) => !r.uploaded).length;
-      const { data: rows, error } = await backend.from("job_photos").select("id, slot").eq("job_id", jobId);
-      if (error) return recs.filter((r) => !r.uploaded).length;
+      const [main, extra] = await Promise.all([
+        backend.from("job_photos").select("id, slot").eq("job_id", jobId),
+        backend.from("job_extra_photos").select("id, slot").eq("job_id", jobId),
+      ]);
+      if (main.error || extra.error) return recs.filter((r) => !r.uploaded).length;
       const local = new Set(recs.map((r) => r.slot));
-      for (const row of rows ?? []) if (!local.has(row.slot)) await backend.from("job_photos").delete().eq("id", row.id);
-      for (const r of recs.filter((x) => !x.uploaded && ALL_SLOTS.includes(x.slot))) {
+      for (const row of main.data ?? []) if (!local.has(row.slot)) await backend.from("job_photos").delete().eq("id", row.id);
+      for (const row of extra.data ?? []) if (!local.has(row.slot)) await backend.from("job_extra_photos").delete().eq("id", row.id);
+      // Every attached photo is saved: the evidence slots in job_photos, the Work step's panel label in job_extra_photos.
+      for (const r of recs.filter((x) => !x.uploaded)) {
+        const table = ALL_SLOTS.includes(r.slot) ? "job_photos" : EXTRA_SLOTS.includes(r.slot) ? "job_extra_photos" : null;
+        if (!table) { left++; continue; }
         try {
           const { url, mime } = await toDataUrl(r);
-          const { error: e } = await backend.from("job_photos").upsert(
+          const { error: e } = await backend.from(table).upsert(
             { user_id: uid, job_id: jobId, slot: r.slot, unit: r.unit ?? null, name: r.name.slice(0, 200), mime, data_url: url, taken_at: r.savedAt },
             { onConflict: "user_id,job_id,slot" });
           if (e) { left++; continue; }

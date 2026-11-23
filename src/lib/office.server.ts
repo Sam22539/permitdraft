@@ -23,6 +23,34 @@ export function isTestPerson(user: User): boolean {
   return (user.app_metadata as Record<string, unknown> | undefined)?.foundable_test_player === true;
 }
 
+const PACKET_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The whole working address of one saved packet's office review page. Published, it is the live site's configured address
+ * (FOUNDABLE_SITE_URL) plus /office-review/<id>; in a Foundable preview it is the preview's own page link for that path.
+ * It is checked before use: https, and naming this packet's own page (as its path or the preview's page). Never the
+ * request's origin. It throws where no such address exists, so the notice is not sent with a generic or wrong link.
+ */
+export async function packetLink(packetId: string): Promise<string> {
+  if (!PACKET_ID.test(packetId)) throw new Error("packet id");
+  const path = `/office-review/${packetId.toLowerCase()}`;
+  const live = process.env.FOUNDABLE_SITE_URL, preview = process.env.FOUNDABLE_PREVIEW_PAGES_URL;
+  let link: string;
+  if (live && !preview) {
+    const u = new URL(path, live);
+    link = u.href;
+  } else {
+    const { pageLink } = await import("./email.server");
+    link = pageLink(path);
+  }
+  const u = new URL(link);
+  const names = u.pathname === path || u.searchParams.get("page") === path;
+  if (u.protocol !== "https:" || !u.hostname.includes(".") || !names) throw new Error("This website has no working address for the packet page.");
+  return link;
+}
+
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 export type NoticeStatus = "saved" | "sending" | "accepted" | "failed" | "not_configured" | "legacy";
 
 /**
@@ -35,9 +63,9 @@ export async function sendOfficeNotice(db: SupabaseClient, packetId: string, sen
   if (error || !claim) { console.error("office notice claim failed", error?.message); return "failed"; }
   const c = claim as { action: string; status: NoticeStatus; to?: string; key?: string };
   if (c.action !== "send" || !c.to || !c.key) return c.status;
-  const { sendEmail, pageLink } = await import("./email.server");
+  const { sendEmail } = await import("./email.server");
   let link: string;
-  try { link = pageLink(`/office-review/${packetId}`); } catch (e) {
+  try { link = await packetLink(packetId); } catch (e) {
     await db.rpc("office_notice_done", { p_packet: packetId, p_status: "failed", p_error: "This website has no page address yet.", p_receipt: null });
     console.error("office notice: no page link", e);
     return "failed";
@@ -46,7 +74,8 @@ export async function sendOfficeNotice(db: SupabaseClient, packetId: string, sen
   const sent = await sendEmail({
     to: c.to,
     subject: "A job packet is ready for office review",
-    text: `A technician finished a job in PermitDraft Core and its packet is ready for office review.\n\nSubmitted: ${when}\n\nOpen it, signed in with your company account:\n${link}\n\nThe packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.`,
+    text: `A technician finished a job in PermitDraft Core and its packet is ready for office review.\n\nSubmitted: ${when}\nPacket: ${packetId}\n\nOpen this packet, signed in with your company account:\n${link}\n\nThe packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.`,
+    html: `<p>A technician finished a job in PermitDraft Core and its packet is ready for office review.</p><p>Submitted: ${esc(when)}<br>Packet: ${esc(packetId)}</p><p>Open this packet, signed in with your company account:<br><a href="${esc(link)}">${esc(link)}</a></p><p>The packet is only shown to signed-in office reviewers of your company. Draft for office review only, not permit filing.</p>`,
     idempotencyKey: c.key,
   }, { capture });
   const ok = sent.status === "queued" || sent.status === "captured";

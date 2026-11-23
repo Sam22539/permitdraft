@@ -1,11 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
+import { SLOTS, ALL_SLOTS, EXTRA_SLOTS, type Slot } from "./photos";
+
+const KNOWN: string[] = [...ALL_SLOTS, ...EXTRA_SLOTS];
 
 type In = { token: string; jobId: string; employeeId: string; values: Record<string, string>; formDefaults: Record<string, string>; slots: string[] };
 
 /**
  * Creates the one private office packet for a job: captured fields, links to the job's saved photos, the signed-in
- * technician's name and the database clock's sent time. Sending twice returns the same packet. Refused while any
- * photo the device holds is not yet saved in the database. Once saved, one notice email goes to the technician's company's
+ * technician's name and the database clock's sent time. Sending twice returns the same packet. Refused, with nothing saved
+ * or sent, while any photo the job flow requires (SLOTS) is not among the technician's photos stored in the database for
+ * this job, or any other photo the device holds is not saved there yet. Once saved, one notice email goes to the technician's company's
  * verified office inbox (none where the company has none), linking to the signed-in office review.
  */
 export const sendOfficePacket = createServerFn({ method: "POST" })
@@ -14,7 +18,7 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     const jobId = String(d?.jobId ?? "");
     if (!token || token.length > 4000 || !jobId || jobId.length > 80) throw new Error("input");
     const clean = (o: unknown) => Object.fromEntries(Object.entries((o && typeof o === "object" ? o : {}) as Record<string, unknown>).slice(0, 200).map(([k, v]) => [k.slice(0, 80), String(v ?? "").slice(0, 4000)]));
-    const slots = Array.isArray(d?.slots) ? d.slots.map(String).slice(0, 8) : [];
+    const slots = Array.isArray(d?.slots) ? [...new Set(d.slots.map(String).filter((x) => KNOWN.includes(x)))].slice(0, 8) : [];
     return { token, jobId, employeeId: String(d?.employeeId ?? "").trim().slice(0, 40), values: clean(d?.values), formDefaults: clean(d?.formDefaults), slots };
   })
   .handler(async ({ data }) => {
@@ -23,9 +27,15 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     const { data: u, error: ue } = await db.auth.getUser(data.token);
     if (ue || !u.user) throw new Error("auth");
     const uid = u.user.id;
-    const { data: photos, error: pe } = await db.from("job_photos").select("id, slot, unit, name, mime, taken_at").eq("user_id", uid).eq("job_id", data.jobId);
-    if (pe) throw new Error("save");
-    const have = new Set((photos ?? []).map((p) => p.slot));
+    const [main, extra] = await Promise.all([
+      db.from("job_photos").select("id, slot, unit, name, mime, taken_at").eq("user_id", uid).eq("job_id", data.jobId),
+      db.from("job_extra_photos").select("id, slot, unit, name, mime, taken_at").eq("user_id", uid).eq("job_id", data.jobId),
+    ]);
+    if (main.error || extra.error) throw new Error("save");
+    const photos = main.data ?? [], extras = extra.data ?? [];
+    const have = new Set([...photos, ...extras].map((p) => String(p.slot)));
+    // The job flow's required photos decide, read from what is stored; the device's list only names uploads in progress.
+    const missing = SLOTS.filter((s) => !have.has(s) && !data.slots.includes(s)) as Slot[];
     const waiting = data.slots.filter((s) => !have.has(s)).length;
     const office = await import("./office.server");
     const capture = office.isTestPerson(u.user);
@@ -35,7 +45,7 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
       const notice = await office.sendOfficeNotice(db, String(existing.data.id), String(existing.data.sent_at), capture);
       return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string, notice };
     }
-    if (waiting > 0) return { ok: false as const, waiting };
+    if (missing.length > 0 || waiting > 0) return { ok: false as const, missing, waiting };
     // The company comes from the technician's own verified membership, never from the page.
     const member = u.user.email ? await office.membership(db, u.user.email.toLowerCase()) : null;
     const md = (u.user.user_metadata ?? {}) as Record<string, unknown>;
@@ -43,7 +53,10 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     const row = {
       user_id: uid, job_id: data.jobId, company_id: member?.company_id ?? null, notify_status: "saved", sent_by_name: name.slice(0, 200), employee_id: data.employeeId || null,
       captured_fields: { values: data.values, formDefaults: data.formDefaults },
-      photo_links: (photos ?? []).map((p) => ({ photoId: p.id, slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),
+      photo_links: [
+        ...photos.map((p) => ({ photoId: p.id, slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),
+        ...extras.map((p) => ({ photoId: p.id, table: "extra", slot: p.slot, unit: p.unit, name: p.name, type: p.mime, takenAt: p.taken_at })),
+      ],
     };
     const ins = await db.from("office_packets").upsert(row, { onConflict: "user_id,job_id", ignoreDuplicates: true });
     if (ins.error) throw new Error("save");

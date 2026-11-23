@@ -8,7 +8,7 @@ import { clearDraftJobId, draftJobId, syncPhotos } from "../lib/photo-sync";
 import { backend } from "../lib/backend";
 import { Input } from "../components/ui/input";
 import { readDraftValues } from "../lib/job-draft";
-import { JOB_ID, loadPhotos, usePhotos, type Slot } from "../lib/photos";
+import { JOB_ID, loadPhotos, usePhotos, SLOTS as REQUIRED, type Slot } from "../lib/photos";
 import { useDraft } from "../lib/job-draft";
 import { finishCapture, syncCapturePhotos, useCaptured } from "../lib/captured";
 import { useEffect, useState } from "react";
@@ -34,6 +34,11 @@ const TECH_ID = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
 const SAMPLE_TECH_ID = "TECH-007";
 
 const WIDE: [string, string] = ["Whole unit, wide shot", "Unidad completa, foto general"];
+
+/** Core keeps the typed employee ID for the unfinished job, so going Back and returning does not lose it. */
+const EMP_KEY = "permitdraft-core-employee-id";
+const readEmp = () => { try { return sessionStorage.getItem(EMP_KEY) ?? ""; } catch { return ""; } };
+const writeEmp = (v: string) => { try { if (v) sessionStorage.setItem(EMP_KEY, v); else sessionStorage.removeItem(EMP_KEY); } catch { /* ignore */ } };
 
 export function Photos() {
   const s = useSearch({ strict: false }) as { fix?: string; slot?: string; rule?: string };
@@ -81,7 +86,7 @@ function NewPhotos() {
   const { t } = useLang();
   const p = useCorePath();
   useDraft(5);
-  const { photos, pending, loadError } = usePhotos();
+  const { photos, pending, loadError, ready } = usePhotos();
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -91,6 +96,11 @@ function NewPhotos() {
   const [idErr, setIdErr] = useState<"" | "empty" | "chars">("");
   const [stillUp, setStillUp] = useState<number | null>(null);
   const waiting = demo ? pending : (stillUp ?? pending);
+  // Core: required photos this job has not attached at all, kept apart from attached photos still uploading.
+  const [tried, setTried] = useState(false);
+  const missing = ready ? REQUIRED.filter((k) => !photos[k]) : [];
+  const label = (k: Slot) => { const r = SLOTS.find(([x]) => x === k); return r ? t(r[1], r[2]) : k; };
+  useEffect(() => { if (!demo) { const v = readEmp(); if (v) setEmployeeId(v); } }, [demo]);
   // Core: keep saving photos to the database in the background so Finish has nothing left to wait for.
   useEffect(() => {
     if (demo || pending === 0) return;
@@ -117,6 +127,12 @@ function NewPhotos() {
       nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
       return;
     }
+    setTried(true);
+    if (missing.length > 0) {
+      setBusy(false);
+      document.getElementById(`shot-${missing[0]}`)?.scrollIntoView({ block: "center" });
+      return;
+    }
     const jobId = draftJobId();
     const left = await syncPhotos(jobId);
     setStillUp(left);
@@ -136,6 +152,7 @@ function NewPhotos() {
     setBusy(false);
     if (!id) return setFailed(true);
     clearDraftJobId();
+    writeEmp("");
     nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
   }
   return (
@@ -146,11 +163,14 @@ function NewPhotos() {
       </>}>
       {SLOTS.map(([k, en, es]) => {
         const ok = !!photos[k];
+        const state = demo ? (ok ? t("Attached", "Adjunta") : t("Required", "Requerida"))
+          : !ok ? (tried ? t("Missing, required", "Falta, requerida") : t("Required", "Requerida"))
+          : photos[k]?.uploaded ? t("Saved", "Guardada") : t("Uploading…", "Subiendo…");
         return (
-          <div key={k} className="cx-shot">
+          <div key={k} id={`shot-${k}`} className="cx-shot" data-testid={`shot-${k}`}>
             <div className="cx-shot-top">
               <span>{t(en, es)}</span>
-              <strong className={ok ? "cx-ok" : "cx-need"}>{ok ? t("Attached", "Adjunta") : t("Required", "Requerida")}</strong>
+              <strong className={ok ? "cx-ok" : "cx-need"} data-testid={`shot-${k}-state`}>{state}</strong>
             </div>
             <PhotoSlot slot={k} label={[en, es]} photo={photos[k]} takeLabel={["Add photo", "Agregar foto"]} tagUnit={k === "plate"} />
           </div>
@@ -181,7 +201,7 @@ function NewPhotos() {
       {!demo && (
         <div className="ap-field">
           <label htmlFor="emp-id">{t("Company employee ID (optional)", "ID de empleado de la empresa (opcional)")}</label>
-          <Input id="emp-id" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} maxLength={40} autoComplete="off" data-testid="employee-id" />
+          <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); writeEmp(e.target.value); }} maxLength={40} autoComplete="off" data-testid="employee-id" />
         </div>
       )}
       {demo ? (
@@ -191,7 +211,10 @@ function NewPhotos() {
         </>
       ) : (
         <>
-          <p className="ph-pend" data-testid="pending-count" role="status">{waiting > 0 ? t(`${waiting} photo(s) still uploading`, `${waiting} foto(s) todavía subiendo`) : t("All photos are saved.", "Todas las fotos están guardadas.")}</p>
+          {tried && missing.length > 0 && (
+            <p role="alert" className="cx-err" data-testid="missing-required">{t(`Required photo missing: ${missing.map(label).join("; ")}. Add it before Finish. Nothing was sent.`, `Falta foto requerida: ${missing.map(label).join("; ")}. Agréguela antes de Finalizar. No se envió nada.`)}</p>
+          )}
+          <p className="ph-pend" data-testid="pending-count" role="status">{waiting > 0 ? t(`${waiting} photo(s) still uploading`, `${waiting} foto(s) todavía subiendo`) : missing.length > 0 ? t(`${REQUIRED.length - missing.length} of ${REQUIRED.length} required photos attached. Attached photos are saved.`, `${REQUIRED.length - missing.length} de ${REQUIRED.length} fotos requeridas adjuntas. Las fotos adjuntas están guardadas.`) : t("All photos are saved.", "Todas las fotos están guardadas.")}</p>
           <p className="cx-note">{t("Finish saves one private packet once every photo is saved, then emails your company's verified office inbox a link to review it. It is for office review only, not permit filing. Draft, not a guarantee of compliance. Contractor review and signature required.", "Finalizar guarda un paquete privado cuando todas las fotos estén guardadas y envía al buzón verificado de la oficina de su empresa un enlace para revisarlo. Es solo para revisión de oficina, no para presentar el permiso. Borrador, no garantiza el cumplimiento. Se requiere revisión y firma del contratista.")}</p>
         </>
       )}

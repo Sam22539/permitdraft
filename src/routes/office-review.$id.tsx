@@ -11,7 +11,7 @@ export const Route = createFileRoute("/office-review/$id")({
   component: OfficeReview,
 });
 
-type Packet = { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> }; photo_links: { photoId: string; slot: string; name: string }[] };
+type Packet = { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> }; photo_links: { photoId: string; table?: string; slot: string; name: string }[] };
 type Photo = { id: string; slot: string; name: string; data_url: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -32,11 +32,14 @@ function OfficeReview() {
       const { data } = await backend.from("office_packets").select("id, job_id, sent_by_name, employee_id, sent_at, captured_fields, photo_links").eq("id", id).maybeSingle();
       if (!live) return;
       setPk((data as Packet | null) ?? null);
-      const ids = ((data as Packet | null)?.photo_links ?? []).map((p) => p.photoId).filter((x) => UUID.test(String(x)));
-      if (ids.length) {
-        const { data: ph } = await backend.from("job_photos").select("id, slot, name, data_url").in("id", ids);
-        if (live) setPhotos((ph as Photo[] | null) ?? []);
-      }
+      const links = ((data as Packet | null)?.photo_links ?? []).filter((p) => UUID.test(String(p.photoId)));
+      const ids = links.filter((p) => p.table !== "extra").map((p) => p.photoId);
+      const extraIds = links.filter((p) => p.table === "extra").map((p) => p.photoId);
+      const [ph, ex] = await Promise.all([
+        ids.length ? backend.from("job_photos").select("id, slot, name, data_url").in("id", ids) : Promise.resolve({ data: [] }),
+        extraIds.length ? backend.from("job_extra_photos").select("id, slot, name, data_url").in("id", extraIds) : Promise.resolve({ data: [] }),
+      ]);
+      if (live) setPhotos([...((ph.data as Photo[] | null) ?? []), ...((ex.data as Photo[] | null) ?? [])]);
     })().catch(() => { if (live) setPk(null); });
     return () => { live = false; };
   }, [email, id]);

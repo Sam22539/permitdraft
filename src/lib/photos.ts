@@ -9,6 +9,8 @@ export type Slot = "plate" | "outdoor" | "gauge" | "wide" | "panel";
 // SLOTS are the required photos (readiness). "wide" is an optional whole-unit shot and never blocks anything.
 export const SLOTS: Slot[] = ["plate", "outdoor", "gauge"];
 export const ALL_SLOTS: Slot[] = [...SLOTS, "wide"];
+/** Photos the flow can attach beyond the evidence slots (the Work step's panel label); Core saves them too, in their own table. */
+export const EXTRA_SLOTS: Slot[] = ["panel"];
 export type Unit = "indoor" | "outdoor";
 export type PhotoRec = { unit?: Unit; key: string; job: string; slot: Slot; blob: Blob; name: string; type: string; savedAt: number; uploaded: boolean };
 
