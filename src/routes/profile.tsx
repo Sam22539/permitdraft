@@ -13,7 +13,7 @@ import { useLang } from "../lib/lang";
 import { getOfficeSetup, type OfficeSetup } from "../lib/office";
 
 export const Route = createFileRoute("/profile")({
-  head: () => ({ meta: [{ title: "My Profile — PermitDraft Core" }, { name: "description", content: "Your PermitDraft Core profile: identity, work email, phone, language, notifications, recent handoffs and security." }] }),
+  head: () => ({ meta: [{ title: "Account — PermitDraft" }, { name: "description", content: "Your PermitDraft account: identity, work email, phone, language, notifications, recent handoffs and security." }] }),
   component: ProfilePage,
 });
 
@@ -36,16 +36,16 @@ function ProfilePage() {
   }, []);
   return (
     <AppPage bottom>
-      <h1 className="text-3xl">{t("My Profile", "Mi perfil")}</h1>
+      <h1 className="text-3xl">{t("Your account", "Su cuenta")}</h1>
       {me === undefined && <section className="ap-card"><p className="ap-muted flex items-center gap-2" role="status"><Loader2 className="animate-spin" size={18} aria-hidden />{t("Checking your sign-in…", "Comprobando su sesión…")}</p></section>}
       {me === null && (
         <section className="ap-card" aria-labelledby="pf-in" data-testid="profile-signed-out">
-          <h2 id="pf-in" className="ap-h2">{t("Sign in to see your profile", "Inicie sesión para ver su perfil")}</h2>
+          <h2 id="pf-in" className="ap-h2">{t("Sign in to see your account", "Inicie sesión para ver su cuenta")}</h2>
           <SignInForm />
         </section>
       )}
       {me && <ProfileCards me={me} />}
-      <Link to="/settings" className="ap-btn ghost" data-testid="pf-back">{t("Back to Settings", "Volver a Ajustes")}</Link>
+      <Link to="/settings" className="ap-btn ghost" data-testid="pf-back">{t("Company settings", "Ajustes de la empresa")}</Link>
     </AppPage>
   );
 }

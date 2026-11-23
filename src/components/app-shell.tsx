@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Briefcase, Settings } from "lucide-react";
+import { BookOpen, Briefcase, Settings, UserRound } from "lucide-react";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { DemoBar, useCorePath, useDemo } from "./demo";
@@ -26,12 +26,12 @@ export function AppTop() {
   );
 }
 
-export function BottomBar({ current }: { current?: "jobs" }) {
+export function BottomBar({ current: _current }: { current?: "jobs" }) {
   const { t } = useLang();
   const p = useCorePath();
   return (
     <nav className="ap-bottom" aria-label="Main">
-      <Link to={p("/jobs")} activeProps={{ "aria-current": undefined } as never} className={`ap-tab${current === "jobs" ? " is-active" : ""}`}>
+      <Link to={p("/jobs")} activeProps={{ className: "ap-tab is-active" }} className="ap-tab">
         <Briefcase size={22} aria-hidden />
         {t("Jobs", "Trabajos")}
       </Link>
@@ -40,7 +40,11 @@ export function BottomBar({ current }: { current?: "jobs" }) {
         <BookOpen size={22} aria-hidden />
         {t("Resources", "Recursos")}
       </Link>
-      <Link to={p("/settings")} className="ap-tab" data-testid="nav-settings">
+      <Link to="/profile" className="ap-tab" activeProps={{ className: "ap-tab is-active" }} data-testid="nav-account">
+        <UserRound size={22} aria-hidden />
+        {t("Account", "Cuenta")}
+      </Link>
+      <Link to={p("/settings")} className="ap-tab" activeProps={{ className: "ap-tab is-active" }} data-testid="nav-settings">
         <Settings size={22} aria-hidden />
         {t("Settings", "Ajustes")}
       </Link>
