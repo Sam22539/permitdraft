@@ -1001,3 +1001,7 @@ a:hover .rp-seg,a:focus-visible .rp-seg{opacity:.75}
 .crm .crm-qa-btn svg{color:var(--crm-navy)}
 .crm .crm-qa-btn:hover svg{color:var(--crm-burnt)}
 .crm .crm-alert{background:var(--crm-bg);border-radius:0 8px 8px 0;padding:8px 10px}
+.jl-map{height:320px;border-radius:10px;border:1px solid var(--crm-line);overflow:hidden;z-index:0}
+.jl-lists{display:grid;gap:14px}
+.jl-pin span{display:block;width:22px;height:22px;margin:0 2px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#0b5cab;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.jl-open{margin-top:6px;text-decoration:underline;font-weight:600;color:#0b5cab}

@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText, Trash2, Undo2 } from "lucide-react";
 import { useCorePath } from "./demo";
 import { TechnicianDispatch, TodaysSchedule } from "./dispatch";
+import { JobLocations } from "./job-locations";
 import { CommandCenterCharts } from "./report-charts";
 import { StageHistory } from "./stage-history";
 
@@ -473,6 +474,7 @@ export function CompanyPackets() {
             </section>
 
             {company && <TechnicianDispatch company={company} />}
+            {company && <JobLocations company={company} jobs={items.map((i) => ({ id: i.r.id, tracking_no: i.r.tracking_no, job_id: i.r.job_id }))} onOpen={setOpen} />}
             <CommandCenterCharts />
           </div>
 
