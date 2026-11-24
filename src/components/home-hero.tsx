@@ -56,7 +56,6 @@ export function ScreenPreview() {
         </div>
         <div className="hp-base" />
       </div>
-      <span className="hp-sample-tag">{t("Sample screens · sample job", "Pantallas de muestra · trabajo de muestra")}</span>
     </div>
   );
 }

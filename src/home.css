@@ -146,7 +146,6 @@
 .hp-ph-l{color:#64748B;font-weight:600}
 .hp-ph-f{border:1px solid #DCE3E9;border-radius:4px;padding:.4em .5em;font-weight:600}
 .hp-ph-cta{margin-top:.5em;background:#F4770B;color:#111A26;text-align:center;font-weight:800;border-radius:5px;padding:.55em}
-.hp-sample-tag{position:absolute;top:.75rem;left:.75rem;background:rgba(17,26,38,.82);color:#fff;font-size:.78rem;font-weight:700;border-radius:999px;padding:.3rem .75rem}
 @media (max-width:639px){.hp-devices{min-height:300px}.hp-screen{font-size:6.5px}.hp-ph-in{font-size:6.5px}.hp-phone{width:30%}}
 /* Workflow strip, features and band on the bright page */
 .hp-flow{border:1px solid #DCE3E9;box-shadow:0 1px 2px rgba(17,26,38,.05),0 12px 32px rgba(17,26,38,.08);border-radius:14px}
