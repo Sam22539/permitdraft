@@ -122,6 +122,51 @@ function JobLine({ a, conflict, onOpen, showTech }: { a: Assignment; conflict?: 
   );
 }
 
+/** Technician Dispatch widget for the office Command Center: today's recorded assignments grouped by assigned technician. */
+export function TechnicianDispatch({ company }: { company: string }) {
+  const { t } = useLang();
+  const f = useFmt();
+  const [rows, setRows] = useState<Assignment[] | null>(null);
+  const [err, setErr] = useState(false);
+  useEffect(() => {
+    let live = true;
+    const a = startOfDay(new Date());
+    backend.from("job_assignments").select("packet_id, company_id, technician_email, starts_at, ends_at, note, tracking_no, address, customer_name, assigned_by, updated_by, updated_at")
+      .eq("company_id", company).gte("starts_at", a.toISOString()).lt("starts_at", addDays(a, 1).toISOString()).order("starts_at")
+      .then(({ data, error }) => { if (!live) return; if (error) setErr(true); else setRows(data as Assignment[]); }, () => { if (live) setErr(true); });
+    return () => { live = false; };
+  }, [company]);
+  const groups = useMemo(() => {
+    const m = new Map<string, Assignment[]>();
+    for (const a of rows ?? []) m.set(a.technician_email, [...(m.get(a.technician_email) ?? []), a]);
+    return [...m.entries()];
+  }, [rows]);
+  return (
+    <section className="crm-panel" aria-labelledby="crm-td-h" data-testid="technician-dispatch">
+      <div className="crm-panel-head">
+        <h3 id="crm-td-h" className="crm-h3">{t("Technician Dispatch", "Despacho de técnicos")}</h3>
+        <Link to="/dispatch" className="underline font-semibold" data-testid="td-open">{t("View Dispatch", "Ver despacho")}</Link>
+      </div>
+      {err ? <p className="crm-note" role="alert">{t("Could not load technician assignments.", "No se pudieron cargar las asignaciones.")}</p>
+        : rows === null ? <p className="crm-note" role="status">{t("Loading…", "Cargando…")}</p>
+        : groups.length === 0 ? <p className="crm-note" data-testid="td-empty">{t("No technician is assigned to a job today. Assign a job in Dispatch & Schedule and it shows here.", "Ningún técnico tiene un trabajo asignado hoy. Asigne un trabajo en Despacho y agenda y aparecerá aquí.")}</p>
+        : <ul className="oh-rows">{groups.map(([tech, list]) => (
+          <li key={tech} className="oh-row" data-testid="td-tech">
+            <div className="oh-row-main">
+              <span className="jb-addr"><UserRound size={14} aria-hidden className="inline mr-1" />{tech}</span>
+              {list.map((a) => (
+                <span key={a.packet_id} className="ap-muted">
+                  {f.time(a.starts_at)} – {f.time(a.ends_at)} · <Link to="/office-review/$id" params={{ id: a.packet_id }} className="underline font-semibold" data-testid="td-packet">{a.tracking_no}</Link>
+                  {" · "}{a.address || t("No address captured", "Sin dirección capturada")}
+                </span>
+              ))}
+            </div>
+          </li>
+        ))}</ul>}
+    </section>
+  );
+}
+
 /** Today's Schedule panel for the office workspace, from the same assignment records as Dispatch. */
 export function TodaysSchedule({ company }: { company: string }) {
   const { t } = useLang();

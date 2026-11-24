@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText, Trash2, Undo2 } from "lucide-react";
 import { useCorePath } from "./demo";
-import { TodaysSchedule } from "./dispatch";
+import { TechnicianDispatch, TodaysSchedule } from "./dispatch";
 import { CommandCenterCharts } from "./report-charts";
 import { StageHistory } from "./stage-history";
 
@@ -472,6 +472,7 @@ export function CompanyPackets() {
               </Tabs>
             </section>
 
+            {company && <TechnicianDispatch company={company} />}
             <CommandCenterCharts />
           </div>
 
