@@ -214,6 +214,12 @@ export function CompanyPackets() {
   const pageRows = shown.slice(pg * PAGE, pg * PAGE + PAGE);
   useEffect(() => setPage(0), [q, fs, view, sort]);
 
+  useEffect(() => {
+    if (!company) return;
+    let live = true;
+    Promise.resolve(backend.from("invoices").select("status, paid_on, total_cents").eq("company_id", company).eq("status", "paid")).then((r) => { if (live) setPaidInvs(r.error ? null : (r.data as PaidInv[])); });
+    return () => { live = false; };
+  }, [company]);
   if (role === undefined) return null;
   const stageName = (k: string) => { const s = STAGES.find((x) => x[0] === k) ?? STAGES[0]; return t(s[1], s[2]); };
   const fmtDay = (d: string) => { const [y, m, dd] = d.split("-").map(Number); return new Date(y, m - 1, dd).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" }); };
@@ -363,12 +369,6 @@ export function CompanyPackets() {
     </>
   );
 
-  useEffect(() => {
-    if (!company) return;
-    let live = true;
-    Promise.resolve(backend.from("invoices").select("status, paid_on, total_cents").eq("company_id", company).eq("status", "paid")).then((r) => { if (live) setPaidInvs(r.error ? null : (r.data as PaidInv[])); });
-    return () => { live = false; };
-  }, [company]);
   const mtd = monthToDate(paidInvs ?? []);
   const isOffice = role === "admin" || role === "office";
   const kpis: { label: string; value: number; note: string; icon: typeof Inbox; dark?: boolean; href?: string }[] = [
