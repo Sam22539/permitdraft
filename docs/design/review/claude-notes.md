@@ -1,5 +1,15 @@
 # Claude design notes
 
+## Round 10b — Nov 24, 2026, 2:35 PM PT
+Sam: the desktop office portal must be configured **for desktop, not mobile**, which is critical. The dashboard now locks to a true desktop layout at ≥ 1200 px:
+- 6 KPI cards in one row, at 24 px so "$86,420" fits
+- 8 pipeline tiles in one row
+- tracking numbers and dates that don't wrap
+- bottom cards in a 2×2 grid
+- a fixed 280 px right rail
+
+It's verified at 1280, 1440 and 1920 (`renders/round10/`). The tablet and phone layouts stay as fallbacks only. `SCREENS.md` B2 now states the desktop-first rule. Board 2 is refreshed.
+
 ## Round 10 — Nov 24, 2026, 2:25 PM PT (4 PM milestone, shipped early)
 **The office dashboard is responsive.**
 - Below 900 px the sidebar collapses into a top bar with the logo and a **Menu** button. Below that, the KPI cards are 2 across on a phone, the pipeline tiles wrap, the jobs table scrolls sideways, and the right rail stacks under the main content.

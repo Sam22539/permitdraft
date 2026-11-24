@@ -78,6 +78,15 @@ These aren't built yet (see the Round 3 table in `review/claude-notes.md`). Soft
 - Only company admins and office reviewers can sign in here.
 
 ### B2. Dashboard (`OfficeDashboard.dc.html`)
+> **Desktop-first (Sam: critical).** The office portal is designed for desktop. At **≥ 1200 px** it must use the desktop layout:
+> - the fixed 230 px navy sidebar
+> - **6 KPI cards in one row**
+> - **8 pipeline tiles in one row**
+> - the full jobs table, with tracking numbers and dates on one line
+> - a 2×2 grid of bottom cards
+> - a fixed 280 px right rail
+>
+> Reference widths are 1440 (primary), 1280 and 1920. Smaller layouts (tablet, phone) are fallbacks only, and they must never change the desktop composition.
 - **Sidebar (navy 900, 230 wide):**
   - Logo at the top.
   - Navigation: Dashboard (active: Orange 700 fill) · Customers · Leads (red count badge) · Jobs / Projects · Permits · Technicians · Dispatch & Schedule · Documents · Equipment · Inspections · Invoices & Billing · Reports & Analytics · Automation · Integrations · Company Settings.
