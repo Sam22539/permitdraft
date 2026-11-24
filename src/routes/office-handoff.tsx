@@ -48,15 +48,90 @@ export function OfficeHandoff() {
   const term = norm(q);
   const shown = rows.filter((r) => (term === "" || r.hay.includes(term)) && (ready === "all" || (ready === "ready") === r.ev.officeReview.ready));
 
+  const deviceList = (
+    <>
+        <div className="ap-field">
+          <label htmlFor="oh-q">{t("Job number, address or customer name", "Número de trabajo, dirección o nombre del cliente")}</label>
+          <Input id="oh-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder={t("e.g. Alder or cap-", "p. ej. Alder o cap-")} data-testid="oh-search" />
+        </div>
+        <div className="jb-chipwrap">
+          <div className="jb-chips" role="group" aria-label={t("Office review readiness", "Preparación para revisión de oficina")}>
+            {FILTERS.map(([k, en, es]) => (
+              <button key={k} type="button" className="jb-chip" aria-pressed={ready === k} onClick={() => setReady(k)} data-testid={`oh-filter-${k}`}>{t(en, es)}</button>
+            ))}
+          </div>
+        </div>
+        <p className="ap-muted" role="status" data-testid="oh-count">
+          {!mounted ? t("Loading…", "Cargando…") : t(`${shown.length} of ${rows.length} ${rows.length === 1 ? "job" : "jobs"}`, `${shown.length} de ${rows.length} ${rows.length === 1 ? "trabajo" : "trabajos"}`)}
+        </p>
+        {mounted && rows.length === 0 && (
+          <div className="jb-empty" data-testid="oh-empty">
+            <p>{t(demo ? "No sample jobs are saved in PermitDraft Demo yet. Finish a demo job and it shows up here." : "No captured jobs are saved on this device. This says nothing about your company's queue above.", demo ? "Todavía no hay trabajos de muestra guardados en PermitDraft Demo. Termine un trabajo de la demo y aparecerá aquí." : "No hay trabajos capturados en este dispositivo. Esto no dice nada de la cola de su empresa, arriba.")}</p>
+            <Link to={p("/new")} className="ap-btn primary">{t("+ New job", "+ Nuevo trabajo")}</Link>
+          </div>
+        )}
+        {mounted && rows.length > 0 && shown.length === 0 && (
+          <div className="jb-empty" data-testid="oh-nomatch">
+            <p>{t("No jobs match this search and filter.", "Ningún trabajo coincide con esta búsqueda y filtro.")}</p>
+            <button type="button" className="ap-btn ghost" onClick={() => { setQ(""); setReady("all"); }} data-testid="oh-clear">{t("Clear search and filter", "Borrar búsqueda y filtro")}</button>
+          </div>
+        )}
+        {shown.map(({ c, sm, ev, name, status }) => (
+          <div key={c.id} className={`jb-job ${status}`} data-testid="oh-job">
+            <div className="jb-top">
+              <span className="jb-addr">{sm.addr}</span>
+              <span className={`jb-badge ${status}`}>{status === "missing" ? t("Missing info", "Falta información") : t("Not filed yet", "Aún no presentado")}</span>
+            </div>
+            <p className="jb-meta">
+              <span data-testid="oh-jobno">{t("Job", "Trabajo")} {c.id}</span>
+              <span>·</span>
+              <span>{name || t("Customer not captured", "Cliente no capturado")}</span>
+            </p>
+            <p className="jb-meta">{sm.equip}</p>
+            <p className="jb-meta" data-testid="oh-ready">
+              {ev.officeReview.ready ? t("Ready for office review", "Listo para revisión de oficina") : t("Not ready for office review", "No listo para revisión de oficina")} · {t("Not ready for filing", "No listo para presentar")}
+            </p>
+            <PacketInfo jobId={c.id} />
+            {ev.missing.length > 0 ? (
+              <div data-testid="oh-missing">
+                <p className="jb-next">{t(`${ev.missing.length} missing`, `Faltan ${ev.missing.length}`)}</p>
+                <ul className="oh-missing">{ev.missing.map((m) => <li key={m.ruleId}>{t(...m.text)}</li>)}</ul>
+              </div>
+            ) : (
+              <p className="jb-meta">{t("No missing items.", "No falta nada.")}</p>
+            )}
+            {Object.keys(c.corrections ?? {}).length > 0 && (
+              <div className="cr-list" data-testid="oh-corrections">
+                <p className="jb-meta">{t(`${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} corrected item(s) awaiting office review`, `${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} dato(s) corregido(s) esperando revisión de oficina`)}</p>
+                {Object.entries(c.corrections!).map(([k, x]) => {
+                  const f = fieldSets(c).find((y) => y.key === k);
+                  return (
+                    <div key={k} className="cr-list" data-testid={`oh-corr-${k}`}>
+                      <span className="font-semibold">{f ? t(...f.label) : k}</span>
+                      <CorrectionStatus c={x} testId={`oh-corr-status-${k}`} original={String(c.values[k] ?? "")} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <Link to={p("/permit/draft/$id")} params={{ id: c.id } as never} className="ap-btn primary" data-testid="oh-open">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+          </div>
+        ))}
+    </>
+  );
+
   return (
     <AppPage bottom wide>
       <header className="jb-head">
         <div className="jb-title"><h1>{t("Office handoff", "Entrega a oficina")}</h1></div>
-        <p className="ap-muted">{t(
-          demo ? "Search the PermitDraft sample jobs by job number, address or customer name, then open the review draft." : "Search the captured jobs saved on this device by job number, address or customer name, then open the review draft.",
-          demo ? "Busque los trabajos de muestra Demo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión." : "Busque los trabajos capturados en este dispositivo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión.",
-        )}</p>
-        <p className="ap-muted">{t("Ready for office review is not ready for filing. Filing always shows Not ready.", "Listo para revisión de oficina no es listo para presentar. Presentar siempre muestra No está listo.")}</p>
+        {demo ? (
+          <>
+            <p className="ap-muted">{t("Search the PermitDraft sample jobs by job number, address or customer name, then open the review draft.", "Busque los trabajos de muestra Demo por número de trabajo, dirección o nombre del cliente y abra el borrador de revisión.")}</p>
+            <p className="ap-muted">{t("Ready for office review is not ready for filing. Filing always shows Not ready.", "Listo para revisión de oficina no es listo para presentar. Presentar siempre muestra No está listo.")}</p>
+          </>
+        ) : (
+          <p className="ap-muted">{t("What needs your office first, then every job. Jobs kept only on this device are listed separately below.", "Lo que su oficina debe atender primero y luego todos los trabajos. Los trabajos guardados solo en este dispositivo se listan aparte, abajo.")}</p>
+        )}
       </header>
       {!demo && <CompanyPackets />}
       {demo && (
@@ -70,73 +145,15 @@ export function OfficeHandoff() {
           <Link to="/demo/office-example" className="ap-btn primary" data-testid="oh-view-example">{t("View example", "Ver ejemplo")}</Link>
         </div>
       )}
-      <div className="ap-field">
-        <label htmlFor="oh-q">{t("Job number, address or customer name", "Número de trabajo, dirección o nombre del cliente")}</label>
-        <Input id="oh-q" type="search" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" placeholder={t("e.g. Alder or cap-", "p. ej. Alder o cap-")} data-testid="oh-search" />
-      </div>
-      <div className="jb-chipwrap">
-        <div className="jb-chips" role="group" aria-label={t("Office review readiness", "Preparación para revisión de oficina")}>
-          {FILTERS.map(([k, en, es]) => (
-            <button key={k} type="button" className="jb-chip" aria-pressed={ready === k} onClick={() => setReady(k)} data-testid={`oh-filter-${k}`}>{t(en, es)}</button>
-          ))}
-        </div>
-      </div>
-      <p className="ap-muted" role="status" data-testid="oh-count">
-        {!mounted ? t("Loading…", "Cargando…") : t(`${shown.length} of ${rows.length} ${rows.length === 1 ? "job" : "jobs"}`, `${shown.length} de ${rows.length} ${rows.length === 1 ? "trabajo" : "trabajos"}`)}
-      </p>
-      {mounted && rows.length === 0 && (
-        <div className="jb-empty" data-testid="oh-empty">
-          <p>{t(demo ? "No sample jobs are saved in PermitDraft Demo yet. Finish a demo job and it shows up here." : "No captured jobs are saved on this device yet. Finish a job and it shows up here.", demo ? "Todavía no hay trabajos de muestra guardados en PermitDraft Demo. Termine un trabajo de la demo y aparecerá aquí." : "Todavía no hay trabajos capturados en este dispositivo. Termine un trabajo y aparecerá aquí.")}</p>
-          <Link to={p("/new")} className="ap-btn primary">{t("+ New job", "+ Nuevo trabajo")}</Link>
-        </div>
-      )}
-      {mounted && rows.length > 0 && shown.length === 0 && (
-        <div className="jb-empty" data-testid="oh-nomatch">
-          <p>{t("No jobs match this search and filter.", "Ningún trabajo coincide con esta búsqueda y filtro.")}</p>
-          <button type="button" className="ap-btn ghost" onClick={() => { setQ(""); setReady("all"); }} data-testid="oh-clear">{t("Clear search and filter", "Borrar búsqueda y filtro")}</button>
-        </div>
-      )}
-      {shown.map(({ c, sm, ev, name, status }) => (
-        <div key={c.id} className={`jb-job ${status}`} data-testid="oh-job">
-          <div className="jb-top">
-            <span className="jb-addr">{sm.addr}</span>
-            <span className={`jb-badge ${status}`}>{status === "missing" ? t("Missing info", "Falta información") : t("Not filed yet", "Aún no presentado")}</span>
+      {demo ? deviceList : (
+        <section className="oh-device" aria-labelledby="oh-device-h" data-testid="oh-device">
+          <div className="oh-sec-head">
+            <h2 id="oh-device-h" className="ap-h2">{t("Saved on this device only", "Guardados solo en este dispositivo")}</h2>
+            <p className="ap-muted">{t("Captured jobs this browser keeps. They are not your company's queue, and other devices do not see them. Ready for office review is not ready for filing.", "Trabajos capturados que guarda este navegador. No son la cola de su empresa y otros dispositivos no los ven. Listo para revisión de oficina no es listo para presentar.")}</p>
           </div>
-          <p className="jb-meta">
-            <span data-testid="oh-jobno">{t("Job", "Trabajo")} {c.id}</span>
-            <span>·</span>
-            <span>{name || t("Customer not captured", "Cliente no capturado")}</span>
-          </p>
-          <p className="jb-meta">{sm.equip}</p>
-          <p className="jb-meta" data-testid="oh-ready">
-            {ev.officeReview.ready ? t("Ready for office review", "Listo para revisión de oficina") : t("Not ready for office review", "No listo para revisión de oficina")} · {t("Not ready for filing", "No listo para presentar")}
-          </p>
-          <PacketInfo jobId={c.id} />
-          {ev.missing.length > 0 ? (
-            <div data-testid="oh-missing">
-              <p className="jb-next">{t(`${ev.missing.length} missing`, `Faltan ${ev.missing.length}`)}</p>
-              <ul className="oh-missing">{ev.missing.map((m) => <li key={m.ruleId}>{t(...m.text)}</li>)}</ul>
-            </div>
-          ) : (
-            <p className="jb-meta">{t("No missing items.", "No falta nada.")}</p>
-          )}
-          {Object.keys(c.corrections ?? {}).length > 0 && (
-            <div className="cr-list" data-testid="oh-corrections">
-              <p className="jb-meta">{t(`${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} corrected item(s) awaiting office review`, `${Object.values(c.corrections!).filter((x) => x.flaggedAt && !x.decision).length} dato(s) corregido(s) esperando revisión de oficina`)}</p>
-              {Object.entries(c.corrections!).map(([k, x]) => {
-                const f = fieldSets(c).find((y) => y.key === k);
-                return (
-                  <div key={k} className="cr-list" data-testid={`oh-corr-${k}`}>
-                    <span className="font-semibold">{f ? t(...f.label) : k}</span>
-                    <CorrectionStatus c={x} testId={`oh-corr-status-${k}`} original={String(c.values[k] ?? "")} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          <Link to={p("/permit/draft/$id")} params={{ id: c.id } as never} className="ap-btn primary" data-testid="oh-open">{t("Open review draft", "Abrir borrador de revisión")}</Link>
-        </div>
-      ))}
+          {deviceList}
+        </section>
+      )}
     </AppPage>
   );
 }
