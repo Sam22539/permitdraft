@@ -177,5 +177,14 @@ It never says "sent" until the server confirms.
 
 ---
 
+### C6. Sync tab (`TechSync.dc.html`)
+- Lists queued packets: job, version, photos uploaded (with a progress bar) and the last try with its reason.
+- Lists jobs delivered today, each with "office email confirmed".
+- A 56 px **Try again now** button.
+- The tab label shows the waiting count.
+- Never marks a job as sent before the office has it.
+
+---
+
 ## D. Walkthrough demo (`Main.dc.html`)
 An interactive prototype of one job end to end, with a "Live back end" log. Use it as a behavior reference for statuses, versioning and notifications. It is not a production screen.

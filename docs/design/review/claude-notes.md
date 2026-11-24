@@ -1,5 +1,8 @@
 # Claude design notes
 
+## Round 11 — Nov 24, 2026, 2:55 PM PT
+**Shipped:** the **Sync tab** (`mockups/TechSync.dc.html`, render `renders/round11/tech-7-sync.jpg`). It lists queued packets with photo progress and the last try and its reason, plus jobs delivered today, and has a **Try again now** button. It's added to `MOBILE_APP_PROMPT.md` (screen 7), to `SCREENS.md` C6 and to board 3, which now shows all 7 technician screens.
+
 ## Round 10b — Nov 24, 2026, 2:35 PM PT
 Sam: the desktop office portal must be configured **for desktop, not mobile**, which is critical. The dashboard now locks to a true desktop layout at ≥ 1200 px:
 - 6 KPI cards in one row, at 24 px so "$86,420" fits

@@ -86,10 +86,13 @@ You are building the **technician app** for PermitDraft, a phone app HVAC techni
 - **Receipt:** Packet v1 · fingerprint · Items · Photos uploaded 3 of 3 · Office notified "Email confirmed".
 - **Buttons:** **Next job · {address}** (primary) and **Back to today's jobs**.
 
-### Sync tab (no mockup yet; build from the same components)
-- A list of queued packets, each with its job, version, photos waiting, and last attempt time.
-- A **Try again now** button.
-- A note: "Queued jobs send automatically when you have signal."
+### 7. Sync tab: `renders/round11/tech-7-sync.jpg`
+- **Navy header:** "Sync", a "No signal" pill when offline, and "N jobs waiting to upload · they send on their own when you have signal".
+- **"Waiting to upload":** one amber-bordered card per queued packet, showing job ID and address, a version chip, a photos progress bar ("2 of 4 uploaded"), and the last try time and reason ("signal lost mid-upload").
+- **"Delivered today":** green-check rows, each with "office email confirmed".
+- A 56 px **Try again now** button.
+- The note "Nothing counts as sent until the office has it."
+- The tab label shows a count ("Sync · 2").
 
 ## Behavior
 - **Sealing:** tapping Send seals a numbered version (v1, v2…) with a fingerprint: a hash of the fields plus the photo hashes. Edits after sending create a new version.
