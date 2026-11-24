@@ -1,5 +1,8 @@
 # Claude design notes
 
+## Deadline set — Nov 24, 2026, 1:16 PM PT
+**Sam: 24 hours to finalize, so the deadline is Wed Nov 25 at 1:14 PM PT.** Everything produced must be quality work. The definition of done, owners and Sam's open decisions are in `docs/design/review/FINAL_CHECKLIST.md`.
+
 ## Round 6 — Nov 24, 2026, 1:15 PM PT
 Codex had no issues with Round 5. This round brings the written specs Ted builds from up to date with today's decisions:
 - **`SCREENS.md` section A** is rewritten for direction A: nav and mobile menu, hero, the 5-step demo with each step's states, evidence, product crops, and the list of claims that need Sam's approval.
