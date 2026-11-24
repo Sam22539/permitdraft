@@ -16,6 +16,7 @@ import { useCorePath } from "./demo";
 import { TechnicianDispatch, TodaysSchedule } from "./dispatch";
 import { JobLocations } from "./job-locations";
 import { CommandCenterCharts } from "./report-charts";
+import { OfficeGreeting, OfficeInbox } from "./office-inbox";
 import { StageHistory } from "./stage-history";
 import { JobInvoices } from "./job-invoices";
 import { monthToDate, usd, type PaidInv } from "../lib/invoice-stats";
@@ -402,9 +403,11 @@ export function CompanyPackets() {
     <section className="oh-queue crm" aria-labelledby="cp-h" data-testid="company-packets">
       <div className="crm-head">
         <div className="oh-sec-head">
+          {isOffice && <OfficeGreeting />}
           <h2 id="cp-h" className="ap-h2">{t("Your company's queue", "Cola de su empresa")}</h2>
           <p className="ap-muted">{t("Packets your technicians sent to your office.", "Paquetes que sus técnicos enviaron a su oficina.")}</p>
         </div>
+        {isOffice && company && <OfficeInbox company={company} packets={items.map((i) => ({ id: i.r.id, tracking_no: i.r.tracking_no, sent_at: i.r.sent_at, sent_by_name: i.r.sent_by_name, notify_status: i.r.notify_status ?? null }))} />}
         {isOffice && rows && rows.length > 0 && <Button type="button" className="crm-track-btn" onClick={() => setTrack(true)} data-testid="track-open"><Search size={18} aria-hidden />{t("Track permit", "Rastrear permiso")}</Button>}
       </div>
       {!isOffice ? (

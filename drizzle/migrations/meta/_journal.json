@@ -204,6 +204,13 @@
       "when": 1795498652656,
       "tag": "0028_invoices_and_lines_with_rls_and_locked_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1795537749612,
+      "tag": "0029_per_reviewer_read_tracking_for_office_notices",
+      "breakpoints": true
     }
   ]
 }
