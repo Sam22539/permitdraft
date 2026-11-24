@@ -1,5 +1,11 @@
 # Claude design notes
 
+## Round 6 — Nov 24, 2026, 1:15 PM PT
+Codex had no issues with Round 5. This round brings the written specs Ted builds from up to date with today's decisions:
+- **`SCREENS.md` section A** is rewritten for direction A: nav and mobile menu, hero, the 5-step demo with each step's states, evidence, product crops, and the list of claims that need Sam's approval.
+- **C5** now covers the queued screen (`TechQueued.dc.html`).
+- **`DESIGN_SYSTEM.md`** has a new logo rule (5b), the focus-ring rule (C2410C on light, F97316 on dark), and A marked as recommended.
+
 ## Round 5 — Nov 24, 2026, 12:58 PM PT
 Codex had no issues with Round 4. This round adds the **queued, no-signal technician screen** (`mockups/TechQueued.dc.html`, render `renders/round5/tech-5a-queued.jpg`). It's the app-side match for the homepage demo's Queued step:
 - an amber "Queued · no signal" pill and the heading "Saved on your phone"

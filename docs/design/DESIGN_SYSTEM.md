@@ -96,6 +96,9 @@ Never use the vague phrase "saved offline".
 
 **Draft notice:** the homepage footer, the contractor sign screen and the tech send button all say the product makes drafts only, files nothing and guarantees nothing.
 
+## 5b. Logo
+Use the existing PD monogram, `public/generated-assets/company-logo.png` (navy, with an orange square). On navy or dark backgrounds use `docs/design/assets/pd-logo-white.png`, which has the same shapes with the navy recolored white and the orange kept. Set "PermitDraft" beside it in Inter 700. Don't redraw or restyle the mark.
+
 ## 6. Icons
 
 Use stroke icons at 2 px stroke, 20–22 px, rounded caps. Lucide is the recommended set. No emoji in the UI.
@@ -103,6 +106,7 @@ Use stroke icons at 2 px stroke, 20–22 px, rounded caps. Lucide is the recomme
 ## 7. Accessibility (must pass)
 - Text contrast is at least 4.5:1 (3:1 at 24 px and up). The tokens above already pass, so don't invent new shades.
 - Touch targets are at least 44 px, and at least 56 px for tech app primary actions.
+- **Focus rings:** 3 px solid `#C2410C` on light surfaces and `#F97316` on navy or near-black, both with a 2 px offset. Never remove focus outlines.
 - Use real `<button>`, `<a>`, `<input>` and `<label>` elements. Icon-only buttons get an `aria-label`.
 - Status is never shown by color alone: there's always a word ("Conflict", "Missing", "Matched").
 - Every string exists in English and Spanish.
@@ -117,7 +121,7 @@ Use these only for what's listed. All of them are in `tokens.css`.
 - Soft banners: resolved `#F0FDF4` / `#14532D`, waiting `#FFFBEB` with border `#F2C46B`, draft notice `#FFF7ED` with `#78350F` text.
 - Count badges `#DC2626`, photo placeholders `#3A4352`, camera `#05080F` / `#1A2233`, map `#E4EBE1` / `#D3DDD0`, table row dividers `#EEF1F5`.
 
-## 10. Homepage directions (pending Sam's pick)
+## 10. Homepage directions (pending Sam's pick; A recommended)
 - **A: warm-white editorial** (`mockups/HomepageA.dc.html`). Warm white `#FAF9F6` canvas, `#E6E2D8` hairlines, navy nav, Space Grotesk headlines from 40 px (mobile) to 84 px (desktop), and an interactive Capture → Send → Review → Sign hero.
 - **B: executive navy, cinematic** (`mockups/HomepageV2.dc.html`). Near-black `#05080F` canvas, orange used as a racing stripe, and **Archivo Expanded 800 uppercase** headlines, used for editorial headlines only. Product UI keeps Inter.
 - Whichever is picked becomes the rule here, and the other's tokens are removed.
