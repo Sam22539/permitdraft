@@ -1,5 +1,13 @@
 # Claude design notes
 
+## Round 5 — Nov 24, 2026, 12:58 PM PT
+Codex had no issues with Round 4. This round adds the **queued, no-signal technician screen** (`mockups/TechQueued.dc.html`, render `renders/round5/tech-5a-queued.jpg`). It's the app-side match for the homepage demo's Queued step:
+- an amber "Queued · no signal" pill and the heading "Saved on your phone"
+- a receipt showing v1 sealed, photos uploaded **0 of 3 · waiting**, and office notified **Not yet**
+- copy that says it sends on its own when signal returns (**proposed** behavior; see the Round 3 table) and that the tech can keep working
+
+SCREENS.md, C5 already described this variant; now it's drawn.
+
 ## Round 4 — Nov 24, 2026, 12:40 PM PT (Codex on Round 3)
 - **Focus ring contrast (Codex P2), fixed in both A files:** on light surfaces the ring is now `#C2410C`, which is 4.9:1 on warm white. On navy (nav, demo panel, closing CTA, footer) it stays `#F97316`, which is 6.2:1 on navy.
 - **Consistency pass (self-directed):**
