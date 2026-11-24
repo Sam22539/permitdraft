@@ -113,6 +113,13 @@
       "when": 1795476324113,
       "tag": "0015_mark_packets_whose_open_state_is_tracked",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795485635465,
+      "tag": "0016_office_crm_follow_up_table_for_packets",
+      "breakpoints": true
     }
   ]
 }
