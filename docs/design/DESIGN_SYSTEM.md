@@ -116,3 +116,8 @@ Use these only for what's listed. All of them are in `tokens.css`.
 - Chart series, in order: `#16A34A` approved, `#7C3AED` submitted, `#2563EB` office review, `#EA580C` missing or approved bars, `#94A3B8` other, `#7DD3FC` data on navy.
 - Soft banners: resolved `#F0FDF4` / `#14532D`, waiting `#FFFBEB` with border `#F2C46B`, draft notice `#FFF7ED` with `#78350F` text.
 - Count badges `#DC2626`, photo placeholders `#3A4352`, camera `#05080F` / `#1A2233`, map `#E4EBE1` / `#D3DDD0`, table row dividers `#EEF1F5`.
+
+## 10. Homepage directions (pending Sam's pick)
+- **A: warm-white editorial** (`mockups/HomepageA.dc.html`). Warm white `#FAF9F6` canvas, `#E6E2D8` hairlines, navy nav, Space Grotesk headlines from 40 px (mobile) to 84 px (desktop), and an interactive Capture → Send → Review → Sign hero.
+- **B: executive navy, cinematic** (`mockups/HomepageV2.dc.html`). Near-black `#05080F` canvas, orange used as a racing stripe, and **Archivo Expanded 800 uppercase** headlines, used for editorial headlines only. Product UI keeps Inter.
+- Whichever is picked becomes the rule here, and the other's tokens are removed.
