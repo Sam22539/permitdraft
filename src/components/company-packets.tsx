@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, Archive, FileText } from "lucide-react";
+import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText } from "lucide-react";
 import { useCorePath } from "./demo";
 import { TodaysSchedule } from "./dispatch";
 
@@ -444,6 +444,9 @@ export function CompanyPackets() {
               <div className="crm-qa">
                 <Button type="button" className="crm-qa-main" onClick={() => setTrack(true)}><Search size={18} aria-hidden />{t("Track permit", "Rastrear permiso")}</Button>
                 <Link to={p("/new") as never} className="crm-qa-btn"><FilePlus2 size={18} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
+                <Link to="/documents" className="crm-qa-btn"><FolderOpen size={18} aria-hidden />{t("Documents", "Documentos")}</Link>
+                <Link to="/equipment" className="crm-qa-btn"><Wrench size={18} aria-hidden />{t("Equipment", "Equipo")}</Link>
+                <Link to="/inspections" className="crm-qa-btn"><ClipboardCheck size={18} aria-hidden />{t("Inspections", "Inspecciones")}</Link>
                 <Link to="/office-setup" className="crm-qa-btn"><Settings2 size={18} aria-hidden />{t("Office setup", "Configuración de oficina")}</Link>
               </div>
             </section>

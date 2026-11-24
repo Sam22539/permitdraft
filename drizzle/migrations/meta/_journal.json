@@ -155,6 +155,20 @@
       "when": 1795493392881,
       "tag": "0021_job_assignments_and_audit_tables_read_only_grant",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795493797642,
+      "tag": "0022_create_private_documents_bucket",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795493812013,
+      "tag": "0023_documents_equipment_notes_inspections_tables",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
+import { ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -151,6 +151,9 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
           {!demo && <DropdownMenuItem asChild><Link to="/leads" data-testid="nav-leads-m"><UserPlus size={18} aria-hidden />{t("Leads", "Prospectos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/technicians" data-testid="nav-technicians-m"><HardHat size={18} aria-hidden />{t("Technicians", "Técnicos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/dispatch" data-testid="nav-dispatch-m"><CalendarClock size={18} aria-hidden />{t("Dispatch & Schedule", "Despacho y agenda")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/documents" data-testid="nav-documents-m"><FolderOpen size={18} aria-hidden />{t("Documents", "Documentos")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/equipment" data-testid="nav-equipment-m"><Wrench size={18} aria-hidden />{t("Equipment", "Equipo")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/inspections" data-testid="nav-inspections-m"><ClipboardCheck size={18} aria-hidden />{t("Inspections", "Inspecciones")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/my-handoffs"><Send size={18} aria-hidden />{t("Sent to office", "Enviados a la oficina")}</Link></DropdownMenuItem>}
           <DropdownMenuItem asChild><Link to="/profile" data-testid="nav-account"><UserRound size={18} aria-hidden />{t("Account", "Cuenta")}</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to={p("/settings") as never} data-testid="nav-settings"><Settings size={18} aria-hidden />{t("Settings", "Ajustes")}</Link></DropdownMenuItem>
@@ -175,6 +178,9 @@ export function SideNav() {
       { to: "/leads", icon: UserPlus, label: t("Leads", "Prospectos") },
       { to: "/technicians", icon: HardHat, label: t("Technicians", "Técnicos") },
       { to: "/dispatch", icon: CalendarClock, label: t("Dispatch & Schedule", "Despacho y agenda") },
+      { to: "/documents", icon: FolderOpen, label: t("Documents", "Documentos") },
+      { to: "/equipment", icon: Wrench, label: t("Equipment", "Equipo") },
+      { to: "/inspections", icon: ClipboardCheck, label: t("Inspections", "Inspecciones") },
       { to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") },
     ]),
     { to: "/resources", icon: BookOpen, label: t("Resources", "Recursos") },

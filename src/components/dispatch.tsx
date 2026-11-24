@@ -127,6 +127,15 @@ export function TodaysSchedule({ company }: { company: string }) {
   const { t } = useLang();
   const [rows, setRows] = useState<Assignment[] | null>(null);
   const [err, setErr] = useState(false);
+  const [insp, setInsp] = useState<{ id: string; kind: string; scheduled_at: string; tracking_no: string }[]>([]);
+  useEffect(() => {
+    let live = true;
+    const d0 = startOfDay(new Date());
+    backend.from("company_inspections").select("id, kind, scheduled_at, tracking_no").eq("company_id", company).eq("status", "scheduled")
+      .gte("scheduled_at", d0.toISOString()).lt("scheduled_at", addDays(d0, 1).toISOString()).order("scheduled_at")
+      .then(({ data }) => { if (live && data) setInsp(data); }, () => {});
+    return () => { live = false; };
+  }, [company]);
   useEffect(() => {
     let live = true;
     const a = startOfDay(new Date());
@@ -141,8 +150,13 @@ export function TodaysSchedule({ company }: { company: string }) {
       <h3 id="crm-ts-h" className="crm-h3">{t("Today's Schedule", "Agenda de hoy")}</h3>
       {err ? <p className="crm-note" role="alert">{t("Could not load today's schedule.", "No se pudo cargar la agenda de hoy.")}</p>
         : rows === null ? <p className="crm-note" role="status">{t("Loading…", "Cargando…")}</p>
-        : rows.length === 0 ? <p className="crm-note" data-testid="ts-empty">{t("Nothing is scheduled for today.", "No hay nada programado para hoy.")}</p>
-        : <ul className="oh-rows">{rows.map((a) => <JobLine key={a.packet_id} a={a} conflict={conf.get(a.packet_id)} showTech />)}</ul>}
+        : rows.length === 0 && insp.length === 0 ? <p className="crm-note" data-testid="ts-empty">{t("Nothing is scheduled for today.", "No hay nada programado para hoy.")}</p>
+        : <>
+          {rows.length > 0 && <ul className="oh-rows">{rows.map((a) => <JobLine key={a.packet_id} a={a} conflict={conf.get(a.packet_id)} showTech />)}</ul>}
+          {insp.length > 0 && <ul className="oh-rows" data-testid="ts-inspections" aria-label={t("Inspections today (company-recorded)", "Inspecciones de hoy (registradas por la empresa)")}>
+            {insp.map((i) => <li key={i.id} className="oh-row today"><div className="oh-row-main"><span className="jb-addr">{new Date(i.scheduled_at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} · {t("Inspection", "Inspección")} · {i.tracking_no}</span><span className="ap-muted">{i.kind} · {t("company-recorded", "registrada por la empresa")}</span></div></li>)}
+          </ul>}
+        </>}
       <Link to="/dispatch" className="ap-btn oh-open" data-testid="ts-open">{t("Open Dispatch & Schedule", "Abrir despacho y agenda")}</Link>
     </section>
   );
