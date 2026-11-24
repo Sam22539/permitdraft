@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText } from "lucide-react";
 import { useCorePath } from "./demo";
 import { TodaysSchedule } from "./dispatch";
+import { CommandCenterCharts } from "./report-charts";
 
 type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; tracking_no: string; photo_links: unknown[] | null; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> } | null };
 type Crm = { packet_id: string; stage: string; next_follow_up: string | null; note: string | null; permit_ref: string | null; updated_at: string; updated_by?: string | null };
@@ -394,6 +395,8 @@ export function CompanyPackets() {
                 })}
               </ol>
             </section>
+
+            <CommandCenterCharts />
 
             <section className="crm-panel" aria-labelledby="crm-jobs-h">
               <h3 id="crm-jobs-h" className="crm-h3">{t("Jobs", "Trabajos")}</h3>

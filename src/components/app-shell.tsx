@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
+import { BarChart3, ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -154,6 +154,7 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
           {!demo && <DropdownMenuItem asChild><Link to="/documents" data-testid="nav-documents-m"><FolderOpen size={18} aria-hidden />{t("Documents", "Documentos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/equipment" data-testid="nav-equipment-m"><Wrench size={18} aria-hidden />{t("Equipment", "Equipo")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/inspections" data-testid="nav-inspections-m"><ClipboardCheck size={18} aria-hidden />{t("Inspections", "Inspecciones")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/reports"><BarChart3 size={18} aria-hidden />{t("Reports & Analytics", "Reportes y análisis")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/my-handoffs"><Send size={18} aria-hidden />{t("Sent to office", "Enviados a la oficina")}</Link></DropdownMenuItem>}
           <DropdownMenuItem asChild><Link to="/profile" data-testid="nav-account"><UserRound size={18} aria-hidden />{t("Account", "Cuenta")}</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to={p("/settings") as never} data-testid="nav-settings"><Settings size={18} aria-hidden />{t("Settings", "Ajustes")}</Link></DropdownMenuItem>
@@ -181,6 +182,7 @@ export function SideNav() {
       { to: "/documents", icon: FolderOpen, label: t("Documents", "Documentos") },
       { to: "/equipment", icon: Wrench, label: t("Equipment", "Equipo") },
       { to: "/inspections", icon: ClipboardCheck, label: t("Inspections", "Inspecciones") },
+      { to: "/reports", icon: BarChart3, label: t("Reports & Analytics", "Reportes y análisis") },
       { to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") },
     ]),
     { to: "/resources", icon: BookOpen, label: t("Resources", "Recursos") },
