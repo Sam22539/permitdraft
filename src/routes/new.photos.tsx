@@ -53,6 +53,11 @@ const EMP_KEY = "permitdraft-core-employee-id";
 const readEmp = () => { try { return sessionStorage.getItem(EMP_KEY) ?? ""; } catch { return ""; } };
 const writeEmp = (v: string) => { try { if (v) sessionStorage.setItem(EMP_KEY, v); else sessionStorage.removeItem(EMP_KEY); } catch { /* ignore */ } };
 
+/** Demo keeps the typed Employee ID in its own demo-scoped storage until Finish succeeds or the demo is reset. */
+const DEMO_EMP_KEY = "pd-demo:permitdraft-demo-employee-id";
+const readDemoEmp = () => { try { return localStorage.getItem(DEMO_EMP_KEY) ?? ""; } catch { return ""; } };
+const writeDemoEmp = (v: string) => { try { if (v) localStorage.setItem(DEMO_EMP_KEY, v); else localStorage.removeItem(DEMO_EMP_KEY); } catch { /* ignore */ } };
+
 export function Photos() {
   const s = useSearch({ strict: false }) as { fix?: string; slot?: string; rule?: string };
   return s.fix ? <SavedJobPhoto id={s.fix} slot={s.slot} rule={s.rule} /> : <NewPhotos />;
@@ -122,7 +127,7 @@ function NewPhotos() {
   const [tried, setTried] = useState(false);
   const missing = ready ? missingSlots(jobType, dvals, Object.fromEntries(Object.entries(photos).map(([k, v]) => [k, v!.savedAt]))) : [];
   const label = (k: Slot) => { const r = SLOTS.find(([x]) => x === k); return r ? t(r[1], r[2]) : k; };
-  useEffect(() => { if (!demo) { const v = readEmp(); if (v) setEmployeeId(v); } }, [demo]);
+  useEffect(() => { const v = demo ? readDemoEmp() : readEmp(); if (v) setEmployeeId(v); }, [demo]);
   // Core: the Employee ID the company admin assigned, read-only here; it goes to the office with the packet automatically.
   const [assignedId, setAssignedId] = useState<string | null>(null);
   useEffect(() => {
@@ -176,6 +181,7 @@ function NewPhotos() {
       const id = await finishCapture(undefined, tech);
       setBusy(false);
       if (!id) return setFailed(true);
+      writeDemoEmp("");
       nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
       return;
     }
@@ -276,7 +282,7 @@ function NewPhotos() {
       {demo && (
         <div className="cx-field" data-testid="tech-id-field">
           <label htmlFor="emp-id">{t("Employee ID (required)", "ID de empleado (obligatorio)")}</label>
-          <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); if (idErr) setIdErr(""); }} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} inputMode="text" aria-invalid={idErr ? true : undefined} aria-describedby={idErr ? "emp-id-err" : "emp-id-hint"} data-testid="employee-id" />
+          <Input id="emp-id" value={employeeId} onChange={(e) => { setEmployeeId(e.target.value); writeDemoEmp(e.target.value); if (idErr) setIdErr(""); }} maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} inputMode="text" aria-invalid={idErr ? true : undefined} aria-describedby={idErr ? "emp-id-err" : "emp-id-hint"} data-testid="employee-id" />
           {idErr ? (
             <p id="emp-id-err" role="alert" className="cx-err" data-testid="employee-id-error">{idErr === "empty"
               ? t("Enter your Employee ID before Finish.", "Ingrese su ID de empleado antes de Finalizar.")
@@ -284,7 +290,7 @@ function NewPhotos() {
           ) : (
             <p id="emp-id-hint" className="cx-note">{t("Letters and numbers; leading zeros are kept. Shown to the office under Submitted by.", "Letras y números; los ceros a la izquierda se conservan. La oficina lo ve en Enviado por.")}</p>
           )}
-          <button type="button" className="ap-btn ghost" data-testid="employee-id-sample" onClick={() => { setEmployeeId(SAMPLE_TECH_ID); setIdErr(""); }}>{t(`Use sample ${SAMPLE_TECH_ID}`, `Usar muestra ${SAMPLE_TECH_ID}`)}</button>
+          <button type="button" className="ap-btn ghost" data-testid="employee-id-sample" onClick={() => { setEmployeeId(SAMPLE_TECH_ID); writeDemoEmp(SAMPLE_TECH_ID); setIdErr(""); }}>{t(`Use sample ${SAMPLE_TECH_ID}`, `Usar muestra ${SAMPLE_TECH_ID}`)}</button>
         </div>
       )}
       {!demo && assignedId && (

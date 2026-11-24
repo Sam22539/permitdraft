@@ -132,7 +132,7 @@ export function Jobs() {
               <span className={`jb-badge ${cls[j.status]}`}>{j.status === "Draft" ? ((j as { sample?: boolean }).sample ? t("In progress", "En curso") : t("Not filed yet", "Aún no presentado")) : lang === "es" ? esStatus[j.status] : j.status}</span>
             </div>
             {j.who && <div className="jb-who"><span className="jb-init">{j.who[0]}</span><span>{j.who[1]}</span></div>}
-            <p className="jb-meta">{j.equip} · {j.date}{j.sample && <span className="jb-tag">{t("Sample", "Muestra")}</span>}</p>
+            <p className="jb-meta">{j.equip} · {j.date}{j.sample && <span className="jb-tag">{t("Sample", "Muestra")}</span>}{(j as { cap?: Captured }).cap && <span className="jb-tag" data-testid="captured-tag">{t("Your capture", "Su captura")}</span>}{j.id === "hp-1187" && <span className="jb-tag">{t("Sample job", "Trabajo de muestra")}</span>}</p>
             {j.next && <p className="jb-next">{j.next}</p>}
           </>
         );

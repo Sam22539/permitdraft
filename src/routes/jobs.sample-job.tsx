@@ -4,7 +4,10 @@ import { CoreGate } from "../components/core-offer";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useCorePath, useDemo } from "../components/demo";
 import { DemoFeedback } from "../components/demo-feedback";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useCaptured, type Captured } from "../lib/captured";
+import { activeType, answerLabel, captureSummary, applicableChecks, DUCT_LABEL, fieldSets, READING_UNIT_KEY, readingUnit, requiredSlots } from "../lib/capture-fields";
+import { loadPhotos, ALL_SLOTS, type Slot } from "../lib/photos";
 import { AppPage } from "../components/app-shell";
 import { Checkbox } from "../components/ui/checkbox";
 import { InspectionTimeline } from "../components/inspection-timeline";
@@ -38,10 +41,132 @@ const CHECKS: [string, string, "g" | "a" | "r"][] = [
 ];
 
 export function Detail() {
+  const { done: doneId } = useSearch({ strict: false }) as { saved?: "1"; done?: string };
+  return doneId ? <CapturedDetail id={doneId} /> : <SampleDetail />;
+}
+
+const SLOT_NAME: Record<Slot, [string, string]> = {
+  plate: ["Data plate (model and serial)", "Placa de datos (modelo y serie)"],
+  outdoor: ["Outdoor unit with clearance", "Unidad exterior con espacio libre"],
+  wide: ["Whole unit, wide shot", "Unidad completa, foto general"],
+  gauge: ["Refrigerant gauge or meter reading", "Lectura del manómetro"],
+  panel: ["Panel label photo", "Foto de la etiqueta del panel"],
+  plate_furnace: ["Furnace data plate", "Placa de datos del horno"],
+  plate_coil: ["Indoor coil data plate", "Placa de datos del serpentín interior"],
+  plate_outdoor: ["Outdoor unit data plate", "Placa de datos de la unidad exterior"],
+};
+
+/** A finished capture, shown from its own saved snapshot only. Never the sample job and never the active new-job draft. */
+function CapturedDetail({ id }: { id: string }) {
+  const { t, lang } = useLang();
+  const p = useCorePath();
+  const demo = useDemo();
+  const { saved } = useSearch({ strict: false }) as { saved?: "1" };
+  const all = useCaptured();
+  const [mounted, setMounted] = useState(false);
+  const [urls, setUrls] = useState<Partial<Record<Slot, string>>>({});
+  useEffect(() => setMounted(true), []);
+  const cap: Captured | undefined = all.find((c) => c.id === id);
+  useEffect(() => {
+    if (!cap) return;
+    let dead = false;
+    const made: string[] = [];
+    loadPhotos(id).then((recs) => {
+      if (dead) return;
+      const m: Partial<Record<Slot, string>> = {};
+      for (const r of recs) { const u = URL.createObjectURL(r.blob); made.push(u); m[r.slot] = u; }
+      setUrls(m);
+    }).catch(() => undefined);
+    return () => { dead = true; made.forEach((u) => URL.revokeObjectURL(u)); };
+  }, [id, !!cap]);
+
+  if (!cap) {
+    return (
+      <AppPage bottom capture>
+        <h1 className="cx-h1">{t("Captured job", "Trabajo capturado")}</h1>
+        <p className="cx-note" role="status">{mounted ? t("This captured job was not found on this device. Nothing else is shown in its place.", "Este trabajo capturado no se encontró en este dispositivo. No se muestra nada más en su lugar.") : t("Loading…", "Cargando…")}</p>
+        <Link to={p("/jobs")} className="ap-btn ghost">{t("Back to Jobs", "Volver a Trabajos")}</Link>
+      </AppPage>
+    );
+  }
+  const sm = captureSummary(cap, lang);
+  const type = activeType(cap);
+  const v = cap.values;
+  const fv = (k: string) => String(v[k] ?? cap.formDefaults[k] ?? "").trim();
+  const fields = fieldSets(cap);
+  const label = (k: string) => { const f = fields.find((x) => x.key === k); return f ? t(...f.label) : k; };
+  const equipKeys = fields.filter((f) => f.step === 2 && f.key !== "type");
+  const showVal = (f: { key: string; kind?: string }) => {
+    const raw = fv(f.key);
+    if (!raw) return t("Not captured", "No capturado");
+    if (f.kind === "choice") { const a = answerLabel(f.key, raw); return a ? t(...a) : raw; }
+    if (f.kind === "duct") return DUCT_LABEL[raw] ? t(...DUCT_LABEL[raw]) : raw;
+    return raw;
+  };
+  const checks = fields.filter((f) => f.kind === "check");
+  const applicable = applicableChecks(type, v);
+  const slots = [...new Set<Slot>([...requiredSlots(type, v), ...ALL_SLOTS.filter((s) => cap.photos.some((x) => x.slot === s)), ...(cap.photos.some((x) => x.slot === "panel") ? (["panel"] as Slot[]) : [])])];
+  const have = slots.filter((s) => cap.photos.some((x) => x.slot === s)).length;
+  const when = new Date(cap.finishedAt).toLocaleString(lang === "es" ? "es-US" : "en-US", { dateStyle: "medium", timeStyle: "short" });
+  const row = (k: string, val: string) => <li key={k} className="ap-chk" style={{ display: "grid", gap: ".15rem" }}><span className="cx-note">{k}</span><strong>{val}</strong></li>;
+
+  return (
+    <AppPage bottom capture>
+      {saved && (
+        <div role="status" className="cx-card calm">
+          <p className="font-semibold">{demo ? t("Demo job saved. Nothing is filed.", "Trabajo de demostración guardado. No se presenta nada.") : t("Job saved. This is not permit filing.", "Trabajo guardado. No es la presentación del permiso.")}</p>
+          <Link to={p("/permit/draft/$id")} params={{ id } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+          {demo && <DemoFeedback />}
+        </div>
+      )}
+      {!demo && saved && (
+        <section className="cx-card calm" data-testid="core-receipt"><h2 className="cx-h">{t("Office receipt", "Recibo de la oficina")}</h2><PacketInfo jobId={id} /></section>
+      )}
+      <h1 className="cx-h1" data-testid="captured-title">{t("Captured job · ", "Trabajo capturado · ")}{sm.addr}</h1>
+      <p className="cx-note">{t(`Finished ${when} · ${type}. Not filed with the permitting authority.`, `Finalizado ${when} · ${type}. No presentado ante la autoridad de permisos.`)}{cap.submittedBy ? t(` Submitted by ${cap.submittedBy}.`, ` Enviado por ${cap.submittedBy}.`) : ""}</p>
+      <Link to={p("/permit/draft/$id")} params={{ id } as never} className="ap-btn navy">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+
+      <section className="cx-card calm" data-testid="cap-site">
+        <h2 className="cx-h">{t("Homeowner & site", "Propietario y sitio")}</h2>
+        <ul>{["name", "phone", "addr", "city"].map((k) => row(label(k), fv(k) || t("Not captured", "No capturado")))}</ul>
+      </section>
+      <section className="cx-card calm" data-testid="cap-equipment">
+        <h2 className="cx-h">{t("Equipment", "Equipo")}</h2>
+        <ul>{row(t("Equipment type", "Tipo de equipo"), type || t("Not captured", "No capturado"))}{equipKeys.map((f) => row(t(...f.label), showVal(f)))}</ul>
+      </section>
+      <section className="cx-card calm" data-testid="cap-work">
+        <h2 className="cx-h">{t("Work performed", "Trabajo realizado")}</h2>
+        <ul>{["work", "panel", "duct", ...(v.duct === "exempt" ? ["ductReason"] : [])].map((k) => { const f = fields.find((x) => x.key === k); return f ? row(t(...f.label), showVal(f)) : null; })}</ul>
+      </section>
+      <section className="cx-card calm" data-testid="cap-checklist">
+        <h2 className="cx-h">{t("Final checklist", "Lista de verificación final")}</h2>
+        <ul>
+          {checks.map((f) => { const on = v[f.key] === "1"; return (
+            <li key={f.key} className="ap-chk"><span className={`ap-dot ${on ? "g" : "a"}`} aria-hidden /><span style={{ flex: 1 }}>{t(...f.label)}</span><strong className="cx-note">{on ? t("Ticked by the tech", "Marcado por el técnico") : t("Not ticked", "No marcado")}</strong></li>
+          ); })}
+          {Object.keys(READING_UNIT_KEY).filter((k) => applicable.includes("c2")).map((k) => row(`${label(k)} · ${t(...readingUnit(v, k))}`, fv(k) || t("Not captured", "No capturado")))}
+        </ul>
+      </section>
+      <section className="cx-card calm" data-testid="cap-photos">
+        <h2 className="cx-h">{t("Photos", "Fotos")}</h2>
+        <p>{t(`${have} attached · ${slots.length - have} not attached`, `${have} adjuntas · ${slots.length - have} sin adjuntar`)}</p>
+        {slots.map((s) => { const ref = cap.photos.find((x) => x.slot === s); return (
+          <div key={s} className="ph-ev" data-testid={`cap-photo-${s}`}>
+            <p className="font-semibold">{t(...SLOT_NAME[s])}</p>
+            {ref ? (urls[s] ? <div className="ph-thumb"><Image src={urls[s]!} alt={t(...SLOT_NAME[s])} width={96} height={96} /></div> : <p className="cx-note">{t("Loading photo…", "Cargando foto…")}</p>) : <p className="cx-note">{t("No photo captured", "Sin foto capturada")}</p>}
+          </div>
+        ); })}
+      </section>
+    </AppPage>
+  );
+}
+
+function SampleDetail() {
   const { t } = useLang();
   const p = useCorePath();
   const demo = useDemo();
-  const { saved, done: doneId } = useSearch({ strict: false }) as { saved?: "1"; done?: string };
+  const saved = false;
+  const doneId: string | undefined = undefined;
   const [done, setDone] = useState<boolean[]>(STEPS.map(() => false));
   const [warranty, setWarranty] = useState(false);
   const { photos, pending } = usePhotos();
