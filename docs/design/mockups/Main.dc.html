@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PermitDraft — interactive prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F4F5F7;color:#0B1B33;font-family:Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:'Space Grotesk',Inter,sans-serif;margin:0;letter-spacing:-0.01em}
+p{margin:0}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:0;font:600 15px Inter,sans-serif;cursor:pointer;background:#C2410C;color:#fff}
+.btn:hover{background:#9A3412}
+.btn:disabled{background:#DEE2E8;color:#4B5563;cursor:not-allowed}
+.btn2{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #C9D1DC;font:600 15px Inter,sans-serif;cursor:pointer;background:#fff;color:#0B1B33}
+.btn2:hover{background:#F4F5F7}
+.card{background:#fff;border:1px solid #DFE4EB;border-radius:16px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font:600 12px Inter,sans-serif;white-space:nowrap}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 24px 24px 48px">
+<div style="max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 40px; height: 40px; border-radius: 11px; background: #0B1B33; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M9 13l2 2 4-4"/></svg>
+</div>
+<div>
+<h1 style="font-size: 22px">PermitDraft</h1>
+<p style="font-size: 13px; color: #5A6779">Redesign prototype · tap through a real job, front end and back end</p>
+</div>
+</div>
+<nav aria-label="Views" style="display: flex; flex-wrap: wrap; gap: 6px; background: #fff; border: 1px solid #DFE4EB; border-radius: 12px; padding: 4px">
+<sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+<button type="button" onClick="{{ tab.go }}" style="{{ tab.style }}">{{ tab.label }}</button>
+</sc-for>
+</nav>
+<button type="button" class="btn2" onClick="{{ reset }}" style="min-height: 40px; font-size: 14px">Restart demo</button>
+</header>
+
+<ol aria-label="Job progress" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+<li style="{{ s.style }}">
+<span style="{{ s.dot }}">{{ s.num }}</span>
+<span>{{ s.label }}</span>
+</li>
+</sc-for>
+</ol>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+<main style="flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<sc-if value="{{ isTech }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="width: 360px; max-width: 100%; box-sizing: border-box; border: 10px solid #0B1B33; border-radius: 44px; background: #F4F5F7; overflow: hidden">
+<div style="background: #0B1B33; color: #fff; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; color: #C3CEDD">Today · Job HP-1187</span>
+<span class="chip" style="{{ syncStyle }}">{{ syncLabel }}</span>
+</div>
+<h2 style="font-size: 22px">1187 Oak St, Pasadena</h2>
+<p style="font-size: 14px; color: #C3CEDD">Heat pump change-out · 3 ton · Luis M.</p>
+<div style="height: 8px; border-radius: 99px; background: #22385F; overflow: hidden"><div style="{{ barStyle }}"></div></div>
+<p style="font-size: 13px; color: #C3CEDD">{{ progressLabel }}</p>
+</div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<sc-if value="{{ askedTech }}" hint-placeholder-val="{{ false }}">
+<div style="background: #FEF3C7; border: 1px solid #F2C46B; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+<p style="font-weight: 700; font-size: 15px; color: #78350F">Office needs one fix</p>
+<p style="font-size: 14px; color: #78350F">You entered 100 A for the panel. The panel label photo reads 125 A. Which is right?</p>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" class="btn" onClick="{{ techFix }}" style="flex: 1">Change to 125 A</button>
+<button type="button" class="btn2" onClick="{{ techKeep }}">Keep 100 A</button>
+</div>
+</div>
+</sc-if>
+<p style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #5A6779; text-transform: uppercase">Required for this permit</p>
+<sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+<div style="background: #fff; border: 1px solid #DFE4EB; border-radius: 14px; padding: 12px 12px 12px 14px; display: flex; align-items: center; gap: 12px; min-height: 56px">
+<sc-if value="{{ it.done }}" hint-placeholder-val="{{ true }}">
+<span style="width: 30px; height: 30px; flex: none; border-radius: 99px; background: #DCFCE7; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>
+</sc-if>
+<sc-if value="{{ it.todo }}" hint-placeholder-val="{{ false }}">
+<span style="width: 30px; height: 30px; flex: none; box-sizing: border-box; border-radius: 99px; border: 2px dashed #8A93A3"></span>
+</sc-if>
+<div style="flex: 1; min-width: 0">
+<p style="font-weight: 600; font-size: 15px">{{ it.label }}</p>
+<p style="font-size: 13px; color: #5A6779">{{ it.sub }}</p>
+</div>
+<sc-if value="{{ it.todo }}" hint-placeholder-val="{{ false }}">
+<button type="button" class="btn" onClick="{{ it.capture }}" style="min-height: 44px; padding: 0 14px; font-size: 14px">{{ it.cta }}</button>
+</sc-if>
+</div>
+</sc-for>
+<button type="button" class="btn" disabled="{{ sendDisabled }}" onClick="{{ send }}" style="min-height: 56px; font-size: 17px; margin-top: 6px">{{ sendLabel }}</button>
+<p style="font-size: 12px; color: #5A6779; text-align: center">Draft only · not filed · contractor signs before anything is submitted</p>
+</div>
+</div>
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="font-size: 26px">The technician's phone</h2>
+<p style="font-size: 16px; line-height: 1.55; color: #3E4A5C">One job, one checklist. Only the items this permit needs, big tap targets for gloves, and it works with no signal.</p>
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<p style="font-weight: 700">What changed from today's app</p>
+<p style="font-size: 14px; line-height: 1.5; color: #3E4A5C">• The status pill says exactly where the work is: <b>Saved on phone</b> or <b>Delivered to office</b>, never just "saved offline".</p>
+<p style="font-size: 14px; line-height: 1.5; color: #3E4A5C">• Sending seals a numbered version of the packet, so everyone knows which one they're looking at.</p>
+<p style="font-size: 14px; line-height: 1.5; color: #3E4A5C">• Office questions show up right on the job, with a one-tap fix.</p>
+</div>
+<p style="font-size: 14px; color: #5A6779">Try it: tap <b>Take photo</b> on the two open items, then send. Watch the back end panel.</p>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isOffice }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div>
+<h2 style="font-size: 26px">Office review</h2>
+<p style="font-size: 16px; color: #3E4A5C; margin-top: 4px">Missing items and conflicting evidence look different, and each one has a clear decision.</p>
+</div>
+<sc-if value="{{ officeEmpty }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 40px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center">
+<p style="font-weight: 700; font-size: 18px">No packets yet</p>
+<p style="color: #5A6779">Finish the job on the Technician tab and send it. It will land here.</p>
+</div>
+</sc-if>
+<sc-if value="{{ officeGate }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 20px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+<div>
+<p style="font-weight: 700; font-size: 17px">HP-1187 · 1187 Oak St, Pasadena</p>
+<p style="color: #5A6779; font-size: 14px">From Luis M. · packet v1 · 1 conflict, 0 missing</p>
+</div>
+<button type="button" class="btn" onClick="{{ openPacket }}">Open packet</button>
+</div>
+</sc-if>
+<sc-if value="{{ officeOpen }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start">
+<div>
+<p style="font-weight: 700; font-size: 18px">HP-1187 · 1187 Oak St, Pasadena</p>
+<p style="color: #5A6779; font-size: 14px">Heat pump change-out · from Luis M.</p>
+</div>
+<span class="chip mono" style="background: #E0E7FF; color: #1E3A8A">{{ verLabel }}</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="border-radius: 14px; padding: 14px; background: #FEF3C7; border: 1px solid #F2C46B">
+<p style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #78350F; text-transform: uppercase">Conflicts · need a decision</p>
+<p style="font-size: 28px; font-weight: 700; color: #78350F; font-family: 'Space Grotesk'">{{ conflictCount }}</p>
+</div>
+<div style="border-radius: 14px; padding: 14px; background: #F4F5F7; border: 1px dashed #8A93A3">
+<p style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #374151; text-transform: uppercase">Missing · tech must capture</p>
+<p style="font-size: 28px; font-weight: 700; color: #374151; font-family: 'Space Grotesk'">0</p>
+</div>
+</div>
+
+<sc-if value="{{ cOpen }}" hint-placeholder-val="{{ false }}">
+<div style="border: 2px solid #D97706; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"><span class="chip" style="background: #FEF3C7; color: #78350F">Conflict</span><p style="font-weight: 700">Panel rating</p></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Tech entered</p><p style="font-size: 20px; font-weight: 700">100 A</p></div>
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Panel label photo reads</p><p style="font-size: 20px; font-weight: 700">125 A</p></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="btn" onClick="{{ usePhoto }}">Use photo value (125 A)</button>
+<button type="button" class="btn2" onClick="{{ askTech }}">Ask Luis to confirm</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ cAsked }}" hint-placeholder-val="{{ false }}">
+<div style="border: 1px solid #F2C46B; background: #FFFBEB; border-radius: 14px; padding: 16px">
+<p style="font-weight: 700; color: #78350F">Waiting on Luis</p>
+<p style="font-size: 14px; color: #78350F">He got a push notification on the job. Open the Technician tab to answer as him.</p>
+</div>
+</sc-if>
+<sc-if value="{{ cDone }}" hint-placeholder-val="{{ false }}">
+<div style="border: 1px solid #A7E3BC; background: #F0FDF4; border-radius: 14px; padding: 14px 16px; display: flex; gap: 10px; align-items: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+<p style="color: #14532D; font-weight: 600">{{ resolvedLabel }}</p>
+</div>
+</sc-if>
+
+<div>
+<p style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #5A6779; text-transform: uppercase; margin-bottom: 8px">Captured details · every value shows its source</p>
+<div style="border: 1px solid #DFE4EB; border-radius: 12px; overflow: hidden">
+<sc-for list="{{ fields }}" as="f" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 12px 14px; border-bottom: 1px solid #EEF1F5; align-items: baseline">
+<span style="flex: 0 0 180px; color: #5A6779; font-size: 14px">{{ f.k }}</span>
+<span style="flex: 1 1 160px; font-weight: 600">{{ f.v }}</span>
+<span style="font-size: 13px; color: #5A6779">{{ f.src }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; border-top: 1px solid #EEF1F5; padding-top: 16px">
+<p style="font-size: 14px; color: #5A6779; max-width: 420px">{{ officeHint }}</p>
+<button type="button" class="btn" disabled="{{ cantSendContractor }}" onClick="{{ sendContractor }}">{{ contractorBtn }}</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isContractor }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div>
+<h2 style="font-size: 26px">Contractor sign-off</h2>
+<p style="font-size: 16px; color: #3E4A5C; margin-top: 4px">The signature is locked to one exact version. Any later edit makes a new version that needs signing again.</p>
+</div>
+<sc-if value="{{ contractorWaiting }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 40px 24px; text-align: center">
+<p style="font-weight: 700; font-size: 18px">Nothing to sign yet</p>
+<p style="color: #5A6779; margin-top: 6px">The office sends the packet here once every conflict is resolved.</p>
+</div>
+</sc-if>
+<sc-if value="{{ contractorReady }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px; max-width: 640px">
+<div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px">
+<div>
+<p style="font-size: 13px; color: #5A6779">Permit draft for review</p>
+<p style="font-weight: 700; font-size: 20px; font-family: 'Space Grotesk'">1187 Oak St, Pasadena CA</p>
+</div>
+<div style="text-align: right">
+<p class="mono" style="font-size: 13px; font-weight: 500">Version 2</p>
+<p class="mono" style="font-size: 13px; color: #5A6779">Fingerprint 7F3A·92C1</p>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Equipment</p><p style="font-weight: 600">Carrier 25VNA036 heat pump</p></div>
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Refrigerant</p><p style="font-weight: 600">R-454B</p></div>
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Panel rating</p><p style="font-weight: 600">125 A</p></div>
+<div style="background: #F4F5F7; border-radius: 10px; padding: 12px"><p style="font-size: 13px; color: #5A6779">Evidence</p><p style="font-weight: 600">3 photos · 6 of 6 items</p></div>
+</div>
+<p style="font-size: 14px; color: #78350F; background: #FFF7ED; border-radius: 10px; padding: 12px">Draft — not a guarantee of compliance. You file it yourself on the City of Pasadena's official permit portal.</p>
+<sc-if value="{{ notSigned }}" hint-placeholder-val="{{ true }}">
+<label style="display: flex; gap: 12px; align-items: center; min-height: 44px; font-size: 15px; cursor: pointer">
+<input type="checkbox" checked="{{ reviewed }}" onChange="{{ toggleReviewed }}" style="width: 22px; height: 22px; accent-color: #C2410C">
+I reviewed version 2 and it matches the work done.
+</label>
+<button type="button" class="btn" disabled="{{ cantSign }}" onClick="{{ sign }}" style="min-height: 52px; font-size: 16px">Sign version 2</button>
+</sc-if>
+<sc-if value="{{ signed }}" hint-placeholder-val="{{ false }}">
+<div style="border: 1px solid #A7E3BC; background: #F0FDF4; border-radius: 12px; padding: 14px">
+<p style="color: #14532D; font-weight: 700">Signed by Dana K. · locked to version 2</p>
+<p style="color: #14532D; font-size: 14px">Ready to file. Next: submit on the city portal, then track the inspection here.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0">
+<div style="display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF1F5"><span class="chip" style="background: #FFEDD5; color: #9A3412">Next</span><span>File on the Pasadena permit portal and enter the permit number</span></div>
+<div style="display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF1F5"><span class="chip" style="background: #EEF1F5; color: #374151">Then</span><span>Schedule the inspection</span></div>
+<div style="display: flex; gap: 12px; padding: 10px 0"><span class="chip" style="background: #EEF1F5; color: #374151">Then</span><span>Record the inspection result and close the job</span></div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHood }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div>
+<h2 style="font-size: 26px">Under the hood</h2>
+<p style="font-size: 16px; color: #3E4A5C; margin-top: 4px">How a job moves through the system. Table names in black already exist in your code; orange ones are new in this redesign.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch">
+<div class="card" style="flex: 1 1 170px; padding: 14px"><p style="font-weight: 700">Tech's phone</p><p style="font-size: 13px; color: #5A6779; margin-top: 4px">Saves photos and fields on the device first. Works with no signal.</p></div>
+<div style="display: flex; align-items: center; color: #8A93A3; font-size: 20px" aria-hidden="true">→</div>
+<div class="card" style="flex: 1 1 170px; padding: 14px"><p style="font-weight: 700">Sync queue</p><p style="font-size: 13px; color: #5A6779; margin-top: 4px">Uploads when signal returns. Retries until the server confirms.</p></div>
+<div style="display: flex; align-items: center; color: #8A93A3; font-size: 20px" aria-hidden="true">→</div>
+<div class="card" style="flex: 1 1 170px; padding: 14px; background: #0B1B33; border-color: #0B1B33"><p style="font-weight: 700; color: #fff">Database</p><p style="font-size: 13px; color: #C3CEDD; margin-top: 4px">Each company only sees its own jobs (row-level security).</p></div>
+<div style="display: flex; align-items: center; color: #8A93A3; font-size: 20px" aria-hidden="true">→</div>
+<div class="card" style="flex: 1 1 170px; padding: 14px"><p style="font-weight: 700">Office + contractor</p><p style="font-size: 13px; color: #5A6779; margin-top: 4px">Review, decide, sign. Every step is logged.</p></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div class="card" style="flex: 1 1 300px; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+<p style="font-weight: 700; font-size: 17px">Tables</p>
+<p class="mono" style="font-size: 13px">office_packets · job_photos · job_extra_photos</p>
+<p class="mono" style="font-size: 13px">correction_requests · stage_changes · profiles</p>
+<p class="mono" style="font-size: 13px; color: #C2410C">packet_versions — sealed copy of each send</p>
+<p class="mono" style="font-size: 13px; color: #C2410C">packet_checks — conflicts vs missing, per version</p>
+<p class="mono" style="font-size: 13px; color: #C2410C">signatures — who signed which version</p>
+<p class="mono" style="font-size: 13px; color: #C2410C">email_deliveries — proof the office email arrived</p>
+</div>
+<div class="card" style="flex: 1 1 300px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+<p style="font-weight: 700; font-size: 17px">What this fixes from Ted's review</p>
+<p style="font-size: 14px; line-height: 1.45">✓ Sign-off is tied to an exact packet version</p>
+<p style="font-size: 14px; line-height: 1.45">✓ Office emails are confirmed delivered, not assumed</p>
+<p style="font-size: 14px; line-height: 1.45">✓ "Saved on phone" vs "Delivered to office" is explicit</p>
+<p style="font-size: 14px; line-height: 1.45">✓ Missing items and conflicts look and act differently</p>
+<p style="font-size: 14px; line-height: 1.45">✓ The demo opens on a real sample job</p>
+<p style="font-size: 14px; line-height: 1.45; color: #5A6779">Parked, not deleted: dispatch, job map, invoices, estimates, Enterprise.</p>
+</div>
+</div>
+</div>
+</sc-if>
+</main>
+
+<aside aria-label="Live back end" style="flex: 1 1 320px; min-width: 0; background: #0B1B33; color: #C3CEDD; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<h2 style="font-size: 18px; color: #fff">Live back end</h2>
+<span class="chip mono" style="background: #13264A; color: #9FB0C8">{{ eventCount }}</span>
+</div>
+<p style="font-size: 13px; color: #9FB0C8">Every tap writes a record. Newest first.</p>
+<sc-for list="{{ log }}" as="e" hint-placeholder-count="3">
+<div style="border-top: 1px solid #22385F; padding-top: 10px; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; gap: 8px; align-items: center"><span class="mono" style="font-size: 12px; color: #9FB0C8">{{ e.t }}</span><span class="chip" style="background: #13264A; color: #FDBA74; padding: 2px 8px">{{ e.who }}</span></div>
+<p style="font-size: 14px; line-height: 1.4">{{ e.txt }}</p>
+<p class="mono" style="font-size: 12px; color: #7DD3FC">{{ e.tbl }}</p>
+</div>
+</sc-for>
+</aside>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = this.fresh(); }
+  fresh() {
+    return { tab: 'tech', got: { plate: true, model: true, refrig: true, amps: true, outdoor: false, panel: false }, sent: false, ver: 0, conflict: 'none', amps: '100 A', fixedBy: '', toC: false, signed: false, opened: false, reviewed: false, clock: 41,
+      log: [{ t: '9:41', who: 'Phone', txt: 'Job HP-1187 opened. Pasadena rules loaded for offline use.', tbl: 'local cache' }] };
+  }
+  add(st, entries) {
+    let c = st.clock; const log = st.log.slice();
+    entries.forEach((e) => { c += 1; const h = 9 + Math.floor(c / 60), m = c % 60; log.push({ t: h + ':' + String(m).padStart(2, '0'), who: e[0], txt: e[1], tbl: e[2] }); });
+    return { log: log, clock: c };
+  }
+  act(change, entries) { const st = this.state; this.setState(Object.assign({}, change, this.add(st, entries))); }
+  renderVals() {
+    const s = this.state;
+    const REQ = [
+      ['plate', 'Outdoor data plate', 'Photo · Carrier 25VNA036', 'Take photo'],
+      ['model', 'Model and serial', 'Read from plate photo', 'Enter'],
+      ['refrig', 'Refrigerant type', 'R-454B', 'Enter'],
+      ['outdoor', 'Outdoor unit and clearance', 'Photo of unit and side yard', 'Take photo'],
+      ['panel', 'Panel label', 'Photo of the electrical panel label', 'Take photo'],
+      ['amps', 'Panel rating', s.amps, 'Enter'],
+    ];
+    const done = REQ.filter((r) => s.got[r[0]]).length;
+    const items = REQ.map((r) => ({ label: r[1], sub: s.got[r[0]] ? r[2] : 'Needed for this permit', cta: r[3], done: !!s.got[r[0]], todo: !s.got[r[0]],
+      capture: () => { const got = Object.assign({}, s.got); got[r[0]] = true; this.act({ got: got }, [['Phone', r[1] + ' saved on this phone (no signal needed)', 'device queue → job_photos']]); } }));
+    const all = done === REQ.length;
+    const tabDefs = [['tech', 'Technician'], ['office', 'Office'], ['contractor', 'Contractor'], ['hood', 'Under the hood']];
+    const tabs = tabDefs.map((d) => ({ label: d[1], go: () => this.setState({ tab: d[0] }),
+      style: 'min-height: 40px; padding: 0 14px; border-radius: 9px; border: 0; cursor: pointer; font: 600 14px Inter, sans-serif; ' + (s.tab === d[0] ? 'background: #0B1B33; color: #fff' : 'background: transparent; color: #3E4A5C') }));
+    const cur = s.signed ? 3 : s.toC ? 2 : s.sent ? 1 : 0;
+    const steps = ['Capture on the job', 'Office review', 'Contractor sign-off', 'Ready to file'].map((l, i) => {
+      const st = i < cur || (i === 3 && s.signed) ? 'done' : i === cur ? 'now' : 'next';
+      return { label: l, num: st === 'done' ? '✓' : String(i + 1),
+        style: 'display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; ' + (st === 'now' ? 'background: #fff; border: 2px solid #C2410C; color: #0B1B33' : st === 'done' ? 'background: #fff; border: 1px solid #DFE4EB; color: #15803D' : 'background: transparent; border: 1px dashed #C9D1DC; color: #5A6779'),
+        dot: 'width: 26px; height: 26px; flex: none; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 13px; ' + (st === 'now' ? 'background: #C2410C; color: #fff' : st === 'done' ? 'background: #DCFCE7; color: #15803D' : 'background: #EEF1F5; color: #4B5563') };
+    });
+    const resolved = s.conflict === 'resolved';
+    const fields = [
+      { k: 'Equipment', v: 'Carrier 25VNA036 heat pump', src: 'Data plate photo · Luis, 9:38' },
+      { k: 'Model / serial', v: '25VNA036A003 / 4823X9', src: 'Entered by Luis · matches photo' },
+      { k: 'Refrigerant', v: 'R-454B', src: 'Entered by Luis · matches plate' },
+      { k: 'Panel rating', v: resolved ? '125 A' : '100 A', src: resolved ? 'Changed in v2 · ' + s.fixedBy : 'Entered by Luis · photo disagrees' },
+      { k: 'Photos', v: '3 of 3 required', src: 'Plate, outdoor unit, panel label' },
+    ];
+    return {
+      tabs: tabs, steps: steps, items: items, reset: () => this.setState(this.fresh()),
+      isTech: s.tab === 'tech', isOffice: s.tab === 'office', isContractor: s.tab === 'contractor', isHood: s.tab === 'hood',
+      barStyle: 'height: 100%; border-radius: 99px; background: #F97316; width: ' + Math.round(done / REQ.length * 100) + '%',
+      progressLabel: s.sent ? 'Sent · packet v' + s.ver : done + ' of ' + REQ.length + ' items captured',
+      syncLabel: s.sent ? 'Delivered to office' : 'Saved on phone',
+      syncStyle: s.sent ? 'background: #DCFCE7; color: #14532D' : 'background: #22385F; color: #C3CEDD',
+      askedTech: s.conflict === 'asked',
+      sendDisabled: !all || s.sent,
+      sendLabel: s.sent ? 'Sent to office ✓' : all ? 'Send to office' : 'Capture ' + (REQ.length - done) + ' more to send',
+      send: () => this.act({ sent: true, ver: 1, conflict: 'open' }, [
+        ['Phone', 'Packet v1 sealed: 6 of 6 items, fingerprint A91C·04E2', 'packet_versions (new)'],
+        ['Sync', 'Signal back. 6 items uploaded and confirmed by the server', 'office_packets · job_photos'],
+        ['Rules', 'Conflict found: panel rating 100 A, label photo reads 125 A', 'packet_checks (new)'],
+        ['Email', 'Office notified. Mail provider confirmed delivery', 'email_deliveries (new)']]),
+      techFix: () => this.act({ amps: '125 A', conflict: 'resolved', ver: 2, fixedBy: 'Luis confirmed 125 A' }, [
+        ['Phone', 'Luis changed panel rating 100 A → 125 A', 'correction_requests (answered)'],
+        ['Server', 'Packet v2 sealed, fingerprint 7F3A·92C1. v1 kept read-only', 'packet_versions (new)']]),
+      techKeep: () => this.act({ conflict: 'open' }, [['Phone', 'Luis kept 100 A and added a note: "label is for the old breaker"', 'correction_requests (answered)']]),
+      officeEmpty: !s.sent, officeGate: s.sent && !s.opened, officeOpen: s.sent && s.opened,
+      openPacket: () => this.act({ opened: true }, [['Office', 'Maria R. opened packet v1', 'office_packets.opened_at']]),
+      verLabel: 'Packet v' + s.ver,
+      conflictCount: resolved ? '0' : '1',
+      cOpen: s.conflict === 'open', cAsked: s.conflict === 'asked', cDone: resolved,
+      resolvedLabel: 'Panel rating resolved: 125 A (' + s.fixedBy + '). Now packet v2.',
+      usePhoto: () => this.act({ amps: '125 A', conflict: 'resolved', ver: 2, fixedBy: 'Maria used the photo value' }, [
+        ['Office', 'Maria set panel rating to 125 A from the label photo', 'packet_checks · stage_changes'],
+        ['Server', 'Packet v2 sealed, fingerprint 7F3A·92C1. v1 kept read-only', 'packet_versions (new)']]),
+      askTech: () => this.act({ conflict: 'asked' }, [
+        ['Office', 'Maria asked Luis to confirm the panel rating', 'correction_requests'],
+        ['Push', 'Notification sent to Luis on job HP-1187', 'notifications']]),
+      fields: fields,
+      officeHint: s.toC ? 'Sent to Dana K. for signature.' : resolved ? 'Everything is resolved. Send version 2 to the contractor.' : 'Resolve the conflict before this can go to the contractor.',
+      cantSendContractor: !resolved || s.toC,
+      contractorBtn: s.toC ? 'Sent to contractor ✓' : 'Send v2 to contractor',
+      sendContractor: () => this.act({ toC: true }, [
+        ['Office', 'Maria approved v2 and sent it for signature', 'stage_changes'],
+        ['Email', 'Signature request delivered to Dana K.', 'email_deliveries (new)']]),
+      contractorWaiting: !s.toC, contractorReady: s.toC,
+      reviewed: s.reviewed, toggleReviewed: () => this.setState({ reviewed: !s.reviewed }),
+      notSigned: !s.signed, signed: s.signed, cantSign: !s.reviewed,
+      sign: () => this.act({ signed: true }, [
+        ['Contractor', 'Dana K. signed packet v2 (7F3A·92C1)', 'signatures (new)'],
+        ['Server', 'Status: Ready to file. Any edit now makes v3 and needs a new signature', 'stage_changes']]),
+      eventCount: s.log.length + ' events',
+      log: s.log.slice().reverse(),
+    };
+  }
+}
+</script>
+</body>
+</html>

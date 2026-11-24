@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Office — review a permit draft</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#F4F5F7;font-family:Inter,system-ui,sans-serif;color:#0B1B33}
+h1,h2,p{margin:0}
+.cd{background:#fff;border:1px solid #DFE4EB;border-radius:14px}
+.ob{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:#C2410C;color:#fff;font:700 14px Inter,sans-serif;cursor:pointer}
+.ob:hover{background:#9A3412}
+.ob:disabled{background:#DEE2E8;color:#4B5563;cursor:not-allowed}
+.gb{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid #C9D1DC;background:#fff;color:#0B1B33;font:600 14px Inter,sans-serif;cursor:pointer}
+.mono{font-family:'JetBrains Mono',monospace}
+a{color:#C2410C}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column">
+<header style="background: #0B1B33; color: #fff; padding: 14px 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<a href="#" style="color: #FDBA74; font-weight: 600; font-size: 14px; text-decoration: none">← Office review queue</a>
+<span style="color: #3B5078">|</span>
+<span style="font-weight: 700">PD-2026-10482 · 4412 Alder Ct, Sacramento</span>
+</div>
+<div style="display: flex; gap: 8px; align-items: center"><span class="mono" style="background: #13264A; border: 1px solid #22385F; border-radius: 99px; padding: 4px 10px; font-size: 12px; color: #C3CEDD">{{ verLabel }}</span><span style="width: 34px; height: 34px; border-radius: 99px; background: #C2410C; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">SM</span></div>
+</header>
+
+<div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box">
+<main style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-end">
+<div><h1 style="font-size: 26px; font-weight: 800">Heat pump change-out</h1><p style="color: #5A6779; font-size: 14px">Marcus Reyes · captured by Javier Diaz · Nov 23, 10:14 AM · Sacramento County</p></div>
+<span style="background: #E0E7FF; color: #1E3A8A; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700">Office review</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="border-radius: 14px; padding: 16px; background: #FEF3C7; border: 1px solid #F2C46B"><p style="font-size: 12px; font-weight: 700; color: #78350F; letter-spacing: 0.05em">CONFLICTS</p><p style="font-size: 30px; font-weight: 800; color: #78350F">{{ conflictCount }}</p><p style="font-size: 12px; color: #78350F">Evidence disagrees. You decide.</p></div>
+<div style="border-radius: 14px; padding: 16px; background: #F4F5F7; border: 1px dashed #8A93A3"><p style="font-size: 12px; font-weight: 700; color: #374151; letter-spacing: 0.05em">MISSING</p><p style="font-size: 30px; font-weight: 800; color: #374151">0</p><p style="font-size: 12px; color: #374151">The tech still has to capture these.</p></div>
+<div style="border-radius: 14px; padding: 16px; background: #F0FDF4; border: 1px solid #A7E3BC"><p style="font-size: 12px; font-weight: 700; color: #14532D; letter-spacing: 0.05em">MATCHED</p><p style="font-size: 30px; font-weight: 800; color: #14532D">{{ okCount }}</p><p style="font-size: 12px; color: #14532D">Value and evidence agree.</p></div>
+</div>
+
+<sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+<section class="cd" style="border: 2px solid #D97706; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 10px; align-items: center"><span style="background: #FEF3C7; color: #78350F; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700">Conflict</span><h2 style="font-size: 17px">Panel rating</h2></div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Javier entered</p><p style="font-size: 26px; font-weight: 800">100 A</p></div>
+<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Panel label photo reads</p><p style="font-size: 26px; font-weight: 800">125 A</p></div>
+<div style="flex: 1 1 200px; height: 110px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 13px; display: flex; align-items: center; justify-content: center">[Panel label photo]</div>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" class="ob" onClick="{{ usePhoto }}">Use photo value (125 A)</button><button type="button" class="gb" onClick="{{ askTech }}">Ask Javier to confirm</button><button type="button" class="gb" onClick="{{ keep }}">Keep 100 A, add note</button></div>
+</section>
+</sc-if>
+<sc-if value="{{ asked }}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFBEB; border: 1px solid #F2C46B; border-radius: 14px; padding: 16px"><p style="font-weight: 700; color: #78350F">Waiting on Javier</p><p style="font-size: 14px; color: #78350F">He got the question on his phone, on this job. You'll be notified when he answers.</p></section>
+</sc-if>
+<sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+<section style="background: #F0FDF4; border: 1px solid #A7E3BC; border-radius: 14px; padding: 16px"><p style="font-weight: 700; color: #14532D">{{ doneLabel }}</p><p style="font-size: 14px; color: #14532D">Saved as a new version. The earlier version is kept read-only.</p></section>
+</sc-if>
+
+<section class="cd" style="overflow: hidden">
+<div style="padding: 14px 16px; border-bottom: 1px solid #DFE4EB; display: flex; justify-content: space-between"><h2 style="font-size: 16px">Captured details</h2><span style="font-size: 13px; color: #5A6779">Every value shows where it came from</span></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left; color: #5A6779; font-size: 12px"><th style="padding: 10px 16px">Field</th><th style="padding: 10px 16px">Value</th><th style="padding: 10px 16px">Source</th><th style="padding: 10px 16px">Check</th></tr></thead>
+<tbody>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+<tr style="border-top: 1px solid #EEF1F5"><td style="padding: 12px 16px; color: #5A6779">{{ r.k }}</td><td style="padding: 12px 16px; font-weight: 700">{{ r.v }}</td><td style="padding: 12px 16px; color: #3E4A5C">{{ r.src }}</td><td style="padding: 12px 16px"><span style="{{ r.pill }}">{{ r.check }}</span></td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section class="cd" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="font-size: 16px">Photos · 4</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="height: 96px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 12px; display: flex; align-items: flex-end; padding: 8px; box-sizing: border-box">Data plate</div>
+<div style="height: 96px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 12px; display: flex; align-items: flex-end; padding: 8px; box-sizing: border-box">Outdoor unit</div>
+<div style="height: 96px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 12px; display: flex; align-items: flex-end; padding: 8px; box-sizing: border-box">Panel label</div>
+<div style="height: 96px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 12px; display: flex; align-items: flex-end; padding: 8px; box-sizing: border-box">Line set</div>
+</div>
+</section>
+<section class="cd" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="font-size: 16px">Send for signature</h2>
+<p style="font-size: 14px; color: #3E4A5C">{{ hint }}</p>
+<button type="button" class="ob" disabled="{{ cantSend }}" onClick="{{ send }}">{{ sendLabel }}</button>
+<p style="font-size: 12px; color: #5A6779">Draft only. Not filed. The contractor signs this exact version.</p>
+</section>
+<section class="cd" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<h2 style="font-size: 16px">Activity</h2>
+<sc-for list="{{ log }}" as="e" hint-placeholder-count="3">
+<div style="display: flex; gap: 10px; font-size: 13px"><span class="mono" style="color: #5A6779; flex: none">{{ e.t }}</span><span>{{ e.x }}</span></div>
+</sc-for>
+</section>
+</aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { c: 'open', by: '', sent: false, log: [{ t: '10:14', x: 'Javier sent packet v1 from the job' }, { t: '10:14', x: 'Office email delivered' }, { t: '10:21', x: 'Sam opened the packet' }] }; }
+  renderVals() {
+    const s = this.state; const done = s.c === 'done';
+    const addLog = (x) => s.log.concat([{ t: '10:' + (22 + s.log.length), x: x }]);
+    const ok = 'display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700; background: #DCFCE7; color: #166534';
+    const warn = 'display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700; background: #FEF3C7; color: #78350F';
+    const rows = [
+      { k: 'Equipment', v: 'Carrier 25VNA036', src: 'Data plate photo', check: 'Matched', pill: ok },
+      { k: 'Model / serial', v: '25VNA036A003 / 4823X9', src: 'Entered by Javier', check: 'Matched', pill: ok },
+      { k: 'Refrigerant', v: 'R-454B', src: 'Entered · plate agrees', check: 'Matched', pill: ok },
+      { k: 'Panel rating', v: done ? s.by === 'keep' ? '100 A' : '125 A' : '100 A', src: done ? 'Decided in v2' : 'Entered · photo disagrees', check: done ? 'Resolved' : 'Conflict', pill: done ? ok : warn },
+      { k: 'Duct sealing', v: 'Not required (like-for-like)', src: 'Entered by Javier', check: 'Matched', pill: ok },
+      { k: 'Clearance', v: '24 in left side', src: 'Outdoor unit photo', check: 'Matched', pill: ok },
+    ];
+    return { rows: rows, verLabel: done ? 'Packet v2' : 'Packet v1', conflictCount: done ? '0' : '1', okCount: done ? '6' : '5',
+      open: s.c === 'open', asked: s.c === 'asked', done: done,
+      doneLabel: s.by === 'keep' ? 'Kept 100 A with a note.' : 'Panel rating set to 125 A from the label photo.',
+      usePhoto: () => this.setState({ c: 'done', by: 'photo', log: addLog('Sam set panel rating to 125 A · v2 saved') }),
+      keep: () => this.setState({ c: 'done', by: 'keep', log: addLog('Sam kept 100 A with a note · v2 saved') }),
+      askTech: () => this.setState({ c: 'asked', log: addLog('Sam asked Javier to confirm the panel rating') }),
+      hint: s.sent ? 'Sent to Marcus Reyes. You will see it here the moment he signs.' : done ? 'Everything is resolved. Ready for the contractor.' : 'Resolve the conflict first.',
+      cantSend: !done || s.sent, sendLabel: s.sent ? 'Sent for signature ✓' : 'Send v2 for signature',
+      send: () => this.setState({ sent: true, log: addLog('Sent v2 for signature · email delivered') }),
+      log: s.log.slice().reverse() };
+  }
+}
+</script>
+</body>
+</html>

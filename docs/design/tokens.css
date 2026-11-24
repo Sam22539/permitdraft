@@ -1,0 +1,89 @@
+/* PermitDraft design tokens — v1.0 (Nov 2026)
+   Source of truth for color, type, spacing, radius and elevation.
+   Import once at the app root. Use the variables, never raw hex values. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ---------- Brand ---------- */
+  --pd-navy-950: #071326;   /* footer, deepest background */
+  --pd-navy-900: #0B1B33;   /* primary brand navy: sidebar, headers, hero */
+  --pd-navy-800: #13264A;   /* raised surface on navy, hover on navy */
+  --pd-navy-700: #22385F;   /* borders and tracks on navy */
+  --pd-navy-600: #3B5078;   /* outline buttons on navy */
+
+  --pd-orange-500: #F97316; /* brand accent: logo, progress bars, big numbers. Decorative only, never text on white */
+  --pd-orange-600: #EA580C; /* charts, map pins */
+  --pd-orange-700: #C2410C; /* PRIMARY ACTION: buttons, links, active nav (white text passes AA 5.2:1) */
+  --pd-orange-800: #9A3412; /* primary hover / pressed */
+  --pd-orange-300: #FDBA74; /* eyebrow text and links on navy */
+  --pd-orange-100: #FFEDD5; /* soft orange badge background */
+
+  /* ---------- Neutrals ---------- */
+  --pd-white: #FFFFFF;
+  --pd-gray-50:  #F4F5F7;   /* app background (office + tech app) */
+  --pd-gray-100: #EEF1F5;   /* subtle fills, table hover */
+  --pd-gray-200: #DFE4EB;   /* card borders, dividers */
+  --pd-gray-300: #C9D1DC;   /* input borders, secondary button borders */
+  --pd-gray-500: #8A93A3;   /* dashed "missing" outlines, disabled icons */
+  --pd-gray-600: #5A6779;   /* secondary text (5.7:1 on white) */
+  --pd-gray-700: #3E4A5C;   /* body text on light */
+  --pd-ink:      #0B1B33;   /* primary text = navy 900 */
+  --pd-on-navy:       #FFFFFF;
+  --pd-on-navy-muted: #C3CEDD;
+  --pd-on-navy-faint: #9FB0C8;
+
+  /* ---------- Status (each pair passes AA) ---------- */
+  --pd-success-bg: #DCFCE7;  --pd-success-fg: #166534;  --pd-success-border: #A7E3BC;  /* Matched, Approved, Delivered */
+  --pd-conflict-bg: #FEF3C7; --pd-conflict-fg: #78350F; --pd-conflict-border: #D97706; /* Conflict: evidence disagrees */
+  --pd-missing-bg: #F4F5F7;  --pd-missing-fg: #374151;  --pd-missing-border: #8A93A3;  /* Missing: DASHED border, always */
+  --pd-info-bg: #E0E7FF;     --pd-info-fg: #1E3A8A;     /* Office review, versions */
+  --pd-submitted-bg: #EDE9FE; --pd-submitted-fg: #5B21B6;
+  --pd-ready-bg: #E0F2FE;    --pd-ready-fg: #075985;
+  --pd-danger-bg: #FEE2E2;   --pd-danger-fg: #991B1B;   /* Corrections, errors */
+
+  /* ---------- Supporting ---------- */
+  --pd-success-icon: #15803D;     --pd-success-dot: #4ADE80;   /* check icons; "live" dot on navy */
+  --pd-success-soft-bg: #F0FDF4;  --pd-success-soft-fg: #14532D; /* resolved banners */
+  --pd-conflict-soft-bg: #FFFBEB; --pd-conflict-soft-border: #F2C46B; /* "waiting on tech" banners, tech fix card */
+  --pd-notice-bg: #FFF7ED;        /* draft-only notice (text: --pd-conflict-fg) */
+  --pd-badge-red: #DC2626;        /* count badges (white text, bold 10–11px) */
+  --pd-disabled-bg: #DEE2E8;      --pd-disabled-fg: #4B5563;
+  --pd-photo-placeholder: #3A4352;
+  --pd-camera-bg: #05080F;        --pd-camera-control: #1A2233;
+  --pd-map-land: #E4EBE1;         --pd-map-grid: #D3DDD0;
+  --pd-row-divider: #EEF1F5;
+  /* Charts (in this order) */
+  --pd-chart-1: #16A34A; /* approved */
+  --pd-chart-2: #7C3AED; /* submitted */
+  --pd-chart-3: #2563EB; /* office review */
+  --pd-chart-4: #EA580C; /* missing info / approved bars */
+  --pd-chart-5: #94A3B8; /* draft / other */
+  --pd-chart-6: #7DD3FC; /* usage bars and data on navy */
+
+  /* ---------- Type ---------- */
+  --pd-font-display: "Space Grotesk", Inter, system-ui, sans-serif; /* homepage headlines, app titles */
+  --pd-font-ui: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; /* everything else */
+  --pd-font-mono: "JetBrains Mono", ui-monospace, monospace; /* versions, fingerprints, eyebrows */
+
+  /* ---------- Spacing (4 px base) ---------- */
+  --pd-space-1: 4px;  --pd-space-2: 8px;  --pd-space-3: 12px; --pd-space-4: 16px;
+  --pd-space-5: 20px; --pd-space-6: 24px; --pd-space-8: 32px; --pd-space-10: 40px;
+  --pd-space-12: 48px; --pd-space-14: 56px; --pd-space-18: 72px; --pd-space-28: 112px;
+
+  /* ---------- Radius ---------- */
+  --pd-radius-sm: 6px;    /* status pills in tables */
+  --pd-radius-md: 10px;   /* buttons, inputs */
+  --pd-radius-lg: 14px;   /* office cards */
+  --pd-radius-xl: 16px;   /* tech app cards */
+  --pd-radius-2xl: 24px;  /* homepage feature panels */
+  --pd-radius-pill: 999px;
+
+  /* ---------- Elevation ---------- */
+  --pd-shadow-float: 0 30px 60px rgba(0, 0, 0, 0.40); /* homepage floating mockups only */
+  --pd-shadow-pop: 0 2px 8px rgba(0, 0, 0, 0.15);     /* map popovers, menus */
+
+  /* ---------- Touch ---------- */
+  --pd-tap-min: 44px;      /* office + homepage minimum */
+  --pd-tap-field: 56px;    /* tech app primary actions (gloves) */
+}
