@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { BookOpen, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, X } from "lucide-react";
+import { BookOpen, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -147,6 +147,8 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
           {t("More", "Más")}
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="end" sideOffset={8} className="ap-more-menu">
+          {!demo && <DropdownMenuItem asChild><Link to="/customers" data-testid="nav-customers-m"><Users size={18} aria-hidden />{t("Customers", "Clientes")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/leads" data-testid="nav-leads-m"><UserPlus size={18} aria-hidden />{t("Leads", "Prospectos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/my-handoffs"><Send size={18} aria-hidden />{t("Sent to office", "Enviados a la oficina")}</Link></DropdownMenuItem>}
           <DropdownMenuItem asChild><Link to="/profile" data-testid="nav-account"><UserRound size={18} aria-hidden />{t("Account", "Cuenta")}</Link></DropdownMenuItem>
           <DropdownMenuItem asChild><Link to={p("/settings") as never} data-testid="nav-settings"><Settings size={18} aria-hidden />{t("Settings", "Ajustes")}</Link></DropdownMenuItem>
@@ -166,7 +168,11 @@ export function SideNav() {
     { to: p("/jobs"), icon: LayoutDashboard, label: t("Jobs dashboard", "Panel de trabajos"), exact: true },
     { to: p("/new"), icon: FilePlus2, label: t("New job", "Nuevo trabajo") },
     { to: p("/office-handoff"), icon: Inbox, label: t("Office handoff", "Entrega a oficina") },
-    ...(demo ? [] : [{ to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") }]),
+    ...(demo ? [] : [
+      { to: "/customers", icon: Users, label: t("Customers", "Clientes") },
+      { to: "/leads", icon: UserPlus, label: t("Leads", "Prospectos") },
+      { to: "/my-handoffs", icon: Send, label: t("Sent to office", "Enviados a la oficina") },
+    ]),
     { to: "/resources", icon: BookOpen, label: t("Resources", "Recursos") },
     { to: "/profile", icon: UserRound, label: t("Account", "Cuenta") },
     { to: p("/settings"), icon: Settings, label: t("Settings", "Ajustes") },

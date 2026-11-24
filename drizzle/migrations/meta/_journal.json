@@ -127,6 +127,27 @@
       "when": 1795486603010,
       "tag": "0017_add_permanent_packet_tracking_numbers",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795492847060,
+      "tag": "0018_customers_leads_job_links_with_company_isolation",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795493006179,
+      "tag": "0019_fix_stamp_trigger_for_job_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795493032363,
+      "tag": "0020_let_conversion_write_link_columns_under_trigger",
+      "breakpoints": true
     }
   ]
 }
