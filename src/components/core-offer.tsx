@@ -9,7 +9,7 @@ import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
 import { Link } from "@tanstack/react-router";
 import { Play } from "lucide-react";
-import { PasswordAccountForm } from "./account-form";
+import { PasswordAccountForm, officeReturnUrl } from "./account-form";
 
 const PRICE = "permitdraft_core_4900_usd_monthly";
 
@@ -63,7 +63,7 @@ export function useCoreAccess(): boolean | null {
 }
 
 /** Sign-in for Core: a PermitDraft password first, Google, and the emailed code kept as a fallback. */
-export function SignInForm({ onSignedIn }: { onSignedIn?: () => void } = {}) {
+export function SignInForm({ onSignedIn, returnTo }: { onSignedIn?: () => void; returnTo?: string } = {}) {
   const { t } = useLang();
   const [msg, setMsg] = useState("");
   useEffect(() => {
@@ -76,7 +76,7 @@ export function SignInForm({ onSignedIn }: { onSignedIn?: () => void } = {}) {
   }, []);
   return (
     <div className="ap-form" data-testid="sign-in">
-      <PasswordAccountForm onSignedIn={onSignedIn} fallback={<EmailCodeSignIn onSignedIn={onSignedIn} />} />
+      <PasswordAccountForm onSignedIn={onSignedIn} returnTo={returnTo} fallback={<EmailCodeSignIn onSignedIn={onSignedIn} returnTo={returnTo} />} />
       <button type="button" className="ap-btn ghost" onClick={() => signInWithGoogle()}>{t("Sign in with Google", "Iniciar sesión con Google")}</button>
       {msg && <p role="alert" className="ap-muted">{msg}</p>}
     </div>
@@ -84,18 +84,20 @@ export function SignInForm({ onSignedIn }: { onSignedIn?: () => void } = {}) {
 }
 
 /** The emailed one-time code sign-in, kept as the fallback for anyone without a PermitDraft password. */
-function EmailCodeSignIn({ onSignedIn }: { onSignedIn?: () => void }) {
+function EmailCodeSignIn({ onSignedIn, returnTo }: { onSignedIn?: () => void; returnTo?: string }) {
   const { t } = useLang();
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  // On a company office-review link only: sign in an existing account (never create one, so no signup-confirmation email) and send the link's return to that exact page.
+  const back = officeReturnUrl(returnTo);
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setMsg(t("Enter a valid email address.", "Escriba un correo válido.")); return; }
     setBusy(true); setMsg("");
     try {
-      const { error } = await backend.auth.signInWithOtp({ email: email.trim() });
+      const { error } = await backend.auth.signInWithOtp({ email: email.trim(), ...(back ? { options: { emailRedirectTo: back, shouldCreateUser: false } } : {}) });
       if (error) setMsg(t("We could not send a code. Check the address and try again.", "No pudimos enviar un código. Revise el correo e inténtelo de nuevo."));
       else setStep("code");
     } catch { setMsg(t("We could not send a code. Check the address and try again.", "No pudimos enviar un código. Revise el correo e inténtelo de nuevo.")); }

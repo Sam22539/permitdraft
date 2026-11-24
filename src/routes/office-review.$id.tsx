@@ -91,7 +91,7 @@ function OfficeReview() {
         <section className="ap-card" aria-labelledby="or-sign">
           <h2 id="or-sign" className="ap-h2">{t("Sign in to open this packet", "Inicie sesión para abrir este paquete")}</h2>
           <p className="ap-muted">{t("Only your company's office reviewers can open it.", "Solo los revisores de oficina de su empresa pueden abrirlo.")}</p>
-          <SignInForm />
+          <SignInForm returnTo={`/office-review/${id}`} />
         </section>
       )}
       {email && pk === undefined && <p className="ap-muted" role="status">{t("Loading…", "Cargando…")}</p>}

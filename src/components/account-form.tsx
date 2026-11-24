@@ -18,11 +18,19 @@ export function safeRedirect(raw: unknown, fallback = "/jobs"): string {
   return s;
 }
 
+const OFFICE_REVIEW_PATH = /^\/office-review\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The absolute return address for an emailed link, only for an exact internal office-review UUID path on this site's own origin; otherwise undefined. */
+export function officeReturnUrl(path: unknown): string | undefined {
+  if (typeof path !== "string" || !OFFICE_REVIEW_PATH.test(path) || typeof window === "undefined") return undefined;
+  return window.location.origin + path;
+}
+
 /**
  * PermitDraft's own password, never a mailbox password. Sign in, create an account, or reset a forgotten password;
  * `fallback` is the emailed-code sign-in shown on its own tab. `onSignedIn` runs after a password sign-in.
  */
-export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.ReactNode; onSignedIn?: () => void }) {
+export function PasswordAccountForm({ fallback, onSignedIn, returnTo }: { fallback: React.ReactNode; onSignedIn?: () => void; returnTo?: string }) {
   const { t } = useLang();
   const [tab, setTab] = useState("signin");
   const [email, setEmail] = useState("");
@@ -57,7 +65,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
     if (password.length < MIN_PASSWORD) { setMsg(t(`Choose a password of at least ${MIN_PASSWORD} characters.`, `Elija una contraseña de al menos ${MIN_PASSWORD} caracteres.`)); return; }
     setBusy(true);
     try {
-      const { data, error } = await backend.auth.signUp({ email: clean, password });
+      const { data, error } = await backend.auth.signUp({ email: clean, password, ...(officeReturnUrl(returnTo) ? { options: { emailRedirectTo: officeReturnUrl(returnTo) } } : {}) });
       if (error) {
         setMsg(/password/i.test(error.message)
           ? t("That password is too weak. Choose a longer one you do not use anywhere else.", "Esa contraseña es muy débil. Elija una más larga que no use en otro lugar.")
@@ -66,7 +74,7 @@ export function PasswordAccountForm({ fallback, onSignedIn }: { fallback: React.
         onSignedIn?.();
       } else {
         // An address that already has an account answers with no identities and sends nothing: send a reset so the owner of that mailbox can set a password.
-        if (data.user && (data.user.identities ?? []).length === 0) await backend.auth.resetPasswordForEmail(clean).catch(() => undefined);
+        if (data.user && (data.user.identities ?? []).length === 0) await backend.auth.resetPasswordForEmail(clean, officeReturnUrl(returnTo) ? { redirectTo: officeReturnUrl(returnTo) } : undefined).catch(() => undefined);
         setPassword("");
         setOk(t("Check your email. If this address is new, open the confirmation link to finish your account. If it already has a PermitDraft account, we sent a link to set your password instead.", "Revise su correo. Si esta dirección es nueva, abra el enlace de confirmación para terminar su cuenta. Si ya tiene una cuenta de PermitDraft, le enviamos un enlace para establecer su contraseña."));
       }
