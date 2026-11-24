@@ -93,9 +93,9 @@ export function JobLocations({ company, jobs, onOpen }: { company: string; jobs:
       const m = L.marker([p.lat, p.lng], { icon, title: j.tracking_no, alt: `Job ${j.tracking_no}`, keyboard: true });
       const box = document.createElement("div");
       const b = document.createElement("strong"); b.textContent = j.tracking_no;
-      const btn = document.createElement("button"); btn.type = "button"; btn.className = "jl-open"; btn.textContent = t("Open packet", "Abrir paquete");
+      const btn = document.createElement("a"); btn.className = "jl-open"; btn.textContent = t("Open packet", "Abrir paquete");
+      btn.href = `/office-review/${encodeURIComponent(j.id)}`;
       btn.setAttribute("data-testid", "jl-open-packet");
-      btn.onclick = () => openRef.current(j.id);
       box.append(b, document.createElement("br"), btn);
       m.bindPopup(box);
       m.on("keypress", () => m.openPopup());
