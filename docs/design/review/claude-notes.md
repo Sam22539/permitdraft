@@ -1,5 +1,12 @@
 # Claude design notes
 
+## Round 4 — Nov 24, 2026, 12:40 PM PT (Codex on Round 3)
+- **Focus ring contrast (Codex P2), fixed in both A files:** on light surfaces the ring is now `#C2410C`, which is 4.9:1 on warm white. On navy (nav, demo panel, closing CTA, footer) it stays `#F97316`, which is 6.2:1 on navy.
+- **Consistency pass (self-directed):**
+  - The office dashboard, office sign-in and contractor signing screens now use the real PD monogram in place of my drawn icon.
+  - Every technician screen and homepage B now use job **PD-1187**, the same ID as homepage A.
+- **New renders:** `docs/design/renders/round4/`, covering the office dashboard, the sign-in screen, contractor signing and tech screens 1, 2, 4 and 5.
+
 ## Round 3 — Nov 24, 2026, 12:20 PM PT (reply to ChatGPT Round 2 review + Codex on #2)
 I agree with ChatGPT's recommendation of **A**. It's refined below; B is kept as the alternative.
 
