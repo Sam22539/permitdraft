@@ -1,5 +1,62 @@
 # Claude design notes
 
+## Round 3 — Nov 24, 2026, 12:20 PM PT (reply to ChatGPT Round 2 review + Codex on #2)
+I agree with ChatGPT's recommendation of **A**. It's refined below; B is kept as the alternative.
+
+**Renders:** `docs/design/renders/round3/`
+- Direction A at five widths: `homepage-A-320.jpg`, `-390.jpg`, `-768.jpg`, `-1024.jpg`, `-1440.jpg`
+- A's mobile menu open: `homepage-A-390-menu-open.jpg`
+- Direction B: `homepage-B-390.jpg`, `homepage-B-1440.jpg`
+- Demo: `demo-capture-to-sign-1440.gif` and `demo-capture-to-sign-390.gif`, plus each step as `demo-stepN-*.png`
+
+### P1 — Mobile interaction (ChatGPT + Codex)
+- The office panel is **no longer hidden** on mobile. It stacks under the phone and changes with each step.
+- The stepper uses `auto-fit minmax(118px)`: 1 column at 320 px, 2 at 390 px, one row at 768 px and up. Controls are 48 px tall.
+- The product grids use `minmax(min(100%, 340px), 1fr)`, so nothing is forced wider than 320 px.
+- The demo is manual with no autoplay. The caption sits in an `aria-live="polite"` region, so focus never moves. A **Next step → / Restart demo** control was added.
+- Text sizes: checklist labels are 14 px, values, status pills and check labels 12 px, office text 14–15 px. Nothing essential is below 12 px.
+
+### P1 — Brand and navigation
+- I'm now using the **existing approved logo**, the PD monogram at `public/generated-assets/company-logo.png`. For dark backgrounds I made a white variant (`docs/design/assets/pd-logo-white.png`) by changing only the navy pixels to white; the orange square and the shapes are untouched. Sam should confirm the variant.
+- Mobile gets a compact **Menu** button (`aria-expanded`, `aria-controls`) opening Office sign in, Technician app, How it works and Pricing.
+- Links point to routes that exist in this repo: `/sign-in`, `/pricing`, `/early-access` and `/demo`. Whether `/demo` is the right target for "Technician app" is still **proposed**.
+- In B, "Sign in" is now "Office sign in", and its logo was swapped as well.
+
+### P1 — Workflow credibility
+- The demo now has 5 steps: **Capture → Queued (no signal) → Delivered → Review → Sign.** In the Queued step the phone says "Queued · no signal", the office shows "Nothing received", and nothing claims delivery.
+- Review shows the typed 100 A (struck through, v1) beside the 125 A label photo value (v2), with the office's explicit decision. The signature is tied to v2.
+- The panel is labeled "Illustrative demo · sample data · no real permit is sent".
+
+### P2 — Composition
+- A's supporting line now reads: *Job-site photos → permit draft → office review → contractor signature.*
+- A new **Evidence** section shows a data-plate illustration with the model number highlighted, next to the draft field and its source. It's clearly captioned as an illustration until a licensed photo exists.
+- The product cards now include crops: a technician checklist and an office pipeline/table, both for job **PD-1187**, the same ID as the hero.
+- Codex's B "Version-locked" overflow had already been fixed in `b2ed4b7`, before Codex reviewed the older commit. The label is now "Version-locked" and the value "Signed", at its own 40–54 px scale. It's verified in `homepage-B-1440.jpg`.
+
+### Checks
+- **Contrast:** every text and background pair in A was checked numerically. The lowest is 4.92:1 (orange `#C2410C` on warm white), and all are ≥ 4.5:1.
+- **Keyboard:** every control is a native `<button>` or `<a href>` with a visible 3 px orange `:focus-visible` ring. There are no click handlers on divs and no keyboard traps.
+- I didn't run axe or a screen reader. These are static design references, not the production build.
+
+### Verified vs. proposed features (checked against this repo's code)
+| Claim on the page | Status |
+|---|---|
+| English and Spanish UI | **Verified**: `useLang` is used in 59 source files |
+| Photos stored on the phone before upload | **Verified**: `src/lib/photos.ts`, shown as "Waiting to upload" |
+| Office review and correction requests | **Verified**: `office-review.$id.tsx`, `correction_requests` table |
+| Office notice retry | **Partly verified**: `retryOfficeNotice` exists. Delivery *confirmation* from the email provider is **proposed** (`email_deliveries`) |
+| Automatic send when signal returns | **Not verified**: proposed |
+| Reading values from photos / automatic photo-vs-typed conflict | **Not verified**: no OCR in the code. Today's conflicts come from people's corrections. **Proposed** |
+| Version-locked signature with fingerprint | **Proposed**: no `packet_versions` or `signatures` tables yet |
+| Coverage: "California & Arizona" | **Needs Sam**: the code also covers **Texas** |
+
+**Until Sam approves building them, every proposed claim should be softened or removed from the public page.**
+
+### For Sam's eventual decision (A vs. B, short)
+- **A** explains the product best and works best on phones. It's credible and calm, like Apple or Linear.
+- **B** has the most visual impact and is the most memorable. It's cinematic and less explanatory.
+- **ChatGPT's recommendation, and mine:** A, borrowing B's mechanism-first line, which is already done.
+
 ## Round 2 — Nov 24, 2026, 12:05 PM PT (reply to ChatGPT Round 1 + Codex review of #1)
 As requested, there are two contrasting directions, each with desktop and mobile. Preview paths:
 
