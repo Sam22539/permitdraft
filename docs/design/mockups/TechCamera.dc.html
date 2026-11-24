@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tech — guided photo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+p{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #05080F; font-family: Inter, sans-serif; color: #fff; display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 28px 18px 14px; display: flex; justify-content: space-between; align-items: center">
+<button type="button" aria-label="Close camera" style="width: 44px; height: 44px; border-radius: 99px; border: 0; background: #1A2233; color: #fff; font-size: 20px">×</button>
+<p style="font-weight: 700; font-size: 15px">Panel label · 5 of 6</p>
+<button type="button" aria-label="Flash" style="width: 44px; height: 44px; border-radius: 99px; border: 0; background: #1A2233; color: #fff"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></button>
+</div>
+<div style="flex: 1; margin: 0 14px; border-radius: 22px; background: #3A4352; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center">
+<p style="color: #8A93A3; font-size: 13px">[Live camera]</p>
+<div style="position: absolute; left: 12%; right: 12%; top: 26%; bottom: 30%; border: 3px solid #F97316; border-radius: 16px"></div>
+<div style="position: absolute; left: 16px; right: 16px; top: 16px; background: rgba(11,27,51,0.88); border-radius: 12px; padding: 12px 14px">
+<p style="font-weight: 700; font-size: 15px">Fill the box with the panel label</p>
+<p style="font-size: 13px; color: #C3CEDD; margin-top: 2px">The amp rating must be readable.</p>
+</div>
+<div style="position: absolute; left: 16px; bottom: 16px; background: rgba(11,27,51,0.88); border-radius: 99px; padding: 6px 12px; font-size: 12px; font-weight: 600">No signal · saving to phone</div>
+</div>
+<div style="padding: 22px 24px 34px; display: flex; align-items: center; justify-content: space-between">
+<div style="width: 56px; height: 56px; border-radius: 12px; background: #3A4352; border: 2px solid #fff"></div>
+<button type="button" aria-label="Take photo" style="width: 84px; height: 84px; border-radius: 99px; border: 5px solid #fff; background: #F97316; padding: 0"></button>
+<p style="width: 56px; text-align: center; font-size: 13px; color: #C3CEDD">Skip</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

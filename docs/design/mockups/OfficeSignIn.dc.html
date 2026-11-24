@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Office — sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#0B1B33}
+h1,h2,p{margin:0}
+a{color:#C2410C}a:hover{color:#9A3412}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 520px; background: #0B1B33; color: #fff; padding: 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 14l6-6"/></svg>
+<span style="font-family: 'Space Grotesk'; font-size: 22px; font-weight: 700">Permit<span style="color: #F97316">Draft</span></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px; max-width: 480px">
+<p style="font-family: 'Space Grotesk'; font-size: 52px; line-height: 1; font-weight: 700; letter-spacing: -0.03em">Your office, every permit, one screen.</p>
+<p style="font-size: 17px; line-height: 1.6; color: #C3CEDD">Sign in to review what your techs captured today, answer conflicts, and send drafts for signature.</p>
+</div>
+<p style="font-size: 13px; color: #9FB0C8">Office portal · for company owners and office reviewers</p>
+</div>
+<div style="flex: 1 1 520px; background: #F4F5F7; display: flex; align-items: center; justify-content: center; padding: 48px 24px; box-sizing: border-box">
+<form style="width: 100%; max-width: 400px; background: #fff; border: 1px solid #DFE4EB; border-radius: 20px; padding: 36px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+<div><h1 style="font-size: 26px; font-weight: 800">Sign in</h1><p style="color: #5A6779; font-size: 14px; margin-top: 4px">Use your company email. We'll send you a one-time link.</p></div>
+<label for="em" style="font-weight: 600; font-size: 14px">Work email</label>
+<input id="em" type="email" placeholder="you@yourcompany.com" style="min-height: 48px; border: 1px solid #C9D1DC; border-radius: 10px; padding: 0 14px; font: 16px Inter, sans-serif; margin-top: -10px">
+<button type="button" style="min-height: 50px; border: 0; border-radius: 10px; background: #C2410C; color: #fff; font: 700 16px Inter, sans-serif; cursor: pointer">Email me a sign-in link</button>
+<div style="display: flex; align-items: center; gap: 10px; color: #5A6779; font-size: 13px"><span style="flex: 1; height: 1px; background: #DFE4EB"></span>or<span style="flex: 1; height: 1px; background: #DFE4EB"></span></div>
+<button type="button" style="min-height: 48px; border: 1px solid #C9D1DC; border-radius: 10px; background: #fff; color: #0B1B33; font: 600 15px Inter, sans-serif; cursor: pointer">Continue with Google</button>
+<p style="font-size: 13px; color: #5A6779">Technician? Use the PermitDraft app on your phone instead. <a href="#">Get the app</a></p>
+</form>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
