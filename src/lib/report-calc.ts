@@ -2,14 +2,16 @@
 // Only dates of events that were really recorded are used: sent_at, office_received_at, assignment start, inspection date.
 // Submitted/approved dates are not recorded anywhere, so no series is built from them and "last edit" is never used.
 
-export type Metric = "sent" | "opened" | "worked" | "inspected";
-export const METRICS: Metric[] = ["sent", "opened", "worked", "inspected"];
+export type Metric = "sent" | "opened" | "worked" | "inspected" | "submitted" | "approved";
+export const METRICS: Metric[] = ["sent", "opened", "worked", "inspected", "submitted", "approved"];
 export const STAGE_KEYS = ["new", "preparing", "submitted", "approved", "inspection", "closed"] as const;
 
 export type JobRec = {
   id: string; trackingNo: string; customer: string; address: string;
   stage: string; permitRef: string | null;
   sentAt: string; receivedAt: string | null; workAt: string[]; inspAt: string[];
+  /** Instants the office really changed this job's stage to Submitted / Approved (internal history, recorded from when it began; never backfilled). */
+  submittedAt?: string[]; approvedAt?: string[];
 };
 export type Range = { from: string; to: string; tz: string };
 
@@ -28,7 +30,7 @@ export const isDay = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date
 export const inRange = (iso: string | null | undefined, r: Range) => { if (!iso) return false; const d = dayIn(iso, r.tz); return d >= r.from && d <= r.to; };
 
 export function eventTimes(j: JobRec, m: Metric): string[] {
-  return m === "sent" ? [j.sentAt] : m === "opened" ? (j.receivedAt ? [j.receivedAt] : []) : m === "worked" ? j.workAt : j.inspAt;
+  return m === "sent" ? [j.sentAt] : m === "opened" ? (j.receivedAt ? [j.receivedAt] : []) : m === "worked" ? j.workAt : m === "inspected" ? j.inspAt : m === "submitted" ? (j.submittedAt ?? []) : (j.approvedAt ?? []);
 }
 export const monthOf = (iso: string, tz: string) => dayIn(iso, tz).slice(0, 7);
 

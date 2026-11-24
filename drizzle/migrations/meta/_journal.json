@@ -169,6 +169,13 @@
       "when": 1795493812013,
       "tag": "0023_documents_equipment_notes_inspections_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795494551797,
+      "tag": "0024_append_only_stage_change_history_with_atomic_tri",
+      "breakpoints": true
     }
   ]
 }

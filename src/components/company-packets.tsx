@@ -15,6 +15,7 @@ import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, Chevr
 import { useCorePath } from "./demo";
 import { TodaysSchedule } from "./dispatch";
 import { CommandCenterCharts } from "./report-charts";
+import { StageHistory } from "./stage-history";
 
 type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; tracking_no: string; photo_links: unknown[] | null; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> } | null };
 type Crm = { packet_id: string; stage: string; next_follow_up: string | null; note: string | null; permit_ref: string | null; updated_at: string; updated_by?: string | null };
@@ -506,6 +507,7 @@ export function CompanyPackets() {
                     <div><dt>{t("Photos in packet", "Fotos en el paquete")}</dt><dd>{nPhotos}</dd></div>
                   </dl>
                   <HandoffReceipt row={i.r} />
+                  <StageHistory packetId={i.r.id} version={i.c?.updated_at} />
                   <div className="crm-drawer-sec">
                     <h3 className="crm-h3">{t("Captured fields", "Datos capturados")}</h3>
                     {vals.length === 0 ? <p className="crm-note">{t("No fields in this packet.", "No hay datos en este paquete.")}</p> : (
@@ -553,6 +555,7 @@ export function CompanyPackets() {
                   <li key={n} className={m.kind}><span className="crm-tl-dot" aria-hidden /><div><strong>{m.label}</strong><span className="crm-sub">{fmtWhen(m.at)}{m.who ? ` · ${m.who}` : ""}</span></div></li>
                 ))}
               </ol>
+              <StageHistory packetId={tItem.r.id} version={tItem.c?.updated_at} />
               <div className="crm-tl-actions">
                 <Button type="button" variant="outline" onClick={() => setTsel(null)}>{t("Back to results", "Volver a resultados")}</Button>
                 <Button type="button" onClick={() => { const id = tItem.r.id; setTrack(false); setTq(""); setTsel(null); setOpen(id); }} data-testid="track-details">{t("Open details", "Abrir detalles")}</Button>

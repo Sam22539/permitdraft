@@ -61,6 +61,8 @@ export function ReportsPage({ search }: { search: ReportSearch }) {
           {kpi(t("Opened by an office reviewer", "Abiertos por un revisor"), jobsFor(d.jobs, "opened", d.range).length, t("By the day first opened", "Por día de primera apertura"))}
           {kpi(t("Jobs with work scheduled", "Trabajos con trabajo programado"), jobsFor(d.jobs, "worked", d.range).length, t("By scheduled start day", "Por día de inicio programado"))}
           {kpi(t("Jobs with an inspection scheduled", "Trabajos con inspección programada"), jobsFor(d.jobs, "inspected", d.range).length, t("By scheduled inspection day", "Por día de inspección programada"))}
+          {kpi(t("Marked submitted by office", "Marcados presentados por la oficina"), jobsFor(d.jobs, "submitted", d.range).length, t("Internal, by the day the stage was changed", "Interno, por día del cambio de etapa"))}
+          {kpi(t("Marked approved by office", "Marcados aprobados por la oficina"), jobsFor(d.jobs, "approved", d.range).length, t("Internal, by the day the stage was changed", "Interno, por día del cambio de etapa"))}
         </ul>
         {none && <div className="jb-empty" data-testid="rp-empty"><p>{t("Nothing was recorded in this period. Try a wider date range.", "No se registró nada en este periodo. Pruebe un rango más amplio.")}</p></div>}
         <section className="crm-panel" aria-labelledby="rp-stage-h">
@@ -82,14 +84,14 @@ export function ReportsPage({ search }: { search: ReportSearch }) {
         <section className="crm-panel" aria-labelledby="rp-month-h">
           <div className="crm-panel-head">
             <h2 id="rp-month-h" className="crm-h3">{t("Jobs and permit work by month", "Trabajos y trámites por mes")}</h2>
-            <p className="crm-note">{t("Each bar counts distinct jobs by the date of a recorded event: sent to the office, first opened by a signed-in reviewer, work scheduled for, and inspection scheduled for. A job counts once per month per bar.", "Cada barra cuenta trabajos distintos por la fecha de un evento registrado: enviado a la oficina, primera apertura por un revisor con sesión, trabajo programado e inspección programada. Un trabajo cuenta una vez por mes en cada barra.")}</p>
+            <p className="crm-note">{t("Each bar counts distinct jobs by the date of a recorded event: sent to the office, first opened by a signed-in reviewer, work scheduled for, inspection scheduled for, and stage marked submitted or approved by your office (internal). A job counts once per month per bar.", "Cada barra cuenta trabajos distintos por la fecha de un evento registrado: enviado a la oficina, primera apertura por un revisor con sesión, trabajo programado, inspección programada y etapa marcada presentada o aprobada por su oficina (interno). Un trabajo cuenta una vez por mes en cada barra.")}</p>
           </div>
           <MonthlyBars months={d.months} series={d.series} {...sp} />
           <MonthlyTable months={d.months} series={d.series} {...sp} />
         </section>
         <section className="crm-panel" aria-labelledby="rp-gap-h">
-          <h2 id="rp-gap-h" className="crm-h3">{t("Not charted: submitted and approved dates", "Sin graficar: fechas de presentación y aprobación")}</h2>
-          <p className="crm-note">{t("PermitDraft keeps only the office's current stage label, not the day each stage was set, and the last-edit time is not the day a permit was submitted or approved. So there is no submitted-per-month or approved-per-month chart, and none is estimated.", "PermitDraft solo guarda la etiqueta de etapa actual de la oficina, no el día en que se fijó cada etapa, y la hora de la última edición no es el día en que se presentó o aprobó un permiso. Por eso no hay gráfico de presentados o aprobados por mes y no se estima ninguno.")}</p>
+          <h2 id="rp-gap-h" className="crm-h3">{t("About the submitted and approved bars", "Sobre las barras de presentado y aprobado")}</h2>
+          <p className="crm-note">{t("These two bars come only from stage changes your office made in PermitDraft after stage history began, each with its own date. Older stage labels have no date and are not counted, and nothing is estimated. They are internal office marks: not a filing, and not confirmation from any local permit authority. A job counts once per month per bar, even if it was marked more than once.", "Estas dos barras vienen solo de cambios de etapa que su oficina hizo en PermitDraft después de que empezó el historial, cada uno con su fecha. Las etapas anteriores no tienen fecha y no se cuentan; no se estima nada. Son marcas internas de la oficina: no son una presentación ni una confirmación de ninguna autoridad local de permisos. Un trabajo cuenta una vez por mes en cada barra, aunque se marcara más de una vez.")}</p>
         </section>
         <section className="crm-panel" id="drill" aria-labelledby="rp-drill-h" aria-live="polite" data-testid="rp-drill">
           <h2 id="rp-drill-h" className="crm-h3">{drill ? `${drillTitle}: ${drill.length}` : t("Matching jobs", "Trabajos coincidentes")}</h2>

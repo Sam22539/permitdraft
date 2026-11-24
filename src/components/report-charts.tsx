@@ -15,8 +15,9 @@ export const STAGE_COLOR: Record<string, string> = { new: "#64748B", preparing: 
 export const METRIC_LABEL: Record<Metric, [string, string]> = {
   sent: ["Sent to office", "Enviados a la oficina"], opened: ["Opened by office reviewer", "Abiertos por revisor de oficina"],
   worked: ["Work scheduled for", "Trabajo programado para"], inspected: ["Inspection scheduled for", "Inspección programada para"],
+  submitted: ["Marked submitted by office (internal)", "Marcado presentado por la oficina (interno)"], approved: ["Marked approved by office (internal)", "Marcado aprobado por la oficina (interno)"],
 };
-export const METRIC_COLOR: Record<Metric, string> = { sent: "#102A43", opened: "#F97316", worked: "#2563EB", inspected: "#7C3AED" };
+export const METRIC_COLOR: Record<Metric, string> = { sent: "#102A43", opened: "#F97316", worked: "#2563EB", inspected: "#7C3AED", submitted: "#2563EB", approved: "#16A34A" };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 export const localDay = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -156,7 +157,7 @@ export function CommandCenterCharts() {
     <section className="crm-panel" aria-labelledby="rp-w-h" data-testid="cc-charts">
       <div className="crm-panel-head">
         <h3 id="rp-w-h" className="crm-h3">{t("Permit status and monthly activity", "Estado del permiso y actividad mensual")}</h3>
-        <p className="crm-note">{t(`Jobs sent to your office from ${rg.from} to ${rg.to}. Stages are what your office recorded, not official permit status. Pick a segment or bar to see its jobs.`, `Trabajos enviados a su oficina del ${rg.from} al ${rg.to}. Las etapas son las que anotó su oficina, no el estado oficial del permiso. Elija un segmento o barra para ver sus trabajos.`)}</p>
+        <p className="crm-note">{t(`Jobs sent to your office from ${rg.from} to ${rg.to}. Stages are what your office recorded, not official permit status; submitted and approved bars count only stage changes your office made since history began (internal, not a filing or city confirmation). Pick a segment or bar to see its jobs.`, `Trabajos enviados a su oficina del ${rg.from} al ${rg.to}. Las etapas son las que anotó su oficina, no el estado oficial del permiso; las barras de presentado y aprobado cuentan solo cambios de etapa hechos por su oficina desde que empezó el historial (interno, no es una presentación ni confirmación de la ciudad). Elija un segmento o barra para ver sus trabajos.`)}</p>
       </div>
       {rep.state === "loading" && <p className="ap-muted" role="status">{t("Loading…", "Cargando…")}</p>}
       {(rep.state === "error" || rep.state === "forbidden" || rep.state === "range") && <p className="ap-muted" role="status">{t("The charts could not be loaded for this account.", "No se pudieron cargar los gráficos para esta cuenta.")}</p>}
@@ -165,7 +166,7 @@ export function CommandCenterCharts() {
         : (
           <div className="rp-widgets">
             <StageDonut total={rep.data.donut.total} counts={rep.data.donut.counts} from={rg.from} to={rg.to} compact />
-            <MonthlyBars months={rep.data.months} series={rep.data.series} from={rg.from} to={rg.to} metrics={["sent", "opened", "inspected"]} />
+            <MonthlyBars months={rep.data.months} series={rep.data.series} from={rg.from} to={rg.to} metrics={["sent", "submitted", "approved", "inspected"]} />
           </div>
         ))}
       <p className="crm-note"><Link to="/reports" search={{ from: rg.from, to: rg.to } as never} className="underline font-semibold" data-testid="cc-report-link">{t("Open Reports & Analytics, with a table of every number", "Abrir Reportes y análisis, con una tabla de cada número")}</Link></p>

@@ -39,3 +39,17 @@ test("series and drill-down lists agree for every month", () => {
   assert.deepEqual(m.series.opened, [0, 0, 0, 0]);
 });
 test("date validation", () => { assert.equal(c.isDay("2026-02-30"), false); assert.equal(c.isDay("2026-02-28"), true); assert.equal(c.validTz("Nope/Zone"), false); });
+
+test("submitted/approved series count distinct jobs per month from recorded stage changes only", () => {
+  const r = { from: "2026-01-01", to: "2026-03-31", tz: "UTC" };
+  const jobs = [
+    J("a", { submittedAt: ["2026-02-02T10:00:00Z", "2026-02-20T10:00:00Z"], approvedAt: ["2026-03-01T10:00:00Z"] }),
+    J("b", { stage: "approved" }), // current label alone creates no dated event
+    J("c", { submittedAt: ["2026-02-05T10:00:00Z"] }),
+  ];
+  const m = c.monthly(jobs, r);
+  assert.deepEqual(m.series.submitted, [0, 2, 0]);
+  assert.deepEqual(m.series.approved, [0, 0, 1]);
+  assert.equal(c.jobsFor(jobs, "submitted", r, "2026-02").length, 2);
+  assert.equal(c.jobsFor(jobs, "approved", r).length, 1);
+});

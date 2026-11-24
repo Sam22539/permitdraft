@@ -48,6 +48,10 @@ export const getReport = createServerFn({ method: "POST" })
     const asg = await all<{ packet_id: string; starts_at: string }>((a, b) => db.from("job_assignments").select("packet_id, starts_at").eq("company_id", cid).order("packet_id").range(a, b));
     const insp = await all<{ id: string; packet_id: string; scheduled_at: string }>((a, b) => db.from("company_inspections").select("id, packet_id, scheduled_at").eq("company_id", cid).order("id").range(a, b));
 
+    const evs = await all<{ id: string; packet_id: string; to_stage: string; at: string }>((a, b) => db.from("packet_stage_events").select("id, packet_id, to_stage, at").eq("company_id", cid).in("to_stage", ["submitted", "approved"]).order("at").order("id").range(a, b));
+    const subAt = new Map<string, string[]>(), apprAt = new Map<string, string[]>();
+    for (const e of evs) { const m = e.to_stage === "submitted" ? subAt : apprAt; m.set(e.packet_id, [...(m.get(e.packet_id) ?? []), e.at]); }
+
     const crmBy = new Map(crm.map((c) => [c.packet_id, c]));
     const work = new Map<string, string[]>(), ins = new Map<string, string[]>();
     for (const a of asg) work.set(a.packet_id, [...(work.get(a.packet_id) ?? []), a.starts_at]);
@@ -61,6 +65,7 @@ export const getReport = createServerFn({ method: "POST" })
       all_.push({
         id: p.id, trackingNo: p.tracking_no, customer: String(v.name ?? "").trim(), address: [v.addr, v.city].map((x) => String(x ?? "").trim()).filter(Boolean).join(", "),
         stage: c?.stage ?? "new", permitRef: c?.permit_ref ?? null, sentAt: p.sent_at, receivedAt: p.office_received_at, workAt: work.get(p.id) ?? [], inspAt: ins.get(p.id) ?? [],
+        submittedAt: subAt.get(p.id) ?? [], approvedAt: apprAt.get(p.id) ?? [],
       });
     }
     // Only jobs with a recorded event in the range travel to the page.
