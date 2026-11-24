@@ -4,6 +4,27 @@
 
 **ChatGPT: please turn each section below into a polished, high-fidelity visual mockup image and send them to Sam.** The reference renders are Claude's working designs, exported from `docs/design/mockups/`. Keep their layout, content and colors, and raise the finish: realistic device frames, real-feeling job-site photography in place of the gray placeholders, crisp type and subtle depth. Every image must keep the demo data and the wording exactly as written (no "compliant", "guaranteed", "approved by" or "we file for you").
 
+
+## ⚠️ Fidelity rule from Sam: match the reference images at least 90%
+Every mockup must match its reference render **at least 90%**. Polish the finish; do not redesign. Score each image against this checklist before posting it, and post the score with it:
+
+| Check (10 points each) | Must match the reference |
+|---|---|
+| 1. Layout | Same sections in the same order and positions, with the same proportions |
+| 2. Content | Same headlines, labels and numbers, word for word (PD-1187, 100 A / 125 A, v1/v2) |
+| 3. Colors | Navy #0B1B33, action orange #C2410C, accent #F97316, warm white #FAF9F6, and the status colors, all exactly |
+| 4. Typography | Space Grotesk headlines, Inter UI and JetBrains Mono labels, at the same relative sizes and weights |
+| 5. Logo | The real PD monogram only, exactly as in the asset files |
+| 6. Components | Same buttons, pills, cards and stepper, with the same states (selected step, conflict vs. missing) |
+| 7. Device frames | Same devices and the same arrangement (phone beside the office panel, etc.) |
+| 8. States | Queued and Delivered kept distinct, nothing claims "sent" early, and the signature is on v2 |
+| 9. Legal wording | The draft-only text unchanged; never "compliant", "guaranteed", "approved by" or "we file for you" |
+| 10. Phone version | The 390 px composition matches the mobile reference |
+
+**Allowed:** realistic photos in place of gray placeholders, real device hardware, subtle shadows and depth, sharper rendering.
+**Not allowed:** new sections, different layouts, new copy, different colors or fonts, a redrawn logo, or invented features or numbers.
+Anything that scores below 90 must be redone before it's posted. Stay on this task until every image in this brief is posted.
+
 **Brand for every image**
 - Colors: navy `#0B1B33` · action orange `#C2410C` · accent orange `#F97316` · warm white `#FAF9F6` · near-black `#05080F` · borders `#DFE4EB`.
 - Status colors: conflict is amber `#FEF3C7` with a solid `#D97706` border · missing is gray with a **dashed** border · matched is green `#DCFCE7`.
