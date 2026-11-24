@@ -257,7 +257,7 @@ export function CompanyPackets() {
   const tResults = tn ? items.filter((i) => i.hay.includes(tn)).slice(0, 8) : [];
   const tItem = items.find((i) => i.r.id === tsel) ?? null;
 
-  const stageBadge = (i: Item) => <span className={`oh-stage${i.stage === "closed" ? " closed" : ""}`} data-testid="crm-summary">{stageName(i.stage)}</span>;
+  const stageBadge = (i: Item) => <span className={`oh-stage s-${i.stage}${i.stage === "closed" ? " closed" : ""}`} data-testid="crm-summary">{stageName(i.stage)}</span>;
   const setRemoved = async (id: string, removed: boolean) => {
     setRmBusy(true); setRmMsg(null);
     const { data: sess } = await backend.auth.getSession();
@@ -363,10 +363,10 @@ export function CompanyPackets() {
   const kpis: { label: string; value: number; note: string; icon: typeof Inbox; dark?: boolean }[] = [
     { label: t("Packets received", "Paquetes recibidos"), value: items.length, note: t("Sent by your technicians", "Enviados por sus técnicos"), icon: Inbox, dark: true },
     { label: t("Needs attention", "Requiere atención"), value: counts.attention, note: t("Overdue, due today or unopened", "Vencidos, para hoy o sin abrir"), icon: BellRing },
-    { label: t("Not opened yet", "Aún no abiertos"), value: alerts.unopened.length, note: t("Awaiting first office review", "Esperan la primera revisión"), icon: FileSearch, dark: true },
+    { label: t("Not opened yet", "Aún no abiertos"), value: alerts.unopened.length, note: t("Awaiting first office review", "Esperan la primera revisión"), icon: FileSearch },
     { label: t("Overdue follow-ups", "Seguimientos vencidos"), value: alerts.overdue.length, note: t("Follow-up date has passed", "La fecha ya pasó"), icon: CalendarClock },
-    { label: t("Marked submitted", "Marcados presentados"), value: byStage.submitted ?? 0, note: t("Office label, not city status", "Etiqueta de oficina, no estado de la ciudad"), icon: FileText, dark: true },
-    { label: t("Closed", "Cerrados"), value: counts.closed, note: t("Recorded closed by your office", "Anotados como cerrados"), icon: CheckCircle2 },
+    { label: t("Marked submitted", "Marcados presentados"), value: byStage.submitted ?? 0, note: t("Office label, not city status", "Etiqueta de oficina, no estado de la ciudad"), icon: FileText },
+    { label: t("Closed", "Cerrados"), value: counts.closed, note: t("Recorded closed by your office", "Anotados como cerrados"), icon: CheckCircle2, dark: true },
   ];
   const alertGroups: { key: string; icon: typeof Inbox; tone: string; title: string; list: Item[] }[] = [
     { key: "overdue", icon: AlertTriangle, tone: "red", title: t("Overdue follow-ups", "Seguimientos vencidos"), list: alerts.overdue },
@@ -429,8 +429,6 @@ export function CompanyPackets() {
               </ol>
             </section>
 
-            <CommandCenterCharts />
-
             <section className="crm-panel" aria-labelledby="crm-jobs-h">
               <h3 id="crm-jobs-h" className="crm-h3">{t("Jobs", "Trabajos")}</h3>
               <Tabs value={view} onValueChange={(x) => setView(x as View)} className="oh-tabs">
@@ -473,6 +471,8 @@ export function CompanyPackets() {
                 {(["attention", "all", "closed", "removed"] as View[]).map((w) => <TabsContent key={w} value={w} className="oh-panel">{view === w && list(w)}</TabsContent>)}
               </Tabs>
             </section>
+
+            <CommandCenterCharts />
           </div>
 
           <aside className="crm-aside" aria-label={t("Alerts and quick actions", "Alertas y acciones rápidas")}>

@@ -947,3 +947,57 @@ a:hover .rp-seg,a:focus-visible .rp-seg{opacity:.75}
 .crm-table .crm-row-actions{flex-direction:row;flex-wrap:wrap;min-width:0;gap:6px}
 .crm-table .crm-row-actions .oh-open,.crm-table .crm-row-actions .oh-more{width:auto;min-height:32px;padding:0 10px;font-size:.78rem;gap:4px}
 .crm-table .crm-act{display:block;margin-top:4px;font-size:.78rem}
+
+/* Office command center: compact enterprise layout (scoped to .crm on /office-handoff) */
+.crm .crm-panel{padding:16px 18px;gap:12px}
+.crm .crm-kpi{padding:14px 16px;gap:4px}
+.crm .crm-kpi-top svg{width:22px;height:22px}
+.crm .crm-kpi-val{font-size:1.9rem}
+.crm .crm-kpi.dark{background:linear-gradient(160deg,#16365A,var(--crm-navy));box-shadow:0 6px 18px rgba(16,42,67,.18)}
+@media (min-width:1280px){.crm .crm-kpis{grid-template-columns:repeat(6,minmax(0,1fr))}}
+/* Pipeline: tinted stage chevrons on computers, tinted cards on phones */
+.crm .crm-stage{border:0;border-radius:10px;background:#EEF2F7}
+.crm .crm-stage.s-new{background:#E2E8F0}
+.crm .crm-stage.s-preparing{background:#FFEDD5}
+.crm .crm-stage.s-submitted{background:#DBEAFE}
+.crm .crm-stage.s-approved{background:#DCFCE7}
+.crm .crm-stage.s-inspection{background:#EDE9FE}
+.crm .crm-stage.s-closed{background:#D9E2EC}
+.crm .crm-stage.s-new .crm-stage-top svg{color:#475569}
+.crm .crm-stage.s-preparing .crm-stage-top svg{color:#C2410C}
+.crm .crm-stage.s-submitted .crm-stage-top svg{color:#1D4ED8}
+.crm .crm-stage.s-approved .crm-stage-top svg{color:#15803D}
+.crm .crm-stage.s-inspection .crm-stage-top svg{color:#6D28D9}
+.crm .crm-stage.s-closed .crm-stage-top svg{color:var(--crm-navy)}
+.crm .crm-stage:hover{filter:brightness(.97)}
+.crm .crm-stage[aria-pressed=true]{background:var(--crm-navy);color:#fff}
+.crm .crm-stage[aria-pressed=true] .crm-stage-top svg{color:var(--crm-orange)}
+.crm .crm-stage:focus-visible{outline:3px solid var(--crm-orange);outline-offset:2px}
+@media (min-width:1280px){
+  .crm .crm-pipe{gap:0}
+  .crm .crm-pipe li+li{margin-left:-6px}
+  .crm .crm-pipe-arrow,.crm .crm-bar,.crm .crm-stage-n{display:none}
+  .crm .crm-stage{border-radius:0;padding:12px 26px 12px 28px;gap:2px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%,16px 50%)}
+  .crm .crm-pipe li:first-child .crm-stage{padding-left:16px;border-radius:10px 0 0 10px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,0 100%)}
+  .crm .crm-pipe li:last-child .crm-stage{border-radius:0 10px 10px 0;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,16px 50%)}
+  .crm .crm-stage:focus-visible{outline:0;background:var(--crm-navy);color:#fff}
+  .crm .crm-stage:focus-visible .crm-stage-count{color:#fff}
+  .crm .crm-stage-top{justify-content:flex-start}
+  .crm .crm-stage-name{min-height:0}
+  .crm .crm-stage-count{font-size:1.6rem}
+}
+/* Status pills in the jobs table, by office-recorded stage */
+.crm .oh-stage{display:inline-block;text-align:left}
+.crm .oh-stage.s-preparing{background:#FFEDD5;color:#9A3412}
+.crm .oh-stage.s-submitted{background:#DBEAFE;color:#1E3A8A}
+.crm .oh-stage.s-approved{background:#DCFCE7;color:#14532D}
+.crm .oh-stage.s-inspection{background:#EDE9FE;color:#4C1D95}
+.crm .crm-table{border-radius:8px}
+.crm .crm-table th{height:38px;font-size:.72rem}
+/* Right rail: quick actions as tiles */
+.crm .crm-qa{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.crm .crm-qa-btn,.crm .crm-qa-main.crm-qa-main{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:78px;height:auto;padding:10px 6px;border-radius:10px;text-align:center;font-size:.8rem;line-height:1.2;white-space:normal;box-shadow:0 1px 2px rgba(16,42,67,.05)}
+.crm .crm-qa .crm-qa-btn svg,.crm .crm-qa .crm-qa-main.crm-qa-main svg{width:22px;height:22px}
+.crm .crm-qa-btn svg{color:var(--crm-navy)}
+.crm .crm-qa-btn:hover svg{color:var(--crm-burnt)}
+.crm .crm-alert{background:var(--crm-bg);border-radius:0 8px 8px 0;padding:8px 10px}
