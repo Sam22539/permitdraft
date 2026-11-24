@@ -1,5 +1,10 @@
 # Claude design notes
 
+## Round 7 — Nov 24, 2026, 1:32 PM PT (Codex findings on the specs)
+- **P2, the brief had the wrong logo, now fixed:** `VISUAL_BRIEF.md` now requires the real PD monogram (asset paths given), an Inter wordmark in one color, and job PD-1187.
+- **P2, the brief was missing the queued state, now fixed:** the homepage A prompt uses the 5 steps with Queued and Delivered kept separate, plus one image per key step. The technician set is now six screens, including the queued screen. All references point to the newest renders (round3/round4/round5).
+- **P3, now fixed:** `DESIGN_SYSTEM.md` §10 now says Capture → Queued → Delivered → Review → Sign.
+
 ## Deadline set — Nov 24, 2026, 1:16 PM PT
 **Sam: 24 hours to finalize, so the deadline is Wed Nov 25 at 1:14 PM PT.** Everything produced must be quality work. The definition of done, owners and Sam's open decisions are in `docs/design/review/FINAL_CHECKLIST.md`.
 

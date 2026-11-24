@@ -122,6 +122,6 @@ Use these only for what's listed. All of them are in `tokens.css`.
 - Count badges `#DC2626`, photo placeholders `#3A4352`, camera `#05080F` / `#1A2233`, map `#E4EBE1` / `#D3DDD0`, table row dividers `#EEF1F5`.
 
 ## 10. Homepage directions (pending Sam's pick; A recommended)
-- **A: warm-white editorial** (`mockups/HomepageA.dc.html`). Warm white `#FAF9F6` canvas, `#E6E2D8` hairlines, navy nav, Space Grotesk headlines from 40 px (mobile) to 84 px (desktop), and an interactive Capture → Send → Review → Sign hero.
+- **A: warm-white editorial** (`mockups/HomepageA.dc.html`). Warm white `#FAF9F6` canvas, `#E6E2D8` hairlines, navy nav, Space Grotesk headlines from 40 px (mobile) to 84 px (desktop), and an interactive five-step hero: Capture → Queued → Delivered → Review → Sign. Queued (saved on the phone, nothing sent) and Delivered (received by the office) must always stay separate steps.
 - **B: executive navy, cinematic** (`mockups/HomepageV2.dc.html`). Near-black `#05080F` canvas, orange used as a racing stripe, and **Archivo Expanded 800 uppercase** headlines, used for editorial headlines only. Product UI keeps Inter.
 - Whichever is picked becomes the rule here, and the other's tokens are removed.
