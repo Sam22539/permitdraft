@@ -1,4 +1,5 @@
 import { ResourceLink } from "./resource-link";
+import { resourcesSearch } from "../lib/resources/data";
 import { Link } from "@tanstack/react-router";
 import { AppPage } from "./app-shell";
 import { useLang } from "../lib/lang";
@@ -86,7 +87,7 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
   );
 }
 
-export function StepShell({ n, title, sub, back, children, next, nextLabel, action, fixBar, onNext }: {
+export function StepShell({ n, title, sub, back, children, next, nextLabel, action, fixBar, onNext, inlineAction, compactFoot }: {
   n: number; title: [string, string]; sub: [string, string]; back: string; next?: string; nextLabel?: [string, string]; children: React.ReactNode;
   /** A step's own final action (and its feedback), pinned on a phone in place of a Next link. */
   action?: React.ReactNode;
@@ -94,26 +95,33 @@ export function StepShell({ n, title, sub, back, children, next, nextLabel, acti
   fixBar?: React.ReactNode;
   /** Return false to stop Next from leaving this step (the step shows its own message). */
   onNext?: () => boolean;
+  /** Keep the final action in the card's flow on a phone too, directly after the step's content, instead of pinned. */
+  inlineAction?: boolean;
+  /** Fold the stage's resource link into the footer and drop the repeated filing note below the card. */
+  compactFoot?: boolean;
 }) {
   const { t } = useLang();
   const p = useCorePath();
   const demo = useDemo();
   return (
-    <AppPage bottom capture>
+    <AppPage bottom capture footLinks={compactFoot ? <>
+      <Link to="/resources" search={resourcesSearch((["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]) as never} className="underline font-semibold" data-testid={`resource-link-${(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]}`}>{t("Official resources for inspection and closeout", "Recursos oficiales de inspección y cierre")}</Link>
+      <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
+    </> : undefined}>
       {!fixBar && <Link to={p(back)} className="cx-topback" data-testid="step-top-back"><ChevronLeft size={20} aria-hidden />{t("Back", "Atrás")}</Link>}
       <StepHead n={n} title={title} />
       <p className="cx-note">{t(...sub).split(" · ").slice(1).join(" · ") || t(...sub)}</p>
       <section className="cx-card">
         {children}
-        {fixBar ? null : action ? <PinnedAction className="cx-pin-gap">{action}</PinnedAction> : null}
+        {fixBar ? null : action ? (inlineAction ? <div className="cx-endbar" data-testid="end-action">{action}</div> : <PinnedAction className="cx-pin-gap">{action}</PinnedAction>) : null}
         {fixBar ? null : <div className="cx-actions">
           {next ? <PinnedAction><Link to={p(next)} className="ap-btn primary" onClick={(e) => { if (onNext && !onNext()) e.preventDefault(); }}>{t(...(nextLabel ?? ["Next", "Siguiente"]))}</Link></PinnedAction> : null}
           <Link to={p(back)} className="cx-back">{t("Back", "Atrás")}</Link>
         </div>}
       </section>
       {fixBar}
-      <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />
-      <p className="cx-note">{demo ? t("Demo with a sample job. Nothing is filed.", "Demo con un trabajo de muestra. No se presenta nada.") : t("Not filed with the permitting authority.", "No presentado ante la autoridad de permisos.")}</p>
+      {!compactFoot && <ResourceLink stage={(["setup", "equipment", "permit", "permit", "close_out"] as const)[n - 1]} />}
+      {!compactFoot && <p className="cx-note">{demo ? t("Demo with a sample job. Nothing is filed.", "Demo con un trabajo de muestra. No se presenta nada.") : t("Not filed with the permitting authority.", "No presentado ante la autoridad de permisos.")}</p>}
     </AppPage>
   );
 }

@@ -222,7 +222,7 @@ function NewPhotos() {
     nav({ to: p("/jobs/sample-job"), search: { saved: "1", done: id } as never });
   }
   return (
-    <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" action={<>
+    <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" inlineAction={demo} compactFoot={demo} action={<>
         {!demo && sendErr && <p role="alert" className="cx-err" data-testid="send-error">{t("Could not save the office packet. Your job is still editable: try Finish again.", "No se pudo guardar el paquete de oficina. Su trabajo sigue editable: intente Finalizar de nuevo.")}</p>}
         {failed && <p role="alert" className="cx-err" data-testid="finish-error">{t("Could not save this job on this device. Nothing was cleared: your capture is still here. Try Finish again.", "No se pudo guardar este trabajo en este dispositivo. No se borró nada: su captura sigue aquí. Intente Finalizar de nuevo.")}</p>}
         {(fa.missing.length > 0 || fa.contradiction || unticked.length > 0 || (!demo && ready && missing.length > 0)) && (
@@ -308,7 +308,6 @@ function NewPhotos() {
       {demo ? (
         <>
           <p className="ph-pend" data-testid="pending-count">{t(`${Object.values(photos).filter(Boolean).length} photo(s) saved on this device`, `${Object.values(photos).filter(Boolean).length} foto(s) guardada(s) en este dispositivo`)}</p>
-          <p className="cx-note">{t("Photos stay on this device. Nothing is sent anywhere.", "Las fotos se quedan en este dispositivo. No se envía nada a ningún sitio.")}</p>
         </>
       ) : (
         <>
@@ -319,9 +318,9 @@ function NewPhotos() {
           <p className="cx-note">{t("Finish saves one private packet once every photo is saved, then emails your company's verified office inbox a link to review it. It is for office review only, not permit filing. Contractor review and signature required.", "Finalizar guarda un paquete privado cuando todas las fotos estén guardadas y envía al buzón verificado de la oficina de su empresa un enlace para revisarlo. Es solo para revisión de oficina, no para presentar el permiso. Se requiere revisión y firma del contratista.")}</p>
         </>
       )}
-          <section className="cx-review" aria-labelledby="final-review-h" data-testid="final-review">
+          <section className={demo ? "cx-review is-flat" : "cx-review"} aria-labelledby="final-review-h" data-testid="final-review">
         <h2 id="final-review-h">{t("Final review", "Revisión final")}</h2>
-        <p className="cx-note">{demo ? t("Check the sample job before you finish. Nothing is sent from the demo.", "Revise el trabajo de muestra antes de finalizar. La demo no envía nada.") : t("Check the job before you send it to your office for review. It is not a permit filing.", "Revise el trabajo antes de enviarlo a su oficina para revisión. No es la presentación de un permiso.")}</p>
+        <p className="cx-note">{demo ? t("Check the sample job before you finish.", "Revise el trabajo de muestra antes de finalizar.") : t("Check the job before you send it to your office for review. It is not a permit filing.", "Revise el trabajo antes de enviarlo a su oficina para revisión. No es la presentación de un permiso.")}</p>
         {(() => {
           // Summary reads the saved capture values by the same keys the step inputs write (not the scope-only subset).
           const v = (k: string) => (dr.get(k) ?? "").trim();
@@ -341,14 +340,14 @@ function NewPhotos() {
             { title: t("Equipment", "Equipo"), step: "/new/equipment", rows: equipRows },
             { title: t("Work performed", "Trabajo realizado"), step: "/new/work", rows: [[t("Work notes", "Notas del trabajo"), v("work"), false], [t("Panel size (amps)", "Amperios del panel"), v("panel"), true], ...(jobType ? [[t("Duct sealing answer", "Respuesta sobre sellado de ductos"), ans("duct"), true] as Row] : [])] },
             { title: t("Checks", "Revisiones"), step: "/new/checks", rows: [[t("Final checks confirmed", "Verificaciones confirmadas"), `${allChecks.length - unticked.length} / ${allChecks.length}`, true]] },
-            { title: t("Photos and Employee ID", "Fotos e ID de empleado"), step: "/new/photos", rows: [[t("Photos attached", "Fotos adjuntas"), String(Object.keys(photos).length), true], [t("Required photos missing", "Fotos requeridas faltantes"), demo ? "—" : String(missing.length), true], [t("Employee ID", "ID de empleado"), (demo ? employeeId : assignedId || employeeId).trim(), demo]] },
+            { title: t("Photos and Employee ID", "Fotos e ID de empleado"), step: "/new/photos", rows: [[t("Photos attached", "Fotos adjuntas"), String(Object.keys(photos).length), true], ...(demo ? [] : [[t("Required photos missing", "Fotos requeridas faltantes"), String(missing.length), true] as Row]), [t("Employee ID", "ID de empleado"), (demo ? employeeId : assignedId || employeeId).trim(), demo]] },
           ];
           return (
             <div className="cx-review-grid">
               {sections.map((sec) => (
                 <div key={sec.title} className="cx-review-sec">
                   <div className="cx-review-top"><h3>{sec.title}</h3>{sec.step !== "/new/photos" && <Link to={p(sec.step) as never} className="underline font-semibold">{t("Edit", "Editar")}<span className="sr-only"> {sec.title}</span></Link>}</div>
-                  <dl>{sec.rows.map(([k, val, req]) => <div key={k}><dt>{k}</dt><dd className={val ? "" : req ? "is-empty" : "is-optional"} data-testid={`review-${k}`}>{val || (req ? <>{none}<span className="sr-only"> ({t("required", "obligatorio")})</span></> : t("Optional, left blank", "Opcional, en blanco"))}</dd></div>)}</dl>
+                  <dl>{sec.rows.map(([k, val, req]) => <div key={k}><dt>{k}</dt><dd className={val ? "" : req ? "is-empty" : "is-optional"} data-testid={`review-${k}`}>{val || (req ? <>{none}<span className="sr-only"> ({t("required", "obligatorio")})</span>{demo && sec.step === "/new/photos" && k === t("Employee ID", "ID de empleado") ? <>{" · "}<button type="button" className="underline font-semibold cx-fix-link" data-testid="review-add-employee-id" onClick={() => { const el = document.getElementById("emp-id"); el?.scrollIntoView({ block: "center" }); el?.focus({ preventScroll: true }); }}>{t("Enter it", "Ingresarlo")}</button></> : null}</> : t("Optional, left blank", "Opcional, en blanco"))}</dd></div>)}</dl>
                 </div>
               ))}
             </div>

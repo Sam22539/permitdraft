@@ -719,3 +719,8 @@ html:has(.pj){scroll-padding-top:10rem}
 .hp-mnav-price{display:grid;gap:.1rem;margin:0 0 .35rem .75rem;padding:.55rem .75rem;border-left:3px solid #F4770B;background:#F6F8FA;border-radius:.25rem;font-size:.9rem;color:#334155}
 .hp-mnav-price-name{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748B}
 .hp-mnav-price strong{color:#152235;font-size:1rem}
+/* Demo photos step: Final review sits flat in the step card, its sections the only boxes; Finish follows it in the flow. */
+.cx-review.is-flat{background:none;border:0;border-top:1px solid var(--pd-line);border-radius:0;box-shadow:none;padding:1.25rem 0 0}
+.cx-endbar{display:grid;gap:12px}
+.cx-endbar+.cx-actions .cx-back{min-height:48px}
+.cx-review dd.is-empty .cx-fix-link{color:var(--pd-link)}

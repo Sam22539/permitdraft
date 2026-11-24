@@ -189,7 +189,9 @@ export function SideNav() {
   );
 }
 
-export function AppPage({ children, bottom, wide, capture, home, core }: { children: React.ReactNode; bottom?: boolean; wide?: boolean; capture?: boolean; home?: boolean; core?: boolean }) {
+export function AppPage({ children, bottom, wide, capture, home, core, footLinks }: { children: React.ReactNode; bottom?: boolean; wide?: boolean; capture?: boolean; home?: boolean; core?: boolean;
+  /** Replaces the footer's two links on a screen that names its own (they must keep the same destinations). */
+  footLinks?: React.ReactNode }) {
   const { t } = useLang();
   const demo = useDemo();
   return (
@@ -199,8 +201,10 @@ export function AppPage({ children, bottom, wide, capture, home, core }: { child
       <main className={`${home ? "hp-main" : "ap-main"} ${bottom ? "has-bottom" : ""} ${wide ? "jb-main" : ""} ${capture ? "cx-main" : ""}`}>{demo && <DemoBar />}{children}</main>
       {(demo || bottom || core) && <footer className={`ap-foot ${bottom ? "has-bottom" : ""}`}>
         <p>{t("PermitDraft prepares documentation for contractor review. It does not file permits or guarantee compliance.", "PermitDraft prepara documentación para revisión del contratista. No presenta permisos ni garantiza el cumplimiento.")}</p>
+        {footLinks ?? <>
         <Link to="/coverage" className="underline font-semibold">{t("What PermitDraft covers", "Qué cubre PermitDraft")}</Link>
         <Link to="/resources" className="underline font-semibold">{t("Official resources", "Recursos oficiales")}</Link>
+        </>}
       </footer>}
       {bottom && <BottomBar current="jobs" />}
     </div>
