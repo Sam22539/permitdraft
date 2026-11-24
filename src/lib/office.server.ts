@@ -29,18 +29,18 @@ const PACKET_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 
 /**
  * The whole working address of one saved packet's office review page. Published, it is the live site's configured address
- * (FOUNDABLE_SITE_URL) plus /office-review/<id>; in a Foundable preview it is the preview's own page link for that path.
+ * (FOUNDABLE_SITE_URL) plus /office-review/<id>, even inside a preview; only where no published address is set does it fall back to the preview's page link.
  * It is checked before use: https, and naming this packet's own page (as its path or the preview's page). Never the
  * request's origin. It throws where no such address exists, so the notice is not sent with a generic or wrong link.
  */
 export async function packetLink(packetId: string): Promise<string> {
   if (!PACKET_ID.test(packetId)) throw new Error("packet id");
   const path = `/office-review/${packetId.toLowerCase()}`;
-  const live = process.env.FOUNDABLE_SITE_URL, preview = process.env.FOUNDABLE_PREVIEW_PAGES_URL;
+  const live = process.env.FOUNDABLE_SITE_URL;
   let link: string;
-  if (live && !preview) {
-    const u = new URL(path, live);
-    link = u.href;
+  if (live) {
+    // The trusted published origin always wins, even where a preview address also exists: the notice links the real site.
+    link = new URL(path, live).href;
   } else {
     const { pageLink } = await import("./email.server");
     link = pageLink(path);
