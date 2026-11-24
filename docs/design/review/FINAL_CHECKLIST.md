@@ -13,6 +13,7 @@ Set by Sam on Nov 24 at 1:14 PM PT: **24 hours to finalize the design.** Every d
 | 6 | Accessibility: contrast ≥ 4.5:1, focus rings, 44/56 px targets, no essential text < 12 px | Claude + Codex | Passing on A; re-check all screens |
 | 7 | Codex review with no open findings on the final commit | Codex | Clean on Rounds 4–5 |
 | 8 | `MASTER_PROMPT.md` updated so Ted can build from the final design | Claude | Final pass before the deadline |
+| 8b | `MOBILE_APP_PROMPT.md`: standalone prompt for the technician app (mobile UI) | Claude | ✅ Shipped 2:10 PM |
 | 9 | Claims on the public page match what's built, or are marked for approval | Claude | Table in Round 3 notes |
 
 ## Milestones (Claude holds these times)
