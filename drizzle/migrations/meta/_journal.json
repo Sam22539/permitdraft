@@ -148,6 +148,13 @@
       "when": 1795493032363,
       "tag": "0020_let_conversion_write_link_columns_under_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795493392881,
+      "tag": "0021_job_assignments_and_audit_tables_read_only_grant",
+      "breakpoints": true
     }
   ]
 }

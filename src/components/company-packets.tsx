@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, Archive, FileText } from "lucide-react";
 import { useCorePath } from "./demo";
+import { TodaysSchedule } from "./dispatch";
 
 type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; tracking_no: string; photo_links: unknown[] | null; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> } | null };
 type Crm = { packet_id: string; stage: string; next_follow_up: string | null; note: string | null; permit_ref: string | null; updated_at: string; updated_by?: string | null };
@@ -446,6 +447,7 @@ export function CompanyPackets() {
                 <Link to="/office-setup" className="crm-qa-btn"><Settings2 size={18} aria-hidden />{t("Office setup", "Configuración de oficina")}</Link>
               </div>
             </section>
+            {company && <TodaysSchedule company={company} />}
             <section className="crm-panel" aria-labelledby="crm-al-h" data-testid="crm-alerts">
               <h3 id="crm-al-h" className="crm-h3">{t("Alerts", "Alertas")}</h3>
               {alertGroups.every((g) => g.list.length === 0) ? (

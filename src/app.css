@@ -899,3 +899,15 @@ html:has(.pj){scroll-padding-top:10rem}
 .crm-tl li.corr .crm-tl-dot{background:var(--crm-orange)}
 .crm-tl strong{font-size:.92rem;color:var(--crm-text)}
 .crm-tl-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+
+/* Dispatch & Schedule */
+.ds-conflict{display:flex;align-items:center;gap:6px;font-size:.9rem;font-weight:700;color:#b91c1c}
+.ds-nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ds-nav strong{min-width:10rem;text-align:center;color:var(--crm-navy)}
+.ds-filter{flex:1 1 14rem;max-width:20rem;margin-left:auto}
+.ds-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.ds-cell{display:flex;justify-content:space-between;align-items:flex-start;min-height:56px;padding:8px;border:1px solid var(--crm-line);border-radius:10px;background:#fff;color:var(--crm-text);font-weight:600}
+.ds-cell.has{border-color:var(--crm-burnt)}
+.ds-cell b{background:var(--crm-navy);color:#fff;border-radius:999px;padding:0 7px;font-size:.75rem}
+.ds-audit{display:grid;gap:8px;font-size:.95rem}
+.ap-side-nav a[href="/dispatch"]{white-space:nowrap;font-size:.9rem;gap:.6rem;padding:0 .7rem}
