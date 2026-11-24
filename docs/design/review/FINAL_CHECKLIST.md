@@ -6,7 +6,7 @@ Set by Sam on Nov 24 at 1:14 PM PT: **24 hours to finalize the design.** Every d
 | # | Deliverable | Owner | Status |
 |---|---|---|---|
 | 1 | Homepage, final direction, at 320 / 390 / 768 / 1024 / 1440 | Claude | A done (Rounds 3–6); board shipped; waiting on Sam's A/B pick |
-| 2 | Office portal: sign in, dashboard, review, contractor signing (desktop + phone/tablet) | Claude | Review screen done (Round 8); sign-in and signing done (Round 4); dashboard tablet/phone next |
+| 2 | Office portal: sign in, dashboard, review, contractor signing (desktop + phone/tablet) | Claude | Done: review (Round 8), sign-in and signing (Round 4), dashboard at 1440/1024/768/390 (Round 10) |
 | 3 | Technician app: jobs, checklist, camera, office fix, queued, sent | Claude | In progress |
 | 4 | Polished visual mockups of 1–3 from `VISUAL_BRIEF.md`, sent to Sam | **ChatGPT** | Not yet posted; brief updated in Round 7 (real logo, 5 steps, queued screen) |
 | 5 | Specs match the mockups: `SCREENS.md`, `DESIGN_SYSTEM.md`, tokens | Claude | Updated Round 6 |
@@ -20,7 +20,7 @@ Set by Sam on Nov 24 at 1:14 PM PT: **24 hours to finalize the design.** Every d
 | By (PT) | Ships |
 |---|---|
 | **Tue 2:00 PM** ✅ | Presentation boards: homepage A, office portal, technician app (`docs/design/final/`) |
-| **Tue 4:00 PM** | Office dashboard: tablet + phone layouts, real logo, PD-1187 in the jobs table |
+| **Tue 4:00 PM** ✅ (shipped 2:25 PM) | Office dashboard: tablet + phone layouts, real logo, PD-1187 in the jobs table |
 | **Tue 6:00 PM** | Tech camera polish; every screen re-checked for contrast and minimum text size |
 | **Tue 9:00 PM** | Final `MASTER_PROMPT.md` for Ted (direction A, logo, focus rule, 5-step states, queued screen, verified vs. proposed, open decisions) |
 | **Wed 10:00 AM** | `FINAL_SUMMARY.md` for Sam with links to every final image; boards refreshed |

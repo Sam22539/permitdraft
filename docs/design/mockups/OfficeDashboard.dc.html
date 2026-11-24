@@ -20,11 +20,15 @@ h1,h2,h3,p{margin:0}
 .gb{min-height:36px;padding:0 12px;border-radius:8px;border:1px solid #DFE4EB;background:#fff;color:#0B1B33;font:600 13px Inter,sans-serif;cursor:pointer}
 .h{font-size:15px;font-weight:700}
 .m{color:#5A6779;font-size:12px}
+.mnav{display:none!important}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #C2410C;outline-offset:2px}
+.side a:focus-visible,header button:focus-visible{outline-color:#F97316}
+@media (max-width:900px){.side{display:none!important}.mnav{display:flex!important}.pad{padding:14px!important}}
 </style>
 </helmet>
 <div style="display: flex; flex-wrap: wrap; min-height: 100vh">
 
-<aside style="flex: 1 1 230px; max-width: 100%; background: #0B1B33; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+<aside class="side" style="flex: 0 0 230px; background: #0B1B33; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
 <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
 <img src="/_blob/a30cbbc821751d8b62862841bb3975f0" alt="" width="34" height="34">
 <div><p style="font-size: 21px; font-weight: 800; color: #fff; letter-spacing: -0.02em">PermitDraft</p><p style="font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: #9FB0C8">HVAC · CONSTRUCTION · PERMITTING</p></div>
@@ -44,6 +48,8 @@ h1,h2,h3,p{margin:0}
 
 <div style="flex: 999 1 900px; min-width: 0; display: flex; flex-direction: column">
 <header style="background: #0B1B33; padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+<div class="mnav" style="align-items: center; gap: 10px; flex: 1 1 auto"><img src="/_blob/a30cbbc821751d8b62862841bb3975f0" alt="" width="30" height="30"><span style="color: #fff; font-weight: 800; font-size: 18px">PermitDraft</span></div>
+<button type="button" class="mnav" aria-label="Open menu" style="min-height: 44px; padding: 0 14px; border-radius: 9px; border: 1px solid #3B5078; background: transparent; color: #fff; font: 600 14px Inter, sans-serif; align-items: center">Menu</button>
 <label style="flex: 1 1 320px; display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 9px; padding: 0 12px; min-height: 40px">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A6779" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
 <input type="search" placeholder="Search customers, jobs, permits, tracking #, addresses…" style="border: 0; outline: none; flex: 1; font: 14px Inter, sans-serif; min-width: 0">
@@ -54,7 +60,7 @@ h1,h2,h3,p{margin:0}
 <div style="display: flex; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 99px; background: #C2410C; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center">SM</span><div><p style="color: #fff; font-weight: 700; font-size: 14px">Sam M.</p><p style="color: #9FB0C8; font-size: 12px">Office Admin</p></div></div>
 </header>
 
-<div style="padding: 20px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
+<div class="pad" style="padding: 20px; display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start">
 <main style="flex: 999 1 720px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-end">
 <div><h1 style="font-size: 26px; font-weight: 800">Good morning, Sam</h1><p style="color: #5A6779; font-size: 14px">Here's what's happening with your HVAC permits and projects today.</p></div>
@@ -200,6 +206,7 @@ class Component extends DCLogic {
       style: 'min-height: 64px; border-radius: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 8px 12px; font-family: Inter, sans-serif; background: ' + s[2] + '; color: ' + s[3] + '; border: 2px solid ' + (sel === s[0] ? '#C2410C' : 'transparent') }));
     const pills = { 'Office review': 'background: #E0E7FF; color: #1E3A8A', 'Missing info': 'background: #FFEDD5; color: #9A3412', 'Submitted': 'background: #EDE9FE; color: #5B21B6', 'Approved': 'background: #DCFCE7; color: #166534', 'Ready to submit': 'background: #E0F2FE; color: #075985', 'Corrections': 'background: #FEE2E2; color: #991B1B', 'Field capture': 'background: #EEF1F5; color: #374151' };
     const R = [
+      ['PD-1187', 'Sample customer', '1187 Oak St, Pasadena', 'Heat pump change-out', 'Luis M.', 'LM', 'Office review', 'Nov 24, 9:47 AM'],
       ['PD-2026-10482', 'Marcus Reyes', '4412 Alder Ct, Sacramento', 'Heat pump change-out', 'J. Diaz', 'JD', 'Office review', 'Nov 23, 10:14 AM'],
       ['PD-2026-10481', 'Rivera Properties', '7 Demo Ln, Roseville', 'Gas furnace install', 'M. Torres', 'MT', 'Missing info', 'Nov 23, 9:41 AM'],
       ['PD-2026-10480', 'Lisa Hammond', '92 Maple Ct, Folsom', 'Ductless mini-split', 'C. Ramirez', 'CR', 'Submitted', 'Nov 22, 4:37 PM'],
@@ -210,14 +217,14 @@ class Component extends DCLogic {
     ];
     const rows = R.filter((r) => !sel || r[6].toLowerCase() === sel.toLowerCase()).map((r) => ({ id: r[0], cust: r[1], addr: r[2], type: r[3], tech: r[4], ini: r[5], status: r[6], when: r[7],
       pill: 'display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700; ' + (pills[r[6]] || 'background: #EEF1F5; color: #374151') }));
-    const T = [['Javier Diaz', 'JD', 'On job · 4412 Alder Ct', 1], ['Miguel Torres', 'MT', 'On job · 7 Demo Ln', 1], ['Carlos Ramirez', 'CR', 'On job · 92 Maple Ct', 1], ['Evan Brooks', 'EB', 'Available', 0]];
+    const T = [['Luis M.', 'LM', 'On job · 1187 Oak St', 1], ['Miguel Torres', 'MT', 'On job · 7 Demo Ln', 1], ['Carlos Ramirez', 'CR', 'On job · 92 Maple Ct', 1], ['Evan Brooks', 'EB', 'Available', 0]];
     const techs = T.map((t) => ({ name: t[0], ini: t[1], status: t[2], where: 'font-size: 12px; color: ' + (t[3] ? '#166534' : '#5A6779') }));
     const bars = [[22, 14], [26, 17], [21, 15], [30, 20], [36, 26]].map((b) => ({ jobs: 'flex: 1; background: #0B1B33; border-radius: 4px 4px 0 0; height: ' + Math.round(b[0] / 40 * 100) + '%', appr: 'flex: 1; background: #EA580C; border-radius: 4px 4px 0 0; height: ' + Math.round(b[1] / 40 * 100) + '%' }));
-    const N = [['Missing information', 'PD-2026-10481 · equipment specs needed', '#EA580C'], ['Office review complete', 'PD-2026-10482 · ready for submission', '#2563EB'], ['Permit approved', 'PD-2026-10479 · permit issued', '#16A34A'], ['Inspection scheduled', 'PD-2026-10476 · Dec 2 at 9:00 AM', '#7C3AED']];
+    const N = [['Missing information', 'PD-2026-10481 · equipment specs needed', '#EA580C'], ['New packet with 1 conflict', 'PD-1187 · panel rating 100 A vs 125 A', '#D97706'], ['Permit approved', 'PD-2026-10479 · permit issued', '#16A34A'], ['Inspection scheduled', 'PD-2026-10476 · Dec 2 at 9:00 AM', '#7C3AED']];
     const notes = N.map((n) => ({ t: n[0], s: n[1], dot: 'width: 10px; height: 10px; border-radius: 99px; margin-top: 4px; flex: none; background: ' + n[2] }));
     const sched = [{ time: '8:00 AM', t: 'Job site · PD-2026-10483', s: '2109 Valley View Dr' }, { time: '10:30 AM', t: 'Inspection · PD-2026-10479', s: '1188 Oak Ridge Dr' }, { time: '1:00 PM', t: 'Job site · PD-2026-10484', s: '7401 Sierra Ct' }, { time: '3:30 PM', t: 'Office review · 3 jobs', s: 'Finalize and submit permits' }];
     return { nav: nav, kpis: kpis, stages: stages, rows: rows, techs: techs, bars: bars, notes: notes, sched: sched,
-      filterLabel: sel ? 'Showing: ' + sel + ' (' + rows.length + ')' : 'All jobs (' + R.length + ' shown)', clear: () => this.setState({ stage: '' }) };
+      filterLabel: sel ? 'Showing: ' + sel + ' (' + rows.length + ')' : 'All jobs (' + R.length + ' shown) · sample data', clear: () => this.setState({ stage: '' }) };
   }
 }
 </script>

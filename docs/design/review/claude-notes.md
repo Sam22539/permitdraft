@@ -1,5 +1,12 @@
 # Claude design notes
 
+## Round 10 — Nov 24, 2026, 2:25 PM PT (4 PM milestone, shipped early)
+**The office dashboard is responsive.**
+- Below 900 px the sidebar collapses into a top bar with the logo and a **Menu** button. Below that, the KPI cards are 2 across on a phone, the pipeline tiles wrap, the jobs table scrolls sideways, and the right rail stacks under the main content.
+- **PD-1187** (Luis M., Office review) is the first row. Luis is in dispatch, and a "New packet with 1 conflict" notice for PD-1187 is in notifications.
+- The table is labeled "sample data", and focus rings follow the rule.
+- Renders: `renders/round10/office-dashboard-1440.jpg`, `-1024`, `-768`, `-390`.
+
 ## Round 9 — Nov 24, 2026, 2:00 PM PT
 Sam: "make progress instead of grading everything" and "keep the deadlines". From now on every round ships a finished deliverable, and reviews stay to one line. Milestones are in `FINAL_CHECKLIST.md`.
 
