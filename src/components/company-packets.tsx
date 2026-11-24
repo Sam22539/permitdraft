@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText } from "lucide-react";
+import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText, Trash2, Undo2 } from "lucide-react";
 import { useCorePath } from "./demo";
 import { TodaysSchedule } from "./dispatch";
 import { CommandCenterCharts } from "./report-charts";
@@ -30,7 +30,8 @@ const STAGES: [string, string, string][] = [
   ["closed", "Closed", "Cerrado"],
 ];
 
-type View = "attention" | "all" | "closed";
+type View = "attention" | "all" | "closed" | "removed";
+type Removal = { packet_id: string; removed: boolean; removed_by: string; removed_at: string };
 /** What the office should do next, worked out only from the packet, its manual follow-up record and local calendar days. */
 type Kind = "overdue" | "today" | "review" | "scheduled" | "nodate" | "closed";
 
@@ -129,6 +130,10 @@ export function CompanyPackets() {
   const [track, setTrack] = useState(false);
   const [tq, setTq] = useState("");
   const [tsel, setTsel] = useState<string | null>(null);
+  const [removals, setRemovals] = useState<Record<string, Removal>>({});
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [rmBusy, setRmBusy] = useState(false);
+  const [rmMsg, setRmMsg] = useState<string | null>(null);
   const [today, setToday] = useState(() => localDay());
   useEffect(() => {
     // Keep "today" on the local calendar even if the page stays open past midnight.
@@ -146,33 +151,38 @@ export function CompanyPackets() {
       setRole(m?.role ?? null);
       if (!m || (m.role !== "admin" && m.role !== "office")) return;
       setCompany(m.company_id);
-      const [{ data }, { data: c }, { data: cr }] = await Promise.all([
+      const [{ data }, { data: c }, { data: cr }, { data: rm }] = await Promise.all([
         backend.from("office_packets").select(`id, job_id, tracking_no, sent_by_name, employee_id, sent_at, captured_fields, photo_links, ${RECEIPT_COLUMNS}`).eq("company_id", m.company_id).order("sent_at", { ascending: false }).limit(500),
         backend.from("packet_crm").select("packet_id, stage, next_follow_up, note, permit_ref, updated_at, updated_by").eq("company_id", m.company_id),
         backend.from("correction_requests").select("packet_id, created_at, requested_by").eq("company_id", m.company_id).order("created_at"),
+        backend.from("packet_removals").select("packet_id, removed, removed_by, removed_at").eq("company_id", m.company_id),
       ]);
       if (!live) return;
       setCrm(Object.fromEntries(((c as Crm[] | null) ?? []).map((x) => [x.packet_id, x])));
       setCorrs((cr as Corr[] | null) ?? []);
+      setRemovals(Object.fromEntries(((rm as Removal[] | null) ?? []).map((x) => [x.packet_id, x])));
       setRows((data as Row[] | null) ?? []);
     })().catch(() => { if (live) setRole(null); });
     return () => { live = false; };
   }, []);
 
-  const items = useMemo(() => (rows ?? []).map((r) => {
+  const allItems = useMemo(() => (rows ?? []).map((r) => {
     const v: Record<string, string> = { ...(r.captured_fields?.formDefaults ?? {}), ...(r.captured_fields?.values ?? {}) };
     const c = crm[r.id];
     const last = [r.sent_at, r.office_received_at, c?.updated_at].filter((x): x is string => !!x).sort().pop() ?? r.sent_at;
     return { r, v, c, last, stage: c?.stage ?? "new", kind: kindOf(r, c, today), hay: [r.tracking_no, r.job_id, v.name, v.addr, v.city, c?.permit_ref].filter(Boolean).join(" ").toLowerCase() };
   }), [rows, crm, today]);
-  type Item = (typeof items)[number];
+  type Item = (typeof allItems)[number];
+  const items = useMemo(() => allItems.filter((i) => !removals[i.r.id]?.removed), [allItems, removals]);
+  const removedItems = useMemo(() => allItems.filter((i) => removals[i.r.id]?.removed), [allItems, removals]);
 
-  const inView = (k: Kind, w: View) => w === "all" || (w === "closed" ? k === "closed" : k === "overdue" || k === "today" || k === "review");
+  const inView = (k: Kind, w: View) => w === "all" || w === "removed" || (w === "closed" ? k === "closed" : k === "overdue" || k === "today" || k === "review");
   const counts = useMemo(() => ({
     attention: items.filter((i) => inView(i.kind, "attention")).length,
     all: items.length,
     closed: items.filter((i) => i.kind === "closed").length,
-  }), [items]);
+    removed: removedItems.length,
+  }), [items, removedItems]);
   const byStage = useMemo(() => Object.fromEntries(STAGES.map(([k]) => [k, items.filter((i) => i.stage === k).length])) as Record<string, number>, [items]);
   const alerts = useMemo(() => ({
     overdue: items.filter((i) => i.kind === "overdue"),
@@ -183,7 +193,7 @@ export function CompanyPackets() {
 
   const shown = useMemo(() => {
     const n = q.trim().toLowerCase();
-    const list = items.filter((i) => inView(i.kind, view) && (!n || i.hay.includes(n)) && (fs === "all" || i.stage === fs));
+    const list = (view === "removed" ? removedItems : items).filter((i) => inView(i.kind, view) && (!n || i.hay.includes(n)) && (fs === "all" || i.stage === fs));
     const rank: Record<Kind, number> = { overdue: 0, today: 1, review: 2, scheduled: 3, nodate: 3, closed: 4 };
     const cmp: Record<Sort, (a: Item, b: Item) => number> = {
       newest: (a, b) => b.r.sent_at.localeCompare(a.r.sent_at),
@@ -194,7 +204,7 @@ export function CompanyPackets() {
     };
     // Needs attention keeps its own order (overdue first, then due today, then unopened) unless the office picks a sort.
     return [...list].sort((a, b) => (view === "attention" && sort === "newest" ? rank[a.kind] - rank[b.kind] || (a.kind === "overdue" ? cmp.followup(a, b) : 0) || (a.kind === "review" ? cmp.oldest(a, b) : 0) : 0) || cmp[sort](a, b));
-  }, [items, q, fs, view, sort, locale]);
+  }, [items, removedItems, q, fs, view, sort, locale]);
   const pages = Math.max(1, Math.ceil(shown.length / PAGE));
   const pg = Math.min(page, pages - 1);
   const pageRows = shown.slice(pg * PAGE, pg * PAGE + PAGE);
@@ -225,6 +235,7 @@ export function CompanyPackets() {
     attention: t("Nothing needs attention: no overdue or due-today follow-ups, and no new packets waiting to be opened.", "Nada requiere atención: no hay seguimientos vencidos ni para hoy, ni paquetes nuevos sin abrir."),
     all: t("No packets match.", "Ningún paquete coincide."),
     closed: t("No jobs recorded as closed yet.", "Todavía no hay trabajos anotados como cerrados."),
+    removed: t("No removed jobs. Jobs you remove from the queue appear here and can be restored.", "No hay trabajos quitados. Los trabajos que quite de la cola aparecen aquí y se pueden restaurar."),
   };
   const filtered = q.trim() !== "" || fs !== "all";
   const pickStage = (k: string) => { setFs(fs === k ? "all" : k); setView("all"); };
@@ -247,10 +258,31 @@ export function CompanyPackets() {
   const tItem = items.find((i) => i.r.id === tsel) ?? null;
 
   const stageBadge = (i: Item) => <span className={`oh-stage${i.stage === "closed" ? " closed" : ""}`} data-testid="crm-summary">{stageName(i.stage)}</span>;
-  const actions = (i: Item) => (
+  const setRemoved = async (id: string, removed: boolean) => {
+    setRmBusy(true); setRmMsg(null);
+    const { data: sess } = await backend.auth.getSession();
+    const email = sess.session?.user.email?.toLowerCase() ?? "";
+    const now = new Date().toISOString();
+    const res = removals[id]
+      ? await backend.from("packet_removals").update(removed ? { removed: true, removed_by: email, removed_at: now, restored_by: null, restored_at: null } : { removed: false, restored_by: email, restored_at: now }).eq("packet_id", id).select("packet_id, removed, removed_by, removed_at")
+      : await backend.from("packet_removals").insert({ packet_id: id, company_id: company, removed_by: email }).select("packet_id, removed, removed_by, removed_at");
+    setRmBusy(false);
+    const row = (res.data as Removal[] | null)?.[0];
+    if (res.error || !row) { setRmMsg(t("Could not save that change. Nothing was changed.", "No se pudo guardar el cambio. No se cambió nada.")); return; }
+    setRemovals((prev) => ({ ...prev, [id]: row }));
+    setConfirmId(null);
+    setOpen((o) => (o === id && removed ? null : o));
+  };
+  const actions = (i: Item) => removals[i.r.id]?.removed ? (
+    <div className="crm-row-actions">
+      <Button type="button" variant="outline" className="oh-more" disabled={rmBusy} onClick={() => setRemoved(i.r.id, false)} data-testid="cp-restore"><Undo2 size={14} aria-hidden />{t("Restore", "Restaurar")}</Button>
+      <Link to="/office-review/$id" params={{ id: i.r.id }} className="ap-btn primary oh-open" data-testid="cp-open">{t("Open packet", "Abrir paquete")}</Link>
+    </div>
+  ) : (
     <div className="crm-row-actions">
       <Link to="/office-review/$id" params={{ id: i.r.id }} className="ap-btn primary oh-open" data-testid="cp-open">{i.kind === "review" ? t("Review packet", "Revisar paquete") : t("Open packet", "Abrir paquete")}</Link>
       <Button type="button" variant="outline" className="oh-more" aria-expanded={open === i.r.id} onClick={() => setOpen(i.r.id)} data-testid="crm-open">{t("Details & follow-up", "Detalles y seguimiento")}</Button>
+      <Button type="button" variant="outline" className="oh-more" onClick={() => { setRmMsg(null); setConfirmId(i.r.id); }} data-testid="cp-remove"><Trash2 size={14} aria-hidden />{t("Remove from queue", "Quitar de la cola")}</Button>
     </div>
   );
 
@@ -269,11 +301,11 @@ export function CompanyPackets() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("Tracking no.", "N.º de seguimiento")}</TableHead>
-                  <TableHead>{t("Customer & site", "Cliente y sitio")}</TableHead>
-                  <TableHead>{t("Equipment", "Equipo")}</TableHead>
-                  <TableHead>{t("Sent by", "Enviado por")}</TableHead>
-                  <TableHead>{t("Office stage", "Etapa de oficina")}</TableHead>
-                  <TableHead>{t("Next action", "Próxima acción")}</TableHead>
+                  <TableHead>{t("Customer", "Cliente")}</TableHead>
+                  <TableHead>{t("Address", "Dirección")}</TableHead>
+                  <TableHead>{t("Project type", "Tipo de proyecto")}</TableHead>
+                  <TableHead>{t("Tech", "Técnico")}</TableHead>
+                  <TableHead>{t("Status", "Estado")}</TableHead>
                   <TableHead>{t("Last update", "Última actualización")}</TableHead>
                   <TableHead><span className="sr-only">{t("Actions", "Acciones")}</span></TableHead>
                 </TableRow>
@@ -284,11 +316,11 @@ export function CompanyPackets() {
                   return (
                     <TableRow key={i.r.id} className={`crm-tr ${i.kind}`} data-testid="company-packet" data-kind={i.kind} data-state={open === i.r.id ? "selected" : undefined}>
                       <TableCell><button type="button" className="crm-trk" onClick={() => setOpen(i.r.id)} data-testid="cp-tracking">{i.r.tracking_no}</button><span className="crm-sub">{t("Job", "Trabajo")} {i.r.job_id}</span></TableCell>
-                      <TableCell className="crm-wrap"><span className="crm-strong">{i.v.name || t("Customer not captured", "Cliente no capturado")}</span><span className="crm-sub">{siteOf(i) || t("Site address not captured", "Dirección del sitio no capturada")}</span></TableCell>
+                      <TableCell className="crm-wrap"><span className="crm-strong">{i.v.name || t("Customer not captured", "Cliente no capturado")}</span></TableCell>
+                      <TableCell className="crm-wrap">{siteOf(i) || t("Not captured", "No capturada")}</TableCell>
                       <TableCell className="crm-wrap">{i.v.type || "—"}</TableCell>
                       <TableCell className="crm-wrap">{i.r.sent_by_name}{i.r.employee_id ? <span className="crm-sub">{i.r.employee_id}</span> : null}</TableCell>
-                      <TableCell>{stageBadge(i)}</TableCell>
-                      <TableCell className="crm-wrap"><span className={`crm-act ${i.kind}`} data-testid="cp-next">{act}</span><span className="crm-sub">{why}</span></TableCell>
+                      <TableCell className="crm-wrap">{stageBadge(i)}<span className={`crm-act ${i.kind}`} data-testid="cp-next" title={why}>{act}</span></TableCell>
                       <TableCell className="crm-wrap crm-when">{fmtWhen(i.last)}</TableCell>
                       <TableCell>{actions(i)}</TableCell>
                     </TableRow>
@@ -406,6 +438,7 @@ export function CompanyPackets() {
                   <TabsTrigger value="attention" className="oh-tab" data-testid="cp-view-attention">{t("Needs attention", "Requiere atención")} <span className="oh-count">{counts.attention}</span></TabsTrigger>
                   <TabsTrigger value="all" className="oh-tab" data-testid="cp-view-all">{t("All jobs", "Todos")} <span className="oh-count">{counts.all}</span></TabsTrigger>
                   <TabsTrigger value="closed" className="oh-tab" data-testid="cp-view-closed">{t("Closed", "Cerrados")} <span className="oh-count">{counts.closed}</span></TabsTrigger>
+                  <TabsTrigger value="removed" className="oh-tab" data-testid="cp-view-removed">{t("Removed jobs", "Trabajos quitados")} <span className="oh-count">{counts.removed}</span></TabsTrigger>
                 </TabsList>
                 <div className="oh-filters crm-filters">
                   <div className="ap-field">
@@ -437,7 +470,7 @@ export function CompanyPackets() {
                   </div>
                 </div>
                 <p className="ap-muted oh-legend">{t("Stage is what your office recorded by hand. “Opened” in a packet's receipt is a separate fact: a reviewer opened it here. Neither is permit filing.", "La etapa es lo que su oficina anotó a mano. «Abierto» en el recibo del paquete es otro dato: un revisor lo abrió aquí. Ninguno es presentación del permiso.")}</p>
-                {(["attention", "all", "closed"] as View[]).map((w) => <TabsContent key={w} value={w} className="oh-panel">{view === w && list(w)}</TabsContent>)}
+                {(["attention", "all", "closed", "removed"] as View[]).map((w) => <TabsContent key={w} value={w} className="oh-panel">{view === w && list(w)}</TabsContent>)}
               </Tabs>
             </section>
           </div>
@@ -522,6 +555,21 @@ export function CompanyPackets() {
           })()}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={!!confirmId} onOpenChange={(o) => { if (!o) setConfirmId(null); }}>
+        <DialogContent data-testid="remove-dialog">
+          <DialogHeader>
+            <DialogTitle>{t("Remove from queue?", "¿Quitar de la cola?")}</DialogTitle>
+            <DialogDescription>{t("This job leaves your queue and moves to Removed jobs. Nothing is deleted: the packet, photos, history and reports stay, and you can restore it any time.", "Este trabajo sale de su cola y pasa a Trabajos quitados. No se borra nada: el paquete, las fotos, el historial y los informes se conservan, y puede restaurarlo cuando quiera.")}</DialogDescription>
+          </DialogHeader>
+          <p className="crm-sub">{allItems.find((x) => x.r.id === confirmId)?.r.tracking_no}</p>
+          {rmMsg && <p className="crm-note" role="alert">{rmMsg}</p>}
+          <div className="crm-tl-actions">
+            <Button type="button" variant="outline" onClick={() => setConfirmId(null)}>{t("Cancel", "Cancelar")}</Button>
+            <Button type="button" disabled={rmBusy} onClick={() => confirmId && setRemoved(confirmId, true)} data-testid="remove-confirm">{t("Remove from queue", "Quitar de la cola")}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={track} onOpenChange={(o) => { setTrack(o); if (!o) { setTq(""); setTsel(null); } }}>
         <DialogContent className="crm-track" data-testid="track-dialog">

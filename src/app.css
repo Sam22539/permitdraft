@@ -941,3 +941,9 @@ a:hover .rp-seg,a:focus-visible .rp-seg{opacity:.75}
 .rp-filter{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .rp-presets{display:flex;flex-wrap:wrap;gap:6px 18px}
 .rp-jobs{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+
+/* Job queue: compact desktop rows */
+.crm-table td{padding-top:8px;padding-bottom:8px;font-size:.85rem}
+.crm-table .crm-row-actions{flex-direction:row;flex-wrap:wrap;min-width:0;gap:6px}
+.crm-table .crm-row-actions .oh-open,.crm-table .crm-row-actions .oh-more{width:auto;min-height:32px;padding:0 10px;font-size:.78rem;gap:4px}
+.crm-table .crm-act{display:block;margin-top:4px;font-size:.78rem}

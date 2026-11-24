@@ -183,6 +183,13 @@
       "when": 1795495395801,
       "tag": "0025_remove_fictional_test_companies",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795496786054,
+      "tag": "0026_recoverable_queue_removals_table",
+      "breakpoints": true
     }
   ]
 }
