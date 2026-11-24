@@ -120,6 +120,13 @@
       "when": 1795485635465,
       "tag": "0016_office_crm_follow_up_table_for_packets",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795486603010,
+      "tag": "0017_add_permanent_packet_tracking_numbers",
+      "breakpoints": true
     }
   ]
 }
