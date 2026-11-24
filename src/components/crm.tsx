@@ -35,7 +35,7 @@ function useOffice() {
   return s;
 }
 
-function Gate({ title, intro, children }: { title: string; intro: string; children: (company: string) => React.ReactNode }) {
+export function Gate({ title, intro, children }: { title: string; intro: string; children: (company: string) => React.ReactNode }) {
   const { t } = useLang();
   const o = useOffice();
   return (

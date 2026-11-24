@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
+import { Receipt, BarChart3, ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -148,6 +148,7 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="end" sideOffset={8} className="ap-more-menu">
           {!demo && <DropdownMenuItem asChild><Link to="/customers" data-testid="nav-customers-m"><Users size={18} aria-hidden />{t("Customers", "Clientes")}</Link></DropdownMenuItem>}
+          {!demo && <DropdownMenuItem asChild><Link to="/invoices" data-testid="nav-invoices-m"><Receipt size={18} aria-hidden />{t("Invoices", "Facturas")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/leads" data-testid="nav-leads-m"><UserPlus size={18} aria-hidden />{t("Leads", "Prospectos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/technicians" data-testid="nav-technicians-m"><HardHat size={18} aria-hidden />{t("Technicians", "Técnicos")}</Link></DropdownMenuItem>}
           {!demo && <DropdownMenuItem asChild><Link to="/dispatch" data-testid="nav-dispatch-m"><CalendarClock size={18} aria-hidden />{t("Dispatch & Schedule", "Despacho y agenda")}</Link></DropdownMenuItem>}
@@ -176,6 +177,7 @@ export function SideNav() {
     { to: p("/office-handoff"), icon: Inbox, label: t("Office handoff", "Entrega a oficina") },
     ...(demo ? [] : [
       { to: "/customers", icon: Users, label: t("Customers", "Clientes") },
+      { to: "/invoices", icon: Receipt, label: t("Invoices", "Facturas") },
       { to: "/leads", icon: UserPlus, label: t("Leads", "Prospectos") },
       { to: "/technicians", icon: HardHat, label: t("Technicians", "Técnicos") },
       { to: "/dispatch", icon: CalendarClock, label: t("Dispatch & Schedule", "Despacho y agenda") },
