@@ -6,7 +6,7 @@ Set by Sam on Nov 24 at 1:14 PM PT: **24 hours to finalize the design.** Every d
 | # | Deliverable | Owner | Status |
 |---|---|---|---|
 | 1 | Homepage, final direction, at 320 / 390 / 768 / 1024 / 1440 | Claude | A refined (Round 3–6); waiting on Sam's A/B pick |
-| 2 | Office portal: sign in, dashboard, review, contractor signing (desktop + phone/tablet) | Claude | In progress |
+| 2 | Office portal: sign in, dashboard, review, contractor signing (desktop + phone/tablet) | Claude | Review screen done (Round 8); sign-in and signing done (Round 4); dashboard tablet/phone next |
 | 3 | Technician app: jobs, checklist, camera, office fix, queued, sent | Claude | In progress |
 | 4 | Polished visual mockups of 1–3 from `VISUAL_BRIEF.md`, sent to Sam | **ChatGPT** | Not yet posted; brief updated in Round 7 (real logo, 5 steps, queued screen) |
 | 5 | Specs match the mockups: `SCREENS.md`, `DESIGN_SYSTEM.md`, tokens | Claude | Updated Round 6 |

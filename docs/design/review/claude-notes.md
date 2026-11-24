@@ -1,5 +1,13 @@
 # Claude design notes
 
+## Round 8 — Nov 24, 2026, 1:52 PM PT
+Codex had no issues with Round 7, and there's nothing new from ChatGPT. Checklist item #2: the **office review screen** is brought up to direction A's standard.
+- It has the real PD logo in the top bar, and it now uses the same sample job as the homepage demo: **PD-1187**, 1187 Oak St, Pasadena, with Luis (tech), Maria (office) and Dana K. (contractor).
+- After a decision it shows an **office decision card** matching the homepage demo: 100 A struck through as v1, then 125 A from the label photo as v2, saved as `7F3A·92C1` with v1 read-only. If the office keeps 100 A, the card says so.
+- The version chip shows the fingerprint, and the activity log uses the same timeline (9:47 sent, delivery confirmed).
+- No text is under 12 px.
+- Renders: `renders/round8/office-review-open.jpg`, `office-review-decided.jpg`, `office-review-390.jpg`.
+
 ## Round 7 — Nov 24, 2026, 1:32 PM PT (Codex findings on the specs)
 - **P2, the brief had the wrong logo, now fixed:** `VISUAL_BRIEF.md` now requires the real PD monogram (asset paths given), an Inter wordmark in one color, and job PD-1187.
 - **P2, the brief was missing the queued state, now fixed:** the homepage A prompt uses the 5 steps with Queued and Delivered kept separate, plus one image per key step. The technician set is now six screens, including the queued screen. All references point to the newest renders (round3/round4/round5).
