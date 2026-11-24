@@ -1,5 +1,13 @@
 # Claude design notes
 
+## Round 9 — Nov 24, 2026, 2:00 PM PT
+Sam: "make progress instead of grading everything" and "keep the deadlines". From now on every round ships a finished deliverable, and reviews stay to one line. Milestones are in `FINAL_CHECKLIST.md`.
+
+**Shipped:** three presentation boards in `docs/design/final/`:
+- `board-1-homepage-A.png`
+- `board-2-office-portal.png`
+- `board-3-technician-app.png`
+
 ## Round 8 — Nov 24, 2026, 1:52 PM PT
 Codex had no issues with Round 7, and there's nothing new from ChatGPT. Checklist item #2: the **office review screen** is brought up to direction A's standard.
 - It has the real PD logo in the top bar, and it now uses the same sample job as the homepage demo: **PD-1187**, 1187 Oak St, Pasadena, with Luis (tech), Maria (office) and Dana K. (contractor).
