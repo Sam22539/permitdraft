@@ -1,5 +1,14 @@
 # Claude design notes
 
+## Round 12 — Nov 24, 2026, 3:35 PM PT (6 PM milestone, shipped early)
+- **Camera polished:** the job ID now sits under the title, and an illustrated panel label ("RATED 125 A") sits inside the orange guide, consistent with the demo story. The instruction reads "Hold steady".
+- **Desktop check:** the office review and sign-in screens were rendered at 1280, 1440 and 1920 (`renders/round12/`). Both keep full desktop compositions, with nothing collapsing to a mobile layout.
+- **Accessibility audit, now automated** (`review/audit/audit.py`): it computes text color against the actual background, plus font size, in Chrome, for all 13 screens at 1440 and 390. **The result is 0 issues.**
+  - It found and fixed: the dashboard's trend badges, count badges, initials and donut label (10–11 px → 12 px), the map popover (now PD-1187), and small labels in B's camera illustration.
+  - The sidebar tagline was removed, so the brand lockup is just the real monogram + "PermitDraft".
+  - B's miniature product illustrations are now marked as images with descriptive labels.
+- Boards 2 and 3 are refreshed.
+
 ## Round 11 — Nov 24, 2026, 2:55 PM PT
 **Shipped:** the **Sync tab** (`mockups/TechSync.dc.html`, render `renders/round11/tech-7-sync.jpg`). It lists queued packets with photo progress and the last try and its reason, plus jobs delivered today, and has a **Try again now** button. It's added to `MOBILE_APP_PROMPT.md` (screen 7), to `SCREENS.md` C6 and to board 3, which now shows all 7 technician screens.
 
