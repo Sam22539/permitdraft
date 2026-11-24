@@ -20,6 +20,17 @@ import { StageHistory } from "./stage-history";
 import { JobInvoices } from "./job-invoices";
 import { monthToDate, usd, type PaidInv } from "../lib/invoice-stats";
 
+/** A complete tracking number (PD-2026-10028, legacy PD-HP-1187) matches only the tracking field, exactly; anything else is a partial search of the whole haystack. */
+const FULL_TRACKING = /^pd-(?:\d{4}-\d{5,}|[a-z]{2}-\d{4,})$/;
+const normTrk = (x: string) => x.trim().toLowerCase().replace(/[\s\u2010-\u2015]+/g, (m) => (/\s/.test(m) ? "" : "-"));
+const matchesQuery = (i: { hay: string; r: { tracking_no: string } }, raw: string) => {
+  const n = raw.trim().toLowerCase();
+  if (!n) return true;
+  const t = normTrk(raw);
+  if (FULL_TRACKING.test(t)) return normTrk(i.r.tracking_no) === t;
+  return i.hay.includes(n);
+};
+
 type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; tracking_no: string; photo_links: unknown[] | null; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> } | null };
 type Crm = { packet_id: string; stage: string; next_follow_up: string | null; note: string | null; permit_ref: string | null; updated_at: string; updated_by?: string | null };
 type Corr = { packet_id: string; created_at: string; requested_by: string };
@@ -197,7 +208,7 @@ export function CompanyPackets() {
 
   const shown = useMemo(() => {
     const n = q.trim().toLowerCase();
-    const list = (view === "removed" ? removedItems : items).filter((i) => inView(i.kind, view) && (!n || i.hay.includes(n)) && (fs === "all" || i.stage === fs));
+    const list = (view === "removed" ? removedItems : items).filter((i) => inView(i.kind, view) && matchesQuery(i, q) && (fs === "all" || i.stage === fs));
     const rank: Record<Kind, number> = { overdue: 0, today: 1, review: 2, scheduled: 3, nodate: 3, closed: 4 };
     const cmp: Record<Sort, (a: Item, b: Item) => number> = {
       newest: (a, b) => b.r.sent_at.localeCompare(a.r.sent_at),
@@ -264,7 +275,7 @@ export function CompanyPackets() {
 
   const drawerItem = items.find((i) => i.r.id === open) ?? null;
   const tn = tq.trim().toLowerCase();
-  const tResults = tn ? items.filter((i) => i.hay.includes(tn)).slice(0, 8) : [];
+  const tResults = tn ? items.filter((i) => matchesQuery(i, tq)).slice(0, 8) : [];
   const tItem = items.find((i) => i.r.id === tsel) ?? null;
 
   const stageBadge = (i: Item) => <span className={`oh-stage s-${i.stage}${i.stage === "closed" ? " closed" : ""}`} data-testid="crm-summary">{stageName(i.stage)}</span>;
