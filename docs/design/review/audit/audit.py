@@ -1,10 +1,13 @@
 """Contrast + minimum text-size audit of every mockup, using computed styles in Chrome."""
-import json, pathlib, sys
-sys.argv = ['x', '/tmp', '/dev/null']
-exec(open('/home/claude/render/render.py').read().split('def main():')[0])  # reuse prep() and SHIM
+"""Usage (from the repo root):  pip install playwright && playwright install chromium
+                               python docs/design/review/audit/audit.py
+Exits 1 if any screen has text below 4.5:1 (3:1 for large text) or essential text under 12 px."""
+import json, os, pathlib, sys, tempfile
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from dcrender import prep, MOCKUPS
 from playwright.sync_api import sync_playwright
 
-P = pathlib.Path('/home/claude/pd-design/project')
+P = MOCKUPS
 FILES = ['HomepageA', 'HomepageV2', 'OfficeSignIn', 'OfficeDashboard', 'OfficeReview', 'ContractorSign',
          'TechJobs', 'TechCapture', 'TechCamera', 'TechFix', 'TechQueued', 'TechSent', 'TechSync']
 JS = r"""() => {
@@ -23,9 +26,11 @@ JS = r"""() => {
  return out; }"""
 res = {}
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path='/usr/bin/google-chrome', args=['--allow-file-access-from-files'])
+    exe = os.environ.get('CHROME_PATH')
+    b = p.chromium.launch(**({'executable_path': exe} if exe else {}), args=['--allow-file-access-from-files'])
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix='pd-audit-'))
     for f in FILES:
-        src = (P / (f + '.dc.html')).read_text(); t = pathlib.Path('/home/claude/render/tmp') / (f + '-audit.html'); t.write_text(prep(src))
+        src = (P / (f + '.dc.html')).read_text(); t = tmp / (f + '-audit.html'); t.write_text(prep(src))
         for w in ([1440, 390] if f.startswith(('Homepage', 'Office')) else [390]):
             pg = b.new_page(viewport={'width': w, 'height': 900}); pg.goto('file://' + str(t)); pg.evaluate('p => window.__render(p)', None); pg.wait_for_timeout(300)
             res[f'{f}@{w}'] = pg.evaluate(JS); pg.close()
@@ -35,3 +40,4 @@ print(json.dumps({k: len(v) for k, v in res.items()}))
 for k, v in bad.items():
     print('\n##', k)
     for i in v[:12]: print(i)
+sys.exit(1 if bad else 0)

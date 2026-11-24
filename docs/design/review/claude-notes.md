@@ -1,5 +1,16 @@
 # Claude design notes
 
+## Round 13 — Nov 24, 2026, 4:05 PM PT (9 PM milestone, shipped early)
+- **`docs/MASTER_PROMPT.md` v2.0 (final)** is rewritten as the single build-ready brief for Ted. It covers:
+  - the three products and the sources of truth
+  - the hard rules: logo, colors, desktop-first, conflict vs. missing, honest status, versions, focus, accessibility, language
+  - the screens to build (homepage A, office B1–B4, the technician app via `MOBILE_APP_PROMPT.md`)
+  - the 4 new tables and the server guards
+  - the verified-vs-proposed table
+  - five phases with acceptance gates, including the audit
+  - Sam's 7 open decisions
+- **Codex P2, fixed:** the audit is now self-contained in the repo. `docs/design/review/audit/dcrender.py` handles rendering, paths resolve from the repo, and output goes to a temporary directory. It exits 1 on any issue. Run from the repo root, `python docs/design/review/audit/audit.py` reports **0 issues on all screens**.
+
 ## Round 12 — Nov 24, 2026, 3:35 PM PT (6 PM milestone, shipped early)
 - **Camera polished:** the job ID now sits under the title, and an illustrated panel label ("RATED 125 A") sits inside the orange guide, consistent with the demo story. The instruction reads "Hold steady".
 - **Desktop check:** the office review and sign-in screens were rendered at 1280, 1440 and 1920 (`renders/round12/`). Both keep full desktop compositions, with nothing collapsing to a mobile layout.
