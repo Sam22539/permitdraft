@@ -11,12 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText, Trash2, Undo2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, BellRing, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList, FilePlus2, FileSearch, Inbox, MailWarning, Search, Settings2, Stamp, ClipboardCheck, FolderOpen, Wrench, Archive, FileText, Banknote, Trash2, Undo2 } from "lucide-react";
 import { useCorePath } from "./demo";
 import { TechnicianDispatch, TodaysSchedule } from "./dispatch";
 import { JobLocations } from "./job-locations";
 import { CommandCenterCharts } from "./report-charts";
 import { StageHistory } from "./stage-history";
+import { JobInvoices } from "./job-invoices";
+import { monthToDate, usd, type PaidInv } from "../lib/invoice-stats";
 
 type Row = ReceiptRow & { id: string; job_id: string; sent_by_name: string; employee_id: string | null; sent_at: string; tracking_no: string; photo_links: unknown[] | null; captured_fields: { values?: Record<string, string>; formDefaults?: Record<string, string> } | null };
 type Crm = { packet_id: string; stage: string; next_follow_up: string | null; note: string | null; permit_ref: string | null; updated_at: string; updated_by?: string | null };
@@ -121,6 +123,7 @@ export function CompanyPackets() {
   const [crm, setCrm] = useState<Record<string, Crm>>({});
   const [corrs, setCorrs] = useState<Corr[]>([]);
   const [company, setCompany] = useState("");
+  const [paidInvs, setPaidInvs] = useState<PaidInv[] | null>(null);
   const [role, setRole] = useState<string | null | undefined>(undefined);
   const [q, setQ] = useState("");
   const [fs, setFs] = useState("all");
@@ -360,14 +363,22 @@ export function CompanyPackets() {
     </>
   );
 
+  useEffect(() => {
+    if (!company) return;
+    let live = true;
+    Promise.resolve(backend.from("invoices").select("status, paid_on, total_cents").eq("company_id", company).eq("status", "paid")).then((r) => { if (live) setPaidInvs(r.error ? null : (r.data as PaidInv[])); });
+    return () => { live = false; };
+  }, [company]);
+  const mtd = monthToDate(paidInvs ?? []);
   const isOffice = role === "admin" || role === "office";
-  const kpis: { label: string; value: number; note: string; icon: typeof Inbox; dark?: boolean }[] = [
+  const kpis: { label: string; value: number; note: string; icon: typeof Inbox; dark?: boolean; href?: string }[] = [
     { label: t("Packets received", "Paquetes recibidos"), value: items.length, note: t("Sent by your technicians", "Enviados por sus técnicos"), icon: Inbox, dark: true },
     { label: t("Needs attention", "Requiere atención"), value: counts.attention, note: t("Overdue, due today or unopened", "Vencidos, para hoy o sin abrir"), icon: BellRing },
     { label: t("Not opened yet", "Aún no abiertos"), value: alerts.unopened.length, note: t("Awaiting first office review", "Esperan la primera revisión"), icon: FileSearch },
     { label: t("Overdue follow-ups", "Seguimientos vencidos"), value: alerts.overdue.length, note: t("Follow-up date has passed", "La fecha ya pasó"), icon: CalendarClock },
     { label: t("Marked submitted", "Marcados presentados"), value: byStage.submitted ?? 0, note: t("Office label, not city status", "Etiqueta de oficina, no estado de la ciudad"), icon: FileText },
     { label: t("Closed", "Cerrados"), value: counts.closed, note: t("Recorded closed by your office", "Anotados como cerrados"), icon: CheckCircle2, dark: true },
+    { label: t("Revenue (MTD)", "Ingresos (mes)"), value: 0, note: "", icon: Banknote, dark: true, href: "/invoices" },
   ];
   const alertGroups: { key: string; icon: typeof Inbox; tone: string; title: string; list: Item[] }[] = [
     { key: "overdue", icon: AlertTriangle, tone: "red", title: t("Overdue follow-ups", "Seguimientos vencidos"), list: alerts.overdue },
@@ -398,8 +409,17 @@ export function CompanyPackets() {
               {kpis.map((k) => (
                 <li key={k.label} className={`crm-kpi${k.dark ? " dark" : ""}`}>
                   <span className="crm-kpi-top"><span>{k.label}</span><k.icon size={20} aria-hidden /></span>
-                  <strong className="crm-kpi-val">{k.value}</strong>
-                  <span className="crm-kpi-note">{k.note}</span>
+                  {k.href ? (
+                    <>
+                      <strong className="crm-kpi-val" data-testid="cc-revenue">{paidInvs === null ? "—" : usd(mtd.total)}</strong>
+                      <span className="crm-kpi-note">{paidInvs === null ? t("Recorded payments this month", "Pagos registrados este mes") : t(`${mtd.count} paid invoice(s) recorded this month`, `${mtd.count} factura(s) pagada(s) registrada(s) este mes`)} · <Link to={k.href as never} className="underline font-semibold" data-testid="cc-revenue-link">{t("Open Invoices", "Abrir Facturas")}</Link></span>
+                    </>
+                  ) : (
+                    <>
+                      <strong className="crm-kpi-val">{k.value}</strong>
+                      <span className="crm-kpi-note">{k.note}</span>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
@@ -551,6 +571,7 @@ export function CompanyPackets() {
                     )}
                     <p className="ap-muted"><Link to="/office-review/$id" params={{ id: i.r.id }} className="underline font-semibold">{t("See the packet's fields and photos", "Ver los datos y fotos del paquete")}</Link></p>
                   </div>
+                  <JobInvoices packetId={i.r.id} />
                   <Follow key={i.r.id} row={i.r} crm={i.c} company={company} onSaved={(n) => setCrm((prev) => ({ ...prev, [i.r.id]: n }))} />
                 </div>
               </>

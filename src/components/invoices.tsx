@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { backend } from "../lib/backend";
 import { useLang } from "../lib/lang";
 import { Gate } from "./crm";
+import { monthToDate, localToday } from "../lib/invoice-stats";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "./ui/sheet";
@@ -15,7 +16,7 @@ type Row = { description: string; quantity: string; price: string };
 
 const usd = (c: number) => (c / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
 const cents = (v: string) => { const n = Number(v.replace(/[$,\s]/g, "")); return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : NaN; };
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const today = localToday;
 const fmtDate = (d: string, lang: string) => new Date(d + "T00:00:00").toLocaleDateString(lang === "es" ? "es" : "en-US", { dateStyle: "medium" });
 
 function calc(rows: Row[], taxPct: string) {
@@ -64,11 +65,7 @@ function Invoices({ company }: { company: string }) {
     const v = { ...(p.captured_fields?.formDefaults ?? {}), ...(p.captured_fields?.values ?? {}) };
     return `${p.tracking_no} · ${t("Job", "Trabajo")} ${p.job_id}${v.addr ? " · " + v.addr : ""}`;
   }, [packets, t]);
-  const mtd = useMemo(() => {
-    const now = today(); const start = now.slice(0, 8) + "01";
-    const paid = (invs ?? []).filter((i) => i.status === "paid" && i.paid_on && i.paid_on >= start && i.paid_on <= now);
-    return { total: paid.reduce((s, i) => s + i.total_cents, 0), count: paid.length };
-  }, [invs]);
+  const mtd = useMemo(() => monthToDate(invs ?? []), [invs]);
   const cur = invs?.find((i) => i.id === sel) ?? null;
   return (
     <section className="oh-queue crm" aria-label={t("Invoices", "Facturas")} data-testid="invoices">

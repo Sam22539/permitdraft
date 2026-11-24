@@ -6,6 +6,7 @@ import { backend } from "../lib/backend";
 import { Image } from "../image";
 import { useLang } from "../lib/lang";
 import { markPacketReceived, requestCorrection } from "../lib/account";
+import { JobInvoices } from "../components/job-invoices";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
 
@@ -128,6 +129,7 @@ function OfficeReview() {
               {reqs.map((r) => <li key={r.id} data-testid="or-corr-item">{r.note} <span className="ap-muted">· {r.requested_by} · {new Date(r.created_at).toLocaleString(lang === "es" ? "es" : "en-US")}</span></li>)}
             </ul>
           </section>
+          <section className="ap-card" aria-label={t("Invoices", "Facturas")}><JobInvoices packetId={pk.id} /></section>
           <section className="ap-card" aria-labelledby="or-fields">
             <h2 id="or-fields" className="ap-h2">{t("Captured details", "Datos capturados")}</h2>
             <dl className="grid gap-1">

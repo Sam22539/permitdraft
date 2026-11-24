@@ -788,8 +788,7 @@ html:has(.pj){scroll-padding-top:10rem}
 .crm-h3{font-size:1.05rem;font-weight:800;color:var(--crm-navy);margin:0;letter-spacing:-.01em}
 .crm-note{font-size:.9rem;color:var(--crm-muted);max-width:68ch}
 .crm-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media (min-width:768px){.crm-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (min-width:1440px){.crm-kpis{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media (min-width:768px){.crm-kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}}
 .crm-kpi{display:grid;gap:6px;align-content:start;background:#fff;border:1px solid var(--crm-line);border-radius:12px;padding:16px;min-width:0;box-shadow:0 1px 2px rgba(16,42,67,.04)}
 .crm-kpi.dark{background:var(--crm-navy);border-color:var(--crm-navy);color:#fff}
 .crm-kpi-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:.85rem;font-weight:700;color:var(--crm-muted)}
