@@ -124,7 +124,8 @@ export function OfficeDashboard({ data, sample, loading }: { data: DashData; sam
   const n = (k: StageKey) => data.counts[k];
   const show = (v: number | null) => (v === null ? "—" : String(v));
   const active = PIPELINE.reduce((a, s) => a + (s.key === "approved" ? 0 : n(s.key) ?? 0), 0);
-  const jobs = stage ? data.jobs.filter((j) => j.stage === stage) : data.jobs;
+  // Filter first, then show the 8 newest: a stage with an older packet still lists it.
+  const jobs = (stage ? data.jobs.filter((j) => j.stage === stage) : data.jobs).slice(0, 8);
   const hour = new Date().getHours();
   const hello = hour < 12 ? t("Good morning", "Buenos días") : hour < 18 ? t("Good afternoon", "Buenas tardes") : t("Good evening", "Buenas noches");
   const first = data.user.name.split(" ")[0];
@@ -269,7 +270,7 @@ export function useOfficeDashboard(): { data: DashData | null; state: "loading" 
       });
       const notes = jobs.filter((j) => j.stage === "review").slice(0, 4).map((j) => ({ tone: "amber" as const, title: "New packet to review", detail: `${j.tracking} · ${j.addr}` }));
       const name = (s.session?.user.user_metadata?.full_name as string | undefined) || email.split("@")[0];
-      if (live) setOut({ state: "ready", data: { user: { name, role: m.role === "admin" ? "Office admin" : "Office" }, counts, jobs: jobs.slice(0, 8), notes, schedule: [], months } });
+      if (live) setOut({ state: "ready", data: { user: { name, role: m.role === "admin" ? "Office admin" : "Office" }, counts, jobs, notes, schedule: [], months } });
     })().catch(() => { if (live) setOut({ data: null, state: "no-company" }); });
     return () => { live = false; };
   }, []);
