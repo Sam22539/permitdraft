@@ -23,11 +23,12 @@ function SignPage() {
     const { data: v } = await backend.from("packet_versions").select("id, version, fingerprint, fields, photo_ids").eq("id", versionId).maybeSingle();
     if (!v) { setD(null); return; }
     const { data: s } = await backend.from("signatures").select("signer_name, signed_at").eq("packet_version_id", v.id).maybeSingle();
-    const f = ((v.fields as { values?: Record<string, string> } | null)?.values ?? {});
+    const raw = (v.fields ?? {}) as Record<string, unknown>;
+    const f = ((raw.values as Record<string, string> | undefined) ?? raw) as Record<string, string>;
     const skip = new Set(["name", "phone", "addr", "city", "zip"]);
     setD({
       addr: [f.addr, f.city].filter(Boolean).join(", ") || "—", versionN: Number(v.version), fingerprint: String(v.fingerprint), area: f.city ? `${f.city}'s` : undefined,
-      rows: Object.entries(f).filter(([k, val]) => !skip.has(k) && String(val ?? "").trim()).slice(0, 12).map(([k, val]) => ({ label: nice(k), value: String(val) })),
+      rows: Object.entries(f).filter(([k, val]) => !skip.has(k) && String(val ?? "").trim()).map(([k, val]) => ({ label: nice(k), value: String(val) })),
       photos: ((v.photo_ids as string[] | null) ?? []).length,
       signed: s ? { by: String(s.signer_name), at: new Date(String(s.signed_at)).toLocaleString("en-US") } : null,
     });

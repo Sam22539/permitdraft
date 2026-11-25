@@ -21,7 +21,7 @@ const START: ReviewData = {
     { label: "Duct sealing", value: "Not required (like-for-like)", source: "Entered by Luis", check: "matched" },
     { label: "Clearance", value: "24 in left side", source: "Outdoor unit photo", check: "matched" },
   ],
-  photos: ["Data plate", "Outdoor unit", "Panel label", "Line set"],
+  photos: [{ label: "Data plate" }, { label: "Outdoor unit" }, { label: "Panel label" }, { label: "Line set" }],
   activity: [{ time: "9:52", text: "Maria opened the packet" }, { time: "9:47", text: "Office email delivered (confirmed)" }, { time: "9:47", text: "Luis sent packet v1 from the job" }],
   signature: null, user: { name: "Maria R.", role: "Office" },
 };

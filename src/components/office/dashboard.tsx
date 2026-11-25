@@ -229,19 +229,28 @@ export function useOfficeDashboard(): { data: DashData | null; state: "loading" 
       if (!email) { if (live) setOut({ data: null, state: "signed-out" }); return; }
       const { data: m } = await backend.from("company_members").select("role, company_id").eq("email", email).maybeSingle();
       if (!m?.company_id) { if (live) setOut({ data: null, state: "no-company" }); return; }
-      const [pk, crm, corr] = await Promise.all([
+      const [pk, crm, corr, sigs, vers] = await Promise.all([
         backend.from("office_packets").select("id, job_id, tracking_no, sent_by_name, sent_at, captured_fields, office_received_at").eq("company_id", m.company_id).order("sent_at", { ascending: false }).limit(200),
         backend.from("packet_crm").select("packet_id, stage, updated_at").eq("company_id", m.company_id),
         backend.from("correction_requests").select("packet_id").eq("company_id", m.company_id),
+        // Signed versions (migration 0030). Until it is live this read fails and nothing counts as signed.
+        backend.from("signatures").select("packet_version_id").eq("company_id", m.company_id),
+        backend.from("packet_versions").select("id, packet_id, version").eq("company_id", m.company_id),
       ]);
+      // Signed means the packet's LATEST version carries a signature (a later version needs a new one).
+      const latestOf = new Map<string, { id: string; n: number }>();
+      for (const v of (vers.error ? [] : vers.data) ?? []) { const k = String(v.packet_id), cur = latestOf.get(k); if (!cur || Number(v.version) > cur.n) latestOf.set(k, { id: String(v.id), n: Number(v.version) }); }
+      const sigIds = new Set(((sigs.error ? [] : sigs.data) ?? []).map((x) => String(x.packet_version_id)));
+      const signed = new Set([...latestOf].filter(([, v]) => sigIds.has(v.id)).map(([k]) => k));
       const stageOf = new Map((crm.data ?? []).map((c) => [String(c.packet_id), String(c.stage)]));
       const asked = new Set((corr.data ?? []).map((c) => String(c.packet_id)));
       const toStage = (id: string): StageKey => {
         const st = stageOf.get(id) ?? "new";
         if (st === "approved" || st === "inspection" || st === "closed") return "approved";
         if (st === "submitted") return "submitted";
+        // "Ready to submit" only when the contractor signed the latest version; the manual "preparing" stage alone is not.
+        if (signed.has(id)) return "ready";
         if (asked.has(id)) return "missing";
-        if (st === "preparing") return "ready";
         return "review";
       };
       const fmt = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
