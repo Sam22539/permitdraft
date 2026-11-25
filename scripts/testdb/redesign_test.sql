@@ -39,6 +39,9 @@ end $$;
 select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
 insert into t values ('chk', public.add_packet_check((select v::uuid from t where k='v1'), 'panel', 'conflict', '100 A', '125 A'));
 select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v1'), 'dana@acme-hvac.test')$q$,
+  'send for signature before the office finished checking');
+select public.complete_packet_checks((select v::uuid from t where k='v1'));
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v1'), 'dana@acme-hvac.test')$q$,
   'send for signature with an open conflict');
 
 -- 3. Sealed versions cannot be edited, even directly.
@@ -100,12 +103,17 @@ insert into t values ('v3', public.seal_packet_version('00000000-0000-4000-8000-
 select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
 select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v3'), 'dana@acme-hvac.test')$q$,
   'a re-sent version the office has not checked');
-select public.complete_packet_checks((select v::uuid from t where k='v3'));
--- 6c. Luis replaces the photo under the same id: the sealed v3 no longer matches its evidence, so it cannot go out.
+-- 6b2. Deciding a conflict on an unchecked version does not make the next version count as checked.
+insert into t values ('chk3', public.add_packet_check((select v::uuid from t where k='v3'), 'refrigerant', 'conflict', 'R-410A', 'R-454B'));
+insert into t values ('v4', public.decide_packet_check((select v::uuid from t where k='chk3'), 'use_evidence'));
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v4'), 'dana@acme-hvac.test')$q$,
+  'a version decided from an unchecked base');
+select public.complete_packet_checks((select v::uuid from t where k='v4'));
+-- 6c. Luis replaces the photo under the same id: the sealed v4 no longer matches its evidence, so it cannot go out.
 select pg_temp.as_user('luis@acme-hvac.test', '00000000-0000-4000-8000-0000000000a1');
 update public.job_photos set data_url = 'data:image/jpeg;base64,BBBB' where id = '00000000-0000-4000-8000-00000000f001';
 select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
-select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v3'), 'dana@acme-hvac.test')$q$,
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v4'), 'dana@acme-hvac.test')$q$,
   'a version whose photo changed after sealing');
 
 -- 7. Isolation: another company's admin sees none of it and cannot act on it.

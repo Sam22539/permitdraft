@@ -222,8 +222,10 @@ begin
          case when id = c.id then now() else decided_at end,
          case when id = c.id then p_note else note end
   from public.packet_checks where packet_version_id = v.id;
-  -- The checks were carried forward, so validation of the new version is complete.
-  insert into public.packet_validations (packet_version_id, company_id, completed_by) values (newv, v.company_id, me);
+  -- The checks were carried forward, so the new version is as fully checked as its base: complete only if the base was.
+  if exists (select 1 from public.packet_validations pv where pv.packet_version_id = v.id) then
+    insert into public.packet_validations (packet_version_id, company_id, completed_by) values (newv, v.company_id, me);
+  end if;
   return newv;
 end $$;
 revoke all on function public.decide_packet_check(uuid, text, text) from public, anon;
@@ -244,6 +246,7 @@ declare v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'emai
 begin
   select * into v from public.packet_versions where id = p_version_id;
   if v.id is null or not public.is_office_of(v.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
+  perform 1 from public.office_packets where id = v.packet_id for update;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'check the latest version' using errcode = '22023'; end if;
   insert into public.packet_validations (packet_version_id, company_id, completed_by) values (v.id, v.company_id, me)
   on conflict (packet_version_id) do nothing;
@@ -267,6 +270,7 @@ language plpgsql security definer set search_path = '' as $$
 declare v public.packet_versions; did uuid; why text;
 begin
   select * into v from public.packet_versions where id = p_version_id;
+  perform 1 from public.office_packets where id = v.packet_id for update;   -- no new version can land mid-check
   if v.id is null or not public.is_office_of(v.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'only the latest version can be sent for signature' using errcode = '22023'; end if;
   why := private.signable_problem(v);
@@ -285,6 +289,7 @@ language plpgsql security definer set search_path = '' as $$
 declare v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'email','')); sid uuid; why text;
 begin
   select * into v from public.packet_versions where id = p_version_id;
+  perform 1 from public.office_packets where id = v.packet_id for update;   -- no new version can land mid-signing
   if v.id is null or not exists (select 1 from public.company_members m where m.company_id = v.company_id and m.email = me and m.role = 'admin') then
     raise exception 'only a company admin can sign' using errcode = '42501'; end if;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'this version is no longer the latest; review the new version' using errcode = '22023'; end if;
