@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useLang } from "../lib/lang";
-import { PUBLIC_PRICE } from "../lib/plan";
 import { WorkflowDemo } from "../components/home/workflow-demo";
 
 export const Route = createFileRoute("/")({
@@ -16,7 +15,7 @@ const PLACES = ["California", "Arizona", "Texas", "Las Vegas, Nevada"];
 function Home() {
   const { t, lang, setLang } = useLang();
   const [menu, setMenu] = useState(false);
-  const nav: [string, string, string][] = [["#workflow", "How it works", "Cómo funciona"], ["#products", "Technician app", "App del técnico"], ["#pricing", "Pricing", "Precios"]];
+  const nav: [string, string, string][] = [["#workflow", "How it works", "Cómo funciona"], ["#products", "Technician app", "App del técnico"]];
   const eyebrow = "font-mono text-[12px] uppercase tracking-[0.16em] text-[var(--pd-orange-700)]";
   const h2 = "font-display text-[40px] font-bold leading-[1.02] tracking-[-0.03em] !text-[var(--pd-navy-900)] sm:text-[56px]";
   return (
@@ -131,21 +130,6 @@ function Home() {
           </div>
         </section>
 
-        <section id="pricing" className="mx-auto grid max-w-[1240px] items-center gap-10 px-5 py-20 lg:grid-cols-[1fr_400px]">
-          <div>
-            <p className={eyebrow}>{t("Pricing", "Precios")}</p>
-            <h2 className={`mt-4 ${h2}`}>{t("One plan for the whole crew.", "Un plan para todo el equipo.")}</h2>
-            <p className="mt-3 text-[17px] text-[var(--pd-gray-700)]">{t("Try it on a sample job first.", "Pruébelo primero en un trabajo de muestra.")}</p>
-          </div>
-          <div className="rounded-[24px] border-2 border-[var(--pd-navy-900)] bg-white p-7">
-            <div className="flex items-baseline justify-between gap-3"><p className="font-display text-[24px] font-bold">Core</p>
-              {PUBLIC_PRICE ? <p><span className="font-display text-[40px] font-bold">{PUBLIC_PRICE}</span><span className="text-[15px] text-[var(--pd-gray-600)]">{t("/month", "/mes")}</span></p> : <p className="text-[15px] font-semibold text-[var(--pd-gray-700)]">{t("Pricing on request", "Precio a solicitud")}</p>}
-            </div>
-            <Link to="/demo" className="mt-5 flex h-[52px] items-center justify-center rounded-[12px] bg-[var(--pd-orange-700)] text-[16px] font-bold text-white hover:bg-[var(--pd-orange-800)]">{t("Start with the demo", "Empezar con la demo")}</Link>
-            <Link to="/sample-job" data-testid="view-sample-packet" className="mt-3 block text-center text-[15px] font-semibold text-[var(--pd-orange-700)] underline">{t("View a sample packet", "Ver un paquete de muestra")}</Link>
-          </div>
-        </section>
-
         <section className="border-t border-[#E6E2D8]">
           <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-8">
             <h2 className="text-[17px] font-bold !text-[var(--pd-navy-900)]">{t("Coverage for residential HVAC contractors", "Cobertura para contratistas residenciales de HVAC")}</h2>
@@ -160,6 +144,7 @@ function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/demo" className="flex h-[52px] items-center rounded-[12px] bg-[var(--pd-orange-700)] px-6 text-[16px] font-bold text-white hover:bg-[var(--pd-orange-800)]">{t("Try the free demo", "Probar la demo gratis")}</Link>
               <a href="#workflow" className="flex h-[52px] items-center rounded-[12px] border border-[#2A3F63] px-6 text-[16px] font-bold text-white hover:bg-[#13264A]">{t("Replay the workflow", "Repetir el flujo")}</a>
+              <Link to="/sample-job" data-testid="view-sample-packet" className="flex h-[52px] items-center px-2 text-[16px] font-bold text-[#FDBA74] underline">{t("View a sample packet", "Ver un paquete de muestra")}</Link>
             </div>
           </div>
         </section>

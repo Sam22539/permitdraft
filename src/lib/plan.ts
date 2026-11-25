@@ -12,5 +12,3 @@ export const PLAN: { tier: PlanTier; parked: Record<Parked, boolean> } = {
 
 export const hasFeature = (f: Parked) => PLAN.parked[f];
 
-/** The public monthly price. Sam has not chosen it yet ($49 vs $69), so the homepage shows no number until this is set. */
-export const PUBLIC_PRICE: string | null = null;
