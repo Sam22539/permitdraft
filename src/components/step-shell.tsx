@@ -75,6 +75,7 @@ export function StepHead({ n, title }: { n: number; title: [string, string] }) {
       <div>
         <p className="cx-stepline" data-testid="step-label">
           <strong>{t(`Step ${n} of 5: ${STEP_NAMES[n - 1][0]}`, `Paso ${n} de 5: ${STEP_NAMES[n - 1][1]}`)}</strong>
+          <span className="cx-saved" data-testid="step-saved">{t("Saved on phone", "Guardado en el teléfono")}</span>
         </p>
         <div role="progressbar" aria-label={t(`Step ${n} of 5`, `Paso ${n} de 5`)} aria-valuenow={n} aria-valuemin={0} aria-valuemax={5} className="mt-2">
           <ol className="cx-steps" aria-hidden>

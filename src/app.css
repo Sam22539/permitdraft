@@ -1010,3 +1010,15 @@ a:hover .rp-seg,a:focus-visible .rp-seg{opacity:.75}
 .jb-hero .jb-dot{background:#4ADE80}
 @media (max-width:1023px){.jb-metrics,.jb-shortcuts{display:none}}
 @media (min-width:1024px){.jb-hero{margin:0 0 .5rem;border-radius:20px}}
+/* Phase 3: the job steps open on the navy band from docs/design/renders/tech-2-checklist.jpg (orange progress, honest
+   "Saved on phone" pill: every field is written to this phone as it is typed). */
+.cx-head{background:#0B1B33;color:#fff;margin:0 -1rem;padding:1.1rem 1.25rem 1.35rem;border-radius:0 0 20px 20px}
+.cx-head h1,.cx-head .cx-stepline,.cx-head .cx-stepline strong{color:#fff}
+.cx-head .cx-stepline .cx-saved{flex:none;font-size:.8rem;font-weight:700;color:#fff;background:#13264A;border:1px solid #2A3F63;border-radius:999px;padding:.2rem .7rem}
+.cx-head .cx-steps li{color:#C9D2E0}
+.cx-head .cx-steps li::before{background:#2A3F63}
+.cx-head .cx-steps li.done::before{background:#F97316}
+.cx-head .cx-steps li.now::before{background:#F97316}
+.cx-head .cx-steps li.done,.cx-head .cx-steps li.now{color:#fff}
+.cx-head .cx-steps .cx-sn{color:#C9D2E0}
+@media (min-width:1024px){.cx-head{margin:0;border-radius:20px}}
