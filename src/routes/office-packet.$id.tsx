@@ -18,7 +18,7 @@ const hm = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: "n
 /** Live review of a packet's latest sealed version. The database's rules decide who may read it and who may decide. */
 function LivePacketReview() {
   const { id } = Route.useParams();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const email = useSessionEmail();
   const [data, setData] = useState<ReviewData | null | undefined>(undefined);
 
@@ -71,7 +71,7 @@ function LivePacketReview() {
       signature: sig ? { signedBy: String(sig.signer_name), signedAt: new Date(String(sig.signed_at)).toLocaleString("en-US") } : r ? { requestedTo: `${r.to_email}${r.status === "delivered" ? t(" (delivered)", " (entregado)") : ""}`, failed: r.status === "failed" || r.status === "bounced" } : null,
       user: { name: me?.email?.split("@")[0] ?? "", role: m?.role === "admin" ? t("Office admin", "Admin. de oficina") : t("Office", "Oficina") },
     });
-  }, [id, t]);
+  }, [id, lang]); // eslint-disable-line react-hooks/exhaustive-deps -- t changes every render; lang is its real input
   useEffect(() => { if (email) void load(); }, [email, load]);
 
   if (email === null) return <AppPage core><h1 className="cx-h1">{t("Packet review", "Revisión del paquete")}</h1><SignInForm returnTo={`/office-packet/${id}`} /></AppPage>;
