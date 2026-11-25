@@ -28,13 +28,14 @@ function LivePacketReview() {
     if (!pk) { setData(null); return; }
     const { data: ver } = await backend.from("packet_versions").select("id, version, fingerprint, fields, photo_ids, created_at, created_by, reason").eq("packet_id", id).order("version", { ascending: false });
     const latest = ver?.[0] ?? null;
-    const [{ data: checks }, { data: sig }, { data: mail }] = latest
+    const [{ data: checks }, { data: sig }, { data: mail }, { data: val }] = latest
       ? await Promise.all([
         backend.from("packet_checks").select("id, field_key, kind, captured_value, evidence_value, evidence_photo_id, decision, note").eq("packet_version_id", latest.id),
         backend.from("signatures").select("signer_name, signed_at").eq("packet_version_id", latest.id).maybeSingle(),
         backend.from("email_deliveries").select("to_email, status, created_at").eq("packet_version_id", latest.id).eq("kind", "signature_request").order("created_at", { ascending: false }).limit(1),
+        backend.from("packet_validations").select("packet_version_id").eq("packet_version_id", latest.id).maybeSingle(),
       ])
-      : [{ data: [] }, { data: null }, { data: [] }];
+      : [{ data: [] }, { data: null }, { data: [] }, { data: null }];
     // Evidence photos: the version's photo ids, read from the same tables (and rules) as the existing office review.
     type PL = { photoId?: string; table?: string; slot?: string };
     const links = ((pk.photo_links as PL[] | null) ?? []).filter((l) => UUID.test(String(l.photoId)));
@@ -60,6 +61,7 @@ function LivePacketReview() {
       tech: String(pk.sent_by_name ?? t("the technician", "el técnico")), sentAt: new Date(String(pk.sent_at)).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
       version: latest ? { id: String(latest.id), n: Number(latest.version), fingerprint: String(latest.fingerprint) } : null,
       checks: ck,
+      checked: !!val,
       rows: Object.entries(fields).filter(([, v]) => String(v ?? "").trim()).map(([k, v]) => { const c = byField.get(k); return { label: nice(k), value: String(v), source: c ? (c.kind === "conflict" ? t("Entered · evidence disagrees", "Ingresado · la evidencia no coincide") : t("Entered · checked", "Ingresado · revisado")) : t("Entered by the tech", "Ingresado por el técnico"), check: (c?.decision === "use_evidence" || c?.decision === "keep_with_note" ? "matched" : (c?.kind as CheckKind | undefined)) }; }),
       photos: pics.length ? pics.map((x) => ({ id: String(x.id), label: nice(String(x.slot)), url: String(x.data_url) })) : [...want].map((pid, i) => ({ id: pid, label: t(`Photo ${i + 1}`, `Foto ${i + 1}`) })),
       activity: [
@@ -80,6 +82,7 @@ function LivePacketReview() {
   return (
     <PacketReview backTo="/office" data={data} actions={{
       decide: async (checkId, decision, note) => { const { error } = await backend.rpc("decide_packet_check", { p_check_id: checkId, p_decision: decision, p_note: note ?? null }); if (!error) await load(); return fail(error); },
+      completeChecks: async () => { if (!data.version) return t("No sealed version yet.", "Aún no hay versión sellada."); const { error } = await backend.rpc("complete_packet_checks", { p_version_id: data.version.id }); if (!error) await load(); return fail(error); },
       requestSignature: async (to) => { if (!data.version) return t("No sealed version yet.", "Aún no hay versión sellada."); const { error } = await backend.rpc("request_signature", { p_version_id: data.version.id, p_to_email: to }); if (!error) await load(); return fail(error); },
     }} />
   );

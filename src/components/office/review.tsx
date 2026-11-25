@@ -11,12 +11,15 @@ export type ReviewData = {
   packetId: string; tracking: string; addr: string; type: string; customer: string; tech: string; sentAt: string; area?: string;
   version: { id: string; n: number; fingerprint: string } | null;
   checks: ReviewCheck[]; rows: ReviewRow[]; photos: { label: string; url?: string; id?: string }[]; activity: { time: string; text: string }[];
+  /** The office confirmed it finished checking this version (migration 0030 packet_validations). */
+  checked: boolean;
   signature: { requestedTo?: string; failed?: boolean; signedBy?: string; signedAt?: string } | null;
   user: { name: string; role: string };
 };
 export type ReviewActions = {
   decide: (checkId: string, d: Decision, note?: string) => Promise<string | null>;
   requestSignature: (toEmail: string) => Promise<string | null>;
+  completeChecks: () => Promise<string | null>;
 };
 
 const shortFp = (fp: string) => `${fp.slice(0, 4)}·${fp.slice(4, 8)}`.toUpperCase();
@@ -58,10 +61,16 @@ export function PacketReview({ data, actions, sample, backTo }: { data: ReviewDa
         ) : (
           <form className="flex flex-col gap-2.5" onSubmit={(e) => { e.preventDefault(); if (email.trim()) void run(() => actions.requestSignature(email.trim())); }}>
             {data.signature?.failed && <p role="alert" className="text-[14px] font-semibold text-[#991B1B]">{t(`The email to ${data.signature.requestedTo} did not go through. Check the address and send again.`, `El correo a ${data.signature.requestedTo} no se entregó. Revise la dirección y envíe de nuevo.`)}</p>}
+            {!data.checked && v && (
+              <div className="flex flex-col gap-2 rounded-[12px] border border-dashed border-[#8A93A3] p-3">
+                <p className="text-[14px]">{t("Mark this version checked once every value has been compared with its photo and every conflict or missing item is recorded.", "Marque esta versión como revisada cuando cada valor se haya comparado con su foto y cada conflicto o dato faltante esté anotado.")}</p>
+                <button type="button" disabled={busy} onClick={() => void run(() => actions.completeChecks())} className="h-11 rounded-[10px] bg-[var(--pd-navy-900)] text-[14px] font-bold text-white">{t(`Checks complete for version ${v.n}`, `Revisión completa de la versión ${v.n}`)}</button>
+              </div>
+            )}
             <p className="text-[14px] text-[var(--pd-gray-700)]">{open.length ? t(`Resolve ${open.length} open ${open.length === 1 ? "item" : "items"} first.`, `Primero resuelva ${open.length} ${open.length === 1 ? "pendiente" : "pendientes"}.`) : t("Everything is resolved. The contractor signs this exact version.", "Todo está resuelto. El contratista firma esta versión exacta.")}</p>
             <label className="text-[13px] font-semibold" htmlFor="sig-to">{t("Contractor email", "Correo del contratista")}</label>
-            <input id="sig-to" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={open.length > 0 || !v} className="h-11 rounded-[10px] border border-[var(--pd-gray-300,#C5CDD8)] px-3 text-[15px] disabled:bg-[var(--pd-gray-50)]" />
-            <button type="submit" disabled={busy || open.length > 0 || !v} className="h-12 rounded-[12px] bg-[var(--pd-orange-700)] text-[15px] font-bold text-white hover:bg-[var(--pd-orange-800)] disabled:bg-[#DFE4EB] disabled:text-[var(--pd-gray-700)]">
+            <input id="sig-to" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={open.length > 0 || !v || !data.checked} className="h-11 rounded-[10px] border border-[var(--pd-gray-300,#C5CDD8)] px-3 text-[15px] disabled:bg-[var(--pd-gray-50)]" />
+            <button type="submit" disabled={busy || open.length > 0 || !v || !data.checked} className="h-12 rounded-[12px] bg-[var(--pd-orange-700)] text-[15px] font-bold text-white hover:bg-[var(--pd-orange-800)] disabled:bg-[#DFE4EB] disabled:text-[var(--pd-gray-700)]">
               {v ? t(`Send version ${v.n} for signature`, `Enviar versión ${v.n} para firma`) : t("Send for signature", "Enviar para firma")}
             </button>
           </form>
