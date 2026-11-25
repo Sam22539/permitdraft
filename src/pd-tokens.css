@@ -53,6 +53,8 @@
   --pd-notice-bg: #FFF7ED;        /* draft-only notice (text: --pd-conflict-fg) */
   --pd-badge-red: #DC2626;        /* count badges (white text, bold 10–11px) */
   --pd-disabled-bg: #DEE2E8;      --pd-disabled-fg: #4B5563;
+  --pd-danger-soft-bg: #FEF2F2;   /* error banners */
+  --pd-plate-bg: #D6DAE0; --pd-plate-fg: #1F2937; /* homepage data-plate illustration */
   --pd-photo-placeholder: #3A4352;
   --pd-camera-bg: #05080F;        --pd-camera-control: #1A2233;
   --pd-map-land: #E4EBE1;         --pd-map-grid: #D3DDD0;

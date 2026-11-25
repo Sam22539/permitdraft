@@ -11,3 +11,4 @@ export const PLAN: { tier: PlanTier; parked: Record<Parked, boolean> } = {
 };
 
 export const hasFeature = (f: Parked) => PLAN.parked[f];
+

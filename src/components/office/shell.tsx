@@ -43,7 +43,7 @@ export function OfficeShell({ active, user, sample, children, rail }: { active: 
             const on = i.key === active;
             return (
               <Link key={i.key} to={(sample && i.key === "dashboard" ? "/demo/office" : i.to) as never} aria-current={on ? "page" : undefined}
-                className={`pd-dark flex min-h-11 shrink-0 items-center gap-3 rounded-[10px] px-3 text-[15px] font-semibold ${on ? "bg-[var(--pd-orange-700)] text-white" : "text-[#C9D2E0] hover:bg-[#13264A] hover:text-white"}`}>
+                className={`pd-dark flex min-h-11 shrink-0 items-center gap-3 rounded-[10px] px-3 text-[15px] font-semibold ${on ? "bg-[var(--pd-orange-700)] text-white" : "text-[var(--pd-on-navy-muted)] hover:bg-[var(--pd-navy-800)] hover:text-white"}`}>
                 <i.icon size={18} aria-hidden />{t(i.en, i.es)}
               </Link>
             );
@@ -60,11 +60,11 @@ export function OfficeShell({ active, user, sample, children, rail }: { active: 
               onKeyDown={(e) => { if (e.key === "Enter") window.location.href = `/office-handoff?q=${encodeURIComponent((e.target as HTMLInputElement).value)}`; }} />
           </label>
           <Link to={(sample ? "/demo/new" : "/new") as never} className="hidden h-10 items-center gap-1.5 rounded-[10px] bg-[var(--pd-orange-700)] px-4 text-[14px] font-bold text-white hover:bg-[var(--pd-orange-800)] sm:flex"><Plus size={16} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
-          <button type="button" onClick={() => setLang(lang === "es" ? "en" : "es")} className="h-10 rounded-[10px] border border-[#2A3F63] px-3 text-[13px] font-bold">{lang === "es" ? "English" : "Español"}</button>
-          <span className="grid size-10 place-items-center rounded-[10px] bg-[#13264A]" aria-hidden><Bell size={18} /></span>
+          <button type="button" onClick={() => setLang(lang === "es" ? "en" : "es")} className="h-10 rounded-[10px] border border-[var(--pd-navy-700)] px-3 text-[13px] font-bold">{lang === "es" ? "English" : "Español"}</button>
+          <span className="grid size-10 place-items-center rounded-[10px] bg-[var(--pd-navy-800)]" aria-hidden><Bell size={18} /></span>
           <div className="hidden items-center gap-2.5 md:flex">
             <span aria-hidden className="grid size-9 place-items-center rounded-full bg-[var(--pd-orange-700)] text-[13px] font-bold">{initials}</span>
-            <div className="leading-tight"><p className="text-[14px] font-bold">{user.name}</p><p className="text-[12px] text-[#C9D2E0]">{user.role}</p></div>
+            <div className="leading-tight"><p className="text-[14px] font-bold">{user.name}</p><p className="text-[12px] text-[var(--pd-on-navy-muted)]">{user.role}</p></div>
           </div>
         </header>
         <div className="grid gap-5 p-4 lg:p-6 min-[1200px]:grid-cols-[minmax(0,1fr)_300px]">

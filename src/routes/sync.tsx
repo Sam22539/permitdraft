@@ -65,15 +65,15 @@ export function SyncPage() {
       <div className="pd-ui -mx-4 -mt-4 flex flex-col">
         <header className="flex flex-col gap-2 bg-[var(--pd-navy-900)] px-5 pb-6 pt-5 text-white">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-[14px] text-[#C9D2E0]">{today}</p>
+            <p className="text-[14px] text-[var(--pd-on-navy-muted)]">{today}</p>
             {!online
               ? <span className="rounded-full bg-[var(--pd-conflict-bg)] px-3 py-1 text-[13px] font-bold text-[var(--pd-conflict-fg)]">{t("No signal", "Sin señal")}</span>
               : recs === null ? null
               : waiting.length ? <PdSyncPill state="saved" lang={lang === "es" ? "es" : "en"} />
-              : <span className="rounded-full border border-[#2A3F63] px-3 py-1 text-[13px] font-bold text-white">{recs.length ? t("Photos uploaded", "Fotos subidas") : t("Nothing waiting", "Nada pendiente")}</span>}
+              : <span className="rounded-full border border-[var(--pd-navy-700)] px-3 py-1 text-[13px] font-bold text-white">{recs.length ? t("Photos uploaded", "Fotos subidas") : t("Nothing waiting", "Nada pendiente")}</span>}
           </div>
           <h1 className="font-display text-[32px] font-bold tracking-[-0.02em] !text-white">{t("Sync", "Sincronizar")}</h1>
-          <p className="text-[15px] leading-snug text-[#C9D2E0]" role="status">
+          <p className="text-[15px] leading-snug text-[var(--pd-on-navy-muted)]" role="status">
             {readErr ? t("Could not read this phone's saved photos. Nothing was deleted.", "No se pudieron leer las fotos guardadas en este teléfono. No se borró nada.")
               : recs === null ? t("Checking this phone…", "Revisando este teléfono…")
               : (recs ?? []).length === 0 ? t("No photos are saved on this phone right now.", "No hay fotos guardadas en este teléfono ahora.")
@@ -108,7 +108,7 @@ export function SyncPage() {
               ))}
             </section>
           )}
-          {readErr && <button type="button" onClick={() => void refresh()} className="h-12 rounded-[12px] border border-[#C5CDD8] bg-white text-[15px] font-bold">{t("Read the phone again", "Leer el teléfono de nuevo")}</button>}
+          {readErr && <button type="button" onClick={() => void refresh()} className="h-12 rounded-[12px] border border-[var(--pd-gray-300)] bg-white text-[15px] font-bold">{t("Read the phone again", "Leer el teléfono de nuevo")}</button>}
           {lastTry && (
             <p className="text-[13px] text-[var(--pd-gray-600)]" role="status">
               {t(`Last try ${time(lastTry.at)}: `, `Último intento ${time(lastTry.at)}: `)}
