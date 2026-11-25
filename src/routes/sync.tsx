@@ -40,6 +40,9 @@ export function SyncPage() {
     setBusy(true);
     try { const left = demo ? waiting.length : await syncPhotos(draftJobId()); setLastTry({ at: new Date(), left }); } finally { setBusy(false); await refresh(); }
   };
+  // When signal comes back (or the page opens online with photos waiting), try once on its own; Try again stays available.
+  const pending = waiting.length;
+  useEffect(() => { if (online && pending > 0 && !demo && !busy) void tryNow(); }, [online, pending > 0]); // eslint-disable-line react-hooks/exhaustive-deps
   const time = (d: Date) => d.toLocaleTimeString(lang === "es" ? "es-US" : "en-US", { hour: "numeric", minute: "2-digit" });
 
   const today = new Date().toLocaleDateString(lang === "es" ? "es-US" : "en-US", { weekday: "long", month: "short", day: "numeric" });
@@ -58,13 +61,15 @@ export function SyncPage() {
             <p className="text-[14px] text-[#C9D2E0]">{today}</p>
             {!online
               ? <span className="rounded-full bg-[var(--pd-conflict-bg)] px-3 py-1 text-[13px] font-bold text-[var(--pd-conflict-fg)]">{t("No signal", "Sin señal")}</span>
-              : <PdSyncPill state={waiting.length ? "saved" : "delivered"} lang={lang === "es" ? "es" : "en"} />}
+              : recs === null ? null
+              : waiting.length ? <PdSyncPill state="saved" lang={lang === "es" ? "es" : "en"} />
+              : <span className="rounded-full border border-[#2A3F63] px-3 py-1 text-[13px] font-bold text-white">{recs.length ? t("Photos uploaded", "Fotos subidas") : t("Nothing waiting", "Nada pendiente")}</span>}
           </div>
           <h1 className="font-display text-[32px] font-bold tracking-[-0.02em] !text-white">{t("Sync", "Sincronizar")}</h1>
           <p className="text-[15px] leading-snug text-[#C9D2E0]" role="status">
             {recs === null ? t("Checking this phone…", "Revisando este teléfono…")
-              : open.length === 0 ? t("Nothing is waiting. Everything on this phone has uploaded.", "No hay nada pendiente. Todo lo de este teléfono se subió.")
-              : t(`${open.length} ${open.length === 1 ? "job" : "jobs"} waiting to upload · they send on their own when you have signal`, `${open.length} ${open.length === 1 ? "trabajo" : "trabajos"} esperando para subir · se envían solos cuando tenga señal`)}
+              : open.length === 0 ? t("Every photo on this phone has uploaded. A job reaches the office only after Finish & Send.", "Todas las fotos de este teléfono se subieron. Un trabajo llega a la oficina solo después de Finalizar y enviar.")
+              : t(`${open.length} ${open.length === 1 ? "job" : "jobs"} waiting to upload · they upload on their own when this screen is open and you have signal`, `${open.length} ${open.length === 1 ? "trabajo" : "trabajos"} esperando para subir · se suben solos cuando esta pantalla está abierta y tiene señal`)}
           </p>
         </header>
         <div className="flex flex-col gap-4 px-4 pt-5">
