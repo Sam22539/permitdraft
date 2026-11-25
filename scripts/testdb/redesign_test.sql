@@ -115,6 +115,13 @@ update public.job_photos set data_url = 'data:image/jpeg;base64,BBBB' where id =
 select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
 select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v4'), 'dana@acme-hvac.test')$q$,
   'a version whose photo changed after sealing');
+-- 6d. Checks only go on the latest version; deciding after a photo swap does not carry "checked" forward.
+select pg_temp.expect_error($q$select public.add_packet_check((select v::uuid from t where k='v3'), 'duct', 'missing', null)$q$,
+  'recording a check on a superseded version');
+insert into t values ('chk4', public.add_packet_check((select v::uuid from t where k='v4'), 'duct', 'conflict', 'sealed', 'not sealed'));
+insert into t values ('v5', public.decide_packet_check((select v::uuid from t where k='chk4'), 'use_evidence'));
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v5'), 'dana@acme-hvac.test')$q$,
+  'a version decided after its photo was replaced (needs a fresh check)');
 
 -- 7. Isolation: another company's admin sees none of it and cannot act on it.
 select pg_temp.as_user('dana@other-hvac.test', '00000000-0000-4000-8000-0000000000e1');
