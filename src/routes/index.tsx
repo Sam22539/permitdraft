@@ -49,10 +49,10 @@ function Home() {
             <Link to="/demo" data-testid="try-demo" className="flex h-[52px] items-center rounded-[12px] bg-[var(--pd-orange-700)] px-6 text-[16px] font-bold text-white hover:bg-[var(--pd-orange-800)]">{t("Try the free demo", "Probar la demo gratis")}</Link>
             <a href="#workflow" className="flex h-[52px] items-center rounded-[12px] border border-[#C5CDD8] bg-white px-6 text-[16px] font-bold hover:bg-[var(--pd-gray-50)]">{t("See the workflow", "Ver el flujo")}</a>
           </div>
-          <div className="mt-12"><WorkflowDemo /></div>
+          <div id="how" className="mt-12 scroll-mt-20"><WorkflowDemo /></div>
         </section>
 
-        <section aria-label={t("Highlights", "Puntos clave")} className="border-y border-[#E6E2D8]">
+        <section id="features" aria-label={t("Highlights", "Puntos clave")} className="scroll-mt-20 border-y border-[#E6E2D8]">
           <div className="mx-auto grid max-w-[1240px] gap-6 px-5 py-9 sm:grid-cols-2 lg:grid-cols-4">
             {[["Works with no signal", "Funciona sin señal", "Queued on the phone until it reconnects. It says so.", "En cola en el teléfono hasta reconectar. Y lo dice."], ["Evidence-linked", "Ligado a evidencia", "Every value points to its photo or entry.", "Cada valor apunta a su foto o entrada."], ["Version-locked", "Versión bloqueada", "Signatures belong to one exact draft.", "Las firmas pertenecen a un borrador exacto."], ["English y Español", "English y Español", "Every screen, both languages.", "Cada pantalla, en ambos idiomas."]].map(([en, es, den, des]) => (
               <div key={en}><h3 className="font-display text-[21px] font-bold">{t(en, es)}</h3><p className="mt-1 text-[15px] text-[var(--pd-gray-700)]">{t(den, des)}</p></div>
