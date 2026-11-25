@@ -38,7 +38,7 @@ export const SAMPLE: DashData = {
   user: { name: "Dana K.", role: "Office admin" },
   counts: { draft: 6, field: 9, missing: 4, review: 8, ready: 7, submitted: 11, corrections: 3, approved: 26 },
   jobs: [
-    { id: "1187", tracking: "PD-1187", customer: "Sample customer", addr: "1187 Oak St, Pasadena", type: "Heat pump change-out", tech: "Luis M.", stage: "review", updated: "Nov 24, 9:47 AM", },
+    { id: "1187", tracking: "PD-1187", customer: "Sample customer", addr: "1187 Oak St, Pasadena", type: "Heat pump change-out", tech: "Luis M.", stage: "review", updated: "Nov 24, 9:47 AM", href: "/demo/office-review" },
     { id: "10482", tracking: "PD-2026-10482", customer: "Marcus Reyes", addr: "4412 Alder Ct, Sacramento", type: "Heat pump change-out", tech: "J. Diaz", stage: "review", updated: "Nov 23, 10:14 AM" },
     { id: "10481", tracking: "PD-2026-10481", customer: "Rivera Properties", addr: "7 Demo Ln, Roseville", type: "Gas furnace install", tech: "M. Torres", stage: "missing", updated: "Nov 23, 9:41 AM" },
     { id: "10480", tracking: "PD-2026-10480", customer: "Lisa Hammond", addr: "92 Maple Ct, Folsom", type: "Ductless mini-split", tech: "C. Ramirez", stage: "submitted", updated: "Nov 22, 4:37 PM" },
