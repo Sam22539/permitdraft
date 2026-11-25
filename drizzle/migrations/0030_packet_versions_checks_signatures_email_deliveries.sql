@@ -160,7 +160,7 @@ declare c public.packet_checks; v public.packet_versions; me text := lower(coale
 begin
   select * into c from public.packet_checks where id = p_check_id for update;
   if c.id is null or not public.is_office_of(c.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
-  if c.kind <> 'conflict' or c.decision is not null then raise exception 'this check has no open conflict' using errcode = '22023'; end if;
+  if c.kind <> 'conflict' or (c.decision is not null and c.decision <> 'asked_tech') then raise exception 'this check has no open conflict' using errcode = '22023'; end if;
   select * into v from public.packet_versions where id = c.packet_version_id;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'decide on the latest version' using errcode = '22023'; end if;
   if p_decision = 'keep_with_note' and coalesce(btrim(p_note), '') = '' then raise exception 'a note is required' using errcode = '22023'; end if;

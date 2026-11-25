@@ -45,6 +45,11 @@ select pg_temp.expect_error($q$select public.request_signature((select v::uuid f
 select pg_temp.expect_error($q$update public.packet_versions set fields = '{}' where id = (select v::uuid from t where k='v1')$q$,
   'editing a sealed version');
 
+-- 3b. Maria asks Luis to confirm first: the conflict stays open (no signature yet), and she can still decide after.
+select public.decide_packet_check((select v::uuid from t where k='chk'), 'asked_tech');
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v1'), 'dana@acme-hvac.test')$q$,
+  'send for signature while waiting on the tech');
+
 -- 4. Maria uses the photo value: v2 is sealed with 125 A, and v1 stays as it was.
 insert into t values ('v2', public.decide_packet_check((select v::uuid from t where k='chk'), 'use_evidence'));
 do $$ declare p1 text; p2 text; n int; begin
