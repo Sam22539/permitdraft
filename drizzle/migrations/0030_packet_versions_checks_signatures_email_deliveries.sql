@@ -13,6 +13,7 @@ create table public.packet_versions (
   fingerprint text not null check (fingerprint ~ '^[0-9a-f]{64}$'),
   fields jsonb not null,
   photo_ids uuid[] not null default '{}',
+  photo_hashes text[] not null default '{}',   -- sha-256 of each photo's content at sealing, in photo_ids order
   reason text not null check (reason in ('sent','office_decision','tech_correction')),
   created_by text not null,
   created_at timestamptz not null default now(),
@@ -102,13 +103,40 @@ create policy "office reads its email deliveries" on public.email_deliveries for
 
 -- 5. Functions (the only write paths for signed-in users) -----------------------------------------------------------
 
--- Canonical fingerprint: sha-256 of the fields (jsonb text is key-sorted) plus the sorted photo ids.
-create function private.packet_fingerprint(p_fields jsonb, p_photo_ids uuid[]) returns text
+-- Content hash of each photo (main or extra table), in the given order; 'missing' where none exists. Photos can be
+-- replaced under the same id, so a version seals what the photos contained, not only their ids.
+create function private.photo_hashes(p_photo_ids uuid[]) returns text[]
+language sql stable set search_path = '' as $$
+  select coalesce(array_agg(coalesce(
+           (select encode(extensions.digest(convert_to(p.data_url, 'UTF8'), 'sha256'), 'hex') from public.job_photos p where p.id = x),
+           (select encode(extensions.digest(convert_to(e.data_url, 'UTF8'), 'sha256'), 'hex') from public.job_extra_photos e where e.id = x),
+           'missing') order by x::text), '{}')
+  from unnest(coalesce(p_photo_ids, '{}')) x
+$$;
+
+-- Canonical fingerprint: sha-256 of the fields (jsonb text is key-sorted), the sorted photo ids and their content hashes.
+create function private.packet_fingerprint(p_fields jsonb, p_photo_ids uuid[], p_hashes text[]) returns text
 language sql immutable set search_path = '' as $$
   select encode(extensions.digest(
-    convert_to(p_fields::text || '|' || coalesce((select string_agg(x::text, ',' order by x::text) from unnest(p_photo_ids) x), ''), 'UTF8'),
+    convert_to(p_fields::text || '|' || coalesce((select string_agg(x::text, ',' order by x::text) from unnest(p_photo_ids) x), '')
+               || '|' || array_to_string(coalesce(p_hashes, '{}'), ','), 'UTF8'),
     'sha256'), 'hex')
 $$;
+
+-- Validation finished for a version: the office confirmed its checks are complete (or a decision carried them forward).
+-- Without it, a version with zero recorded checks is not signable.
+create table public.packet_validations (
+  packet_version_id uuid primary key references public.packet_versions(id) on delete cascade,
+  company_id uuid not null references public.companies(id) on delete cascade,
+  completed_by text not null,
+  completed_at timestamptz not null default now()
+);
+alter table public.packet_validations enable row level security;
+revoke all on public.packet_validations from anon, authenticated;
+grant select on public.packet_validations to authenticated;
+grant select, insert on public.packet_validations to service_role;
+create policy "office reads its validations" on public.packet_validations for select to authenticated
+  using (public.is_office_of(company_id));
 
 -- Latest version of a packet, or null.
 create function public.latest_packet_version(p_packet_id uuid) returns uuid language sql stable set search_path = '' as $$
@@ -119,7 +147,7 @@ grant execute on function public.latest_packet_version(uuid) to authenticated;
 -- Seal the next version. Called by the tech's send (reason 'sent'/'tech_correction') or by an office decision.
 create function public.seal_packet_version(p_packet_id uuid, p_reason text, p_fields jsonb, p_photo_ids uuid[] default '{}')
 returns uuid language plpgsql security definer set search_path = '' as $$
-declare pk public.office_packets; me text := lower(coalesce(auth.jwt() ->> 'email','')); n int; vid uuid;
+declare pk public.office_packets; me text := lower(coalesce(auth.jwt() ->> 'email','')); n int; vid uuid; h text[];
 begin
   select * into pk from public.office_packets where id = p_packet_id for update;
   if pk.id is null or pk.company_id is null then raise exception 'packet not found' using errcode = 'P0002'; end if;
@@ -127,10 +155,15 @@ begin
     raise exception 'not allowed' using errcode = '42501'; end if;
   if p_reason = 'office_decision' and not public.is_office_of(pk.company_id) then
     raise exception 'only the office can make office decisions' using errcode = '42501'; end if;
+  if p_reason is null or p_reason not in ('sent','office_decision','tech_correction') then
+    raise exception 'unknown reason' using errcode = '22023'; end if;
   select coalesce(max(version), 0) + 1 into n from public.packet_versions where packet_id = p_packet_id;
-  insert into public.packet_versions (company_id, packet_id, version, fingerprint, fields, photo_ids, reason, created_by)
-  values (pk.company_id, p_packet_id, n, private.packet_fingerprint(p_fields, coalesce(p_photo_ids, '{}')),
-          p_fields, coalesce(p_photo_ids, '{}'), p_reason, me)
+  select array_agg(x order by x::text) into p_photo_ids from unnest(coalesce(p_photo_ids, '{}')) x;
+  p_photo_ids := coalesce(p_photo_ids, '{}');
+  h := private.photo_hashes(p_photo_ids);
+  insert into public.packet_versions (company_id, packet_id, version, fingerprint, fields, photo_ids, photo_hashes, reason, created_by)
+  values (pk.company_id, p_packet_id, n, private.packet_fingerprint(p_fields, p_photo_ids, h),
+          p_fields, p_photo_ids, h, p_reason, me)
   returning id into vid;
   return vid;
 end $$;
@@ -158,12 +191,20 @@ create function public.decide_packet_check(p_check_id uuid, p_decision text, p_n
 language plpgsql security definer set search_path = '' as $$
 declare c public.packet_checks; v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'email','')); newv uuid; f jsonb;
 begin
+  if p_decision is null or p_decision not in ('use_evidence','keep_with_note','asked_tech') then
+    raise exception 'choose use_evidence, keep_with_note or asked_tech' using errcode = '22023'; end if;
+  -- Lock the packet before reading the base version, so two reviewers cannot both decide on the same stale version.
+  perform 1 from public.office_packets p
+    where p.id = (select pv.packet_id from public.packet_versions pv join public.packet_checks k on k.packet_version_id = pv.id where k.id = p_check_id)
+    for update;
   select * into c from public.packet_checks where id = p_check_id for update;
   if c.id is null or not public.is_office_of(c.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
   if c.kind <> 'conflict' or (c.decision is not null and c.decision <> 'asked_tech') then raise exception 'this check has no open conflict' using errcode = '22023'; end if;
   select * into v from public.packet_versions where id = c.packet_version_id;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'decide on the latest version' using errcode = '22023'; end if;
   if p_decision = 'keep_with_note' and coalesce(btrim(p_note), '') = '' then raise exception 'a note is required' using errcode = '22023'; end if;
+  if p_decision = 'use_evidence' and coalesce(btrim(c.evidence_value), '') = '' then
+    raise exception 'this conflict has no evidence value to use' using errcode = '22023'; end if;
 
   update public.packet_checks set decision = p_decision, decided_by = me, decided_at = now(), note = p_note where id = c.id;
   if p_decision = 'asked_tech' then return v.id; end if;
@@ -181,6 +222,8 @@ begin
          case when id = c.id then now() else decided_at end,
          case when id = c.id then p_note else note end
   from public.packet_checks where packet_version_id = v.id;
+  -- The checks were carried forward, so validation of the new version is complete.
+  insert into public.packet_validations (packet_version_id, company_id, completed_by) values (newv, v.company_id, me);
   return newv;
 end $$;
 revoke all on function public.decide_packet_check(uuid, text, text) from public, anon;
@@ -194,15 +237,40 @@ create function public.open_packet_checks(p_version_id uuid) returns integer lan
 $$;
 grant execute on function public.open_packet_checks(uuid) to authenticated;
 
+-- The office confirms it finished checking the latest version (every conflict or missing item has been recorded).
+create function public.complete_packet_checks(p_version_id uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+declare v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'email',''));
+begin
+  select * into v from public.packet_versions where id = p_version_id;
+  if v.id is null or not public.is_office_of(v.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
+  if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'check the latest version' using errcode = '22023'; end if;
+  insert into public.packet_validations (packet_version_id, company_id, completed_by) values (v.id, v.company_id, me)
+  on conflict (packet_version_id) do nothing;
+end $$;
+revoke all on function public.complete_packet_checks(uuid) from public, anon;
+grant execute on function public.complete_packet_checks(uuid) to authenticated;
+
+-- Signable: validation complete, nothing open, and the photos still hold what was sealed.
+create function private.signable_problem(v public.packet_versions) returns text
+language sql stable set search_path = '' as $$
+  select case
+    when not exists (select 1 from public.packet_validations pv where pv.packet_version_id = v.id) then 'the office has not finished checking this version'
+    when public.open_packet_checks(v.id) > 0 then 'resolve every conflict and missing item first'
+    when private.photo_hashes(v.photo_ids) is distinct from v.photo_hashes then 'a photo changed after this version was sealed; seal a new version'
+    else null end
+$$;
+
 -- Guard: send for signature only the latest version with nothing open. Queues the signature-request email.
 create function public.request_signature(p_version_id uuid, p_to_email text) returns uuid
 language plpgsql security definer set search_path = '' as $$
-declare v public.packet_versions; did uuid;
+declare v public.packet_versions; did uuid; why text;
 begin
   select * into v from public.packet_versions where id = p_version_id;
   if v.id is null or not public.is_office_of(v.company_id) then raise exception 'not allowed' using errcode = '42501'; end if;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'only the latest version can be sent for signature' using errcode = '22023'; end if;
-  if public.open_packet_checks(v.id) > 0 then raise exception 'resolve every conflict and missing item first' using errcode = '22023'; end if;
+  why := private.signable_problem(v);
+  if why is not null then raise exception '%', why using errcode = '22023'; end if;
   insert into public.email_deliveries (company_id, kind, to_email, packet_id, packet_version_id)
   values (v.company_id, 'signature_request', lower(btrim(p_to_email)), v.packet_id, v.id) returning id into did;
   return did;
@@ -214,14 +282,15 @@ grant execute on function public.request_signature(uuid, text) to authenticated;
 create function public.sign_packet_version(p_version_id uuid, p_fingerprint text, p_signer_name text,
   p_ip text default null, p_user_agent text default null) returns uuid
 language plpgsql security definer set search_path = '' as $$
-declare v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'email','')); sid uuid;
+declare v public.packet_versions; me text := lower(coalesce(auth.jwt() ->> 'email','')); sid uuid; why text;
 begin
   select * into v from public.packet_versions where id = p_version_id;
   if v.id is null or not exists (select 1 from public.company_members m where m.company_id = v.company_id and m.email = me and m.role = 'admin') then
     raise exception 'only a company admin can sign' using errcode = '42501'; end if;
   if v.id <> public.latest_packet_version(v.packet_id) then raise exception 'this version is no longer the latest; review the new version' using errcode = '22023'; end if;
-  if v.fingerprint <> p_fingerprint then raise exception 'fingerprint does not match this version' using errcode = '22023'; end if;
-  if public.open_packet_checks(v.id) > 0 then raise exception 'this version still has open items' using errcode = '22023'; end if;
+  if p_fingerprint is null or v.fingerprint is distinct from p_fingerprint then raise exception 'fingerprint does not match this version' using errcode = '22023'; end if;
+  why := private.signable_problem(v);
+  if why is not null then raise exception '%', why using errcode = '22023'; end if;
   insert into public.signatures (company_id, packet_version_id, fingerprint, signer_name, signer_email, ip, user_agent)
   values (v.company_id, v.id, v.fingerprint, btrim(p_signer_name), me, p_ip, left(p_user_agent, 500)) returning id into sid;
   return sid;

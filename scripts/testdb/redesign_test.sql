@@ -45,6 +45,11 @@ select pg_temp.expect_error($q$select public.request_signature((select v::uuid f
 select pg_temp.expect_error($q$update public.packet_versions set fields = '{}' where id = (select v::uuid from t where k='v1')$q$,
   'editing a sealed version');
 
+-- 3a. Decisions must be real: no null decision, and "use evidence" needs an evidence value.
+select pg_temp.expect_error($q$select public.decide_packet_check((select v::uuid from t where k='chk'), null)$q$, 'a null decision');
+select pg_temp.expect_error($q$select public.decide_packet_check(public.add_packet_check((select v::uuid from t where k='v1'), 'duct', 'conflict', 'sealed', null), 'use_evidence')$q$,
+  'using evidence that has no value');
+
 -- 3b. Maria asks Luis to confirm first: the conflict stays open (no signature yet), and she can still decide after.
 select public.decide_packet_check((select v::uuid from t where k='chk'), 'asked_tech');
 select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v1'), 'dana@acme-hvac.test')$q$,
@@ -78,11 +83,30 @@ select pg_temp.expect_error($q$select public.sign_packet_version((select v::uuid
   (select fingerprint from public.packet_versions where id = (select v::uuid from t where k='v1')), 'Dana K.')$q$, 'signing an old version');
 select pg_temp.expect_error($q$select public.sign_packet_version((select v::uuid from t where k='v2'), repeat('0', 64), 'Dana K.')$q$,
   'signing with the wrong fingerprint');
+select pg_temp.expect_error($q$select public.sign_packet_version((select v::uuid from t where k='v2'), null, 'Dana K.')$q$,
+  'signing with no fingerprint');
 select public.sign_packet_version((select v::uuid from t where k='v2'),
   (select fingerprint from public.packet_versions where id = (select v::uuid from t where k='v2')), 'Dana K.');
 do $$ begin raise notice 'PASS: admin signed v2 with its fingerprint'; end $$;
 select pg_temp.expect_error($q$select public.sign_packet_version((select v::uuid from t where k='v2'),
   (select fingerprint from public.packet_versions where id = (select v::uuid from t where k='v2')), 'Dana K.')$q$, 'signing the same version twice');
+
+-- 6b. An unchanged re-send creates a version with no checks: not signable until the office finishes checking it.
+select pg_temp.as_user('luis@acme-hvac.test', '00000000-0000-4000-8000-0000000000a1');
+insert into public.job_photos (id, job_id, slot, name, mime, data_url, taken_at)
+  values ('00000000-0000-4000-8000-00000000f001', 'PD-1187', 'plate', 'plate.jpg', 'image/jpeg', 'data:image/jpeg;base64,AAAA', 1);
+insert into t values ('v3', public.seal_packet_version('00000000-0000-4000-8000-000000001187', 'tech_correction',
+  (select fields from public.packet_versions where id = (select v::uuid from t where k='v2')), array['00000000-0000-4000-8000-00000000f001']::uuid[]));
+select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v3'), 'dana@acme-hvac.test')$q$,
+  'a re-sent version the office has not checked');
+select public.complete_packet_checks((select v::uuid from t where k='v3'));
+-- 6c. Luis replaces the photo under the same id: the sealed v3 no longer matches its evidence, so it cannot go out.
+select pg_temp.as_user('luis@acme-hvac.test', '00000000-0000-4000-8000-0000000000a1');
+update public.job_photos set data_url = 'data:image/jpeg;base64,BBBB' where id = '00000000-0000-4000-8000-00000000f001';
+select pg_temp.as_user('maria@acme-hvac.test', '00000000-0000-4000-8000-0000000000c1');
+select pg_temp.expect_error($q$select public.request_signature((select v::uuid from t where k='v3'), 'dana@acme-hvac.test')$q$,
+  'a version whose photo changed after sealing');
 
 -- 7. Isolation: another company's admin sees none of it and cannot act on it.
 select pg_temp.as_user('dana@other-hvac.test', '00000000-0000-4000-8000-0000000000e1');
