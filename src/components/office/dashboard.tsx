@@ -4,6 +4,7 @@ import { useLang } from "../../lib/lang";
 import { backend } from "../../lib/backend";
 import { hasFeature } from "../../lib/plan";
 import { OfficeCard, OfficeShell } from "./shell";
+import { packetStage } from "../../lib/office-stage";
 
 /** The eight pipeline stages from the dashboard design, in order. */
 export const PIPELINE = [
@@ -245,15 +246,7 @@ export function useOfficeDashboard(): { data: DashData | null; state: "loading" 
       const signed = new Set([...latestOf].filter(([, v]) => sigIds.has(v.id)).map(([k]) => k));
       const stageOf = new Map((crm.data ?? []).map((c) => [String(c.packet_id), String(c.stage)]));
       const asked = new Set((corr.data ?? []).map((c) => String(c.packet_id)));
-      const toStage = (id: string): StageKey => {
-        const st = stageOf.get(id) ?? "new";
-        if (st === "approved" || st === "inspection" || st === "closed") return "approved";
-        if (st === "submitted") return "submitted";
-        // "Ready to submit" only when the contractor signed the latest version; the manual "preparing" stage alone is not.
-        if (signed.has(id)) return "ready";
-        if (asked.has(id)) return "missing";
-        return "review";
-      };
+      const toStage = (id: string): StageKey => packetStage(stageOf.get(id), { signedLatest: signed.has(id), askedTech: asked.has(id) });
       const fmt = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
       const jobs: DashJob[] = (pk.data ?? []).map((p) => {
         const v = ((p.captured_fields as { values?: Record<string, string> } | null)?.values ?? {});

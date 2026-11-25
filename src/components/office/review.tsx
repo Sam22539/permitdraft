@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useLang } from "../../lib/lang";
 import { OfficeCard, OfficeShell } from "./shell";
+import { isPending } from "../../lib/office-stage";
 
 export type CheckKind = "conflict" | "missing" | "matched";
 export type Decision = "use_evidence" | "keep_with_note" | "asked_tech";
@@ -35,7 +36,7 @@ export function PacketReview({ data, actions, sample, backTo }: { data: ReviewDa
   const [email, setEmail] = useState("");
   const kindName = (k: CheckKind) => (k === "conflict" ? t("Conflict", "Conflicto") : k === "missing" ? t("Missing", "Falta") : t("Matched", "Coincide"));
   // "Ask the tech" records a question; the item stays open until the office decides or the tech answers.
-  const pending = (c: ReviewCheck) => c.kind !== "matched" && (!c.decision || c.decision === "asked_tech");
+  const pending = (c: ReviewCheck) => isPending(c);
   const open = data.checks.filter(pending);
   const conflicts = data.checks.filter((c) => c.kind === "conflict" && pending(c));
   const missing = data.checks.filter((c) => c.kind === "missing" && pending(c));
