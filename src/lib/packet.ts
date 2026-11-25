@@ -13,6 +13,18 @@ type In = { token: string; jobId: string; employeeId: string; values: Record<str
  * this job, or any other photo the device holds is not saved there yet. Once saved, one notice email goes to the technician's company's
  * verified office inbox (none where the company has none), linking to the signed-in office review.
  */
+/** Calls public.seal_packet_version as the signed-in technician (the function checks auth.uid()); null when it cannot. */
+async function sealFirstVersion(token: string, packetId: string, fields: unknown, photoIds: string[]): Promise<string | null> {
+  try {
+    const url = process.env.SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) return null;
+    const { createClient } = await import("@supabase/supabase-js");
+    const asTech = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { Authorization: `Bearer ${token}` } } });
+    const { data, error } = await asTech.rpc("seal_packet_version", { p_packet_id: packetId, p_reason: "sent", p_fields: fields, p_photo_ids: photoIds });
+    return error || !data ? null : String(data);
+  } catch { return null; }
+}
+
 export const sendOfficePacket = createServerFn({ method: "POST" })
   .inputValidator((d: In) => {
     const token = String(d?.token ?? "");
@@ -77,8 +89,11 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     if (ins.error) throw new Error("save");
     const { data: made, error: me } = await db.from("office_packets").select("id, sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).single();
     if (me || !made) throw new Error("save");
+    // Seal version 1 of the packet (migration 0030) as the technician, so the office reviews and the contractor signs a
+    // fixed snapshot. Best effort: until the migration is live, or for a technician without a company, the packet still sends.
+    const version = made.id && row.company_id ? await sealFirstVersion(data.token, String(made.id), row.captured_fields, row.photo_links.map((l) => String(l.photoId))) : null;
     const notice = await office.sendOfficeNotice(db, String(made.id), String(made.sent_at), capture);
-    return { ok: true as const, created: true, sentBy: String(made.sent_by_name ?? name), sentAt: String(made.sent_at), notice };
+    return { ok: true as const, created: true, versionId: version, sentBy: String(made.sent_by_name ?? name), sentAt: String(made.sent_at), notice };
   });
 
 /** The technician's own packet: tries its one office notice again where it failed or the inbox was not set up yet. */
