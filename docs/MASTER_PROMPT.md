@@ -1,14 +1,14 @@
 # MASTER PROMPT — PermitDraft redesign build (FINAL v2.0, Nov 24 2026)
 
-**To:** Ted (Foundable). **From:** Sam, with Claude as technical lead.
+**Builder:** Claude (Ted is removed from code work, per Sam, Nov 24). **Reviewers:** Codex (code, every PR), ChatGPT "Sol" (design). **Owner:** Sam.
 **Repo:** `Sam22539/permitdraft` (TanStack Router + Vite + React + TypeScript; Drizzle migrations; existing company scoping and row-level security).
-**Status:** the design is final. **Do not start until Sam tells you directly.** Items marked **[SAM DECIDES]** are not yours to decide.
+**Status:** the design is final, and Claude is building it in phases on `claude/…` branches. Items marked **[SAM DECIDES]** are Sam's alone.
 
 ---
 
 ## 0. How we work
-1. **Claude leads the code.** Before changing code, list the files you'll touch and get approval. After each change, report what changed and your test results.
-2. **One branch per phase** (`ted/phase-N-…`), then a pull request. Claude reviews, Codex reviews, and Sam merges. **Never push to `main`. Never rewrite pushed history.** That's Foundable's rule in `AGENTS.md`.
+1. **Claude builds.** Codex reviews every pull request, and ChatGPT reviews designs. Sam merges.
+2. **One branch per phase** (`claude/phase-N-…`), then a pull request. Claude reviews, Codex reviews, and Sam merges. **Never push to `main`. Never rewrite pushed history.** That's Foundable's rule in `AGENTS.md`.
 3. **The live site doesn't change** until Sam approves a phase. **Nothing gets deleted**: hidden features go behind a flag.
 4. If something is unclear, write `[NEEDS SAM]` and move on. Never guess at permit rules, prices or legal wording.
 

@@ -30,11 +30,11 @@
   - Nothing claims "sent" before the office actually has it.
   - Codex reviews are clean.
 
-## For the build (Ted)
-- [`docs/MASTER_PROMPT.md`](../MASTER_PROMPT.md) is the one brief Ted builds from. It covers the rules, the screens, 4 new database tables, 5 phases with pass/fail gates, and what's real vs. proposed.
+## For the build (Claude builds; Codex and ChatGPT review)
+- [`docs/MASTER_PROMPT.md`](../MASTER_PROMPT.md) is the one build brief. It covers the rules, the screens, 4 new database tables, 5 phases with pass/fail gates, and what's real vs. proposed.
 - [`docs/design/MOBILE_APP_PROMPT.md`](MOBILE_APP_PROMPT.md) is a standalone prompt for the technician app. You can also hand it to any mobile UI tool.
 - [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md), [`tokens.css`](tokens.css) and [`SCREENS.md`](SCREENS.md) hold the exact colors, fonts, sizes and screen specs.
-- Ted has been told the deadline and is **waiting for your go-ahead**. He won't start until you tell him.
+- **Ted is removed from code work** (PR #4). Claude is building the app in phases, and the database back end is done and tested (PR #3).
 
 ## Your 7 decisions (nobody else will make them)
 1. **Homepage:** direction **A** (recommended by Claude and ChatGPT) or B
@@ -45,4 +45,4 @@
 6. **Office sign-in:** email link + Google, or the current method
 7. **Technician app:** web app installed on the phone (default; already set up) or a native iPhone/Android app
 
-**When you've decided:** reply with your picks. Then tell Ted "start Phase 1 from docs/MASTER_PROMPT.md".
+**When you've decided:** reply with your picks, and Claude applies them.
