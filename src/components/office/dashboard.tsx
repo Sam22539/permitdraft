@@ -247,7 +247,7 @@ export function useOfficeDashboard(): { data: DashData | null; state: "loading" 
       const fmt = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
       const jobs: DashJob[] = (pk.data ?? []).map((p) => {
         const v = ((p.captured_fields as { values?: Record<string, string> } | null)?.values ?? {});
-        return { id: String(p.id), tracking: String(p.tracking_no ?? p.job_id), customer: v.name || "—", addr: [v.addr, v.city].filter(Boolean).join(", ") || "—", type: v.type || "—", tech: String(p.sent_by_name ?? "—"), stage: toStage(String(p.id)), updated: fmt(String(p.sent_at)), href: `/office-review/${p.id}` };
+        return { id: String(p.id), tracking: String(p.tracking_no ?? p.job_id), customer: v.name || "—", addr: [v.addr, v.city].filter(Boolean).join(", ") || "—", type: v.type || "—", tech: String(p.sent_by_name ?? "—"), stage: toStage(String(p.id)), updated: fmt(String(p.sent_at)), href: `/office-packet/${p.id}` };
       });
       const counts = Object.fromEntries(PIPELINE.map((s) => [s.key, jobs.filter((j) => j.stage === s.key).length])) as Record<StageKey, number | null>;
       counts.draft = null; counts.field = null; counts.corrections = null;
