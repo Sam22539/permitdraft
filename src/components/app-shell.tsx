@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Receipt, BarChart3, ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Home, Plus, Inbox, LayoutDashboard, Menu, RefreshCw, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
+import { Receipt, BarChart3, ClipboardCheck, FolderOpen, Wrench, BookOpen, CalendarClock, HardHat, Briefcase, ChevronDown, Ellipsis, FilePlus2, FileText, Plus, Inbox, LayoutDashboard, Menu, RefreshCw, Send, Settings, UserRound, UserPlus, Users, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Image } from "../image";
@@ -125,17 +125,10 @@ export function BottomBar({ current: _current }: { current?: "jobs" }) {
   const p = useCorePath();
   return (
     <nav className="ap-bottom" aria-label={t("App menu", "Menú de la aplicación")}>
-      {demo ? (
-        <Link to={p("/jobs")} activeOptions={{ exact: true, includeHash: false }} activeProps={{ className: "ap-tab is-active", "aria-current": "page" } as never} className="ap-tab" data-testid="nav-home">
-          <Home size={22} aria-hidden />
-          {t("Home", "Inicio")}
-        </Link>
-      ) : (
-        <Link to="/sync" activeProps={{ className: "ap-tab is-active", "aria-current": "page" } as never} className="ap-tab" data-testid="nav-sync">
-          <RefreshCw size={22} aria-hidden />
-          {t("Sync", "Sincronizar")}
-        </Link>
-      )}
+      <Link to={p("/sync") as never} activeProps={{ className: "ap-tab is-active", "aria-current": "page" } as never} className="ap-tab" data-testid="nav-sync">
+        <RefreshCw size={22} aria-hidden />
+        {t("Sync", "Sincronizar")}
+      </Link>
       <Link to={p("/jobs")} hash="job-list" className="ap-tab" data-testid="nav-jobs">
         <Briefcase size={22} aria-hidden />
         {t("Jobs", "Trabajos")}
