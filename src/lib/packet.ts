@@ -66,7 +66,7 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
         const has = await db.from("packet_versions").select("id").eq("packet_id", existing.data.id).limit(1);
         if (!has.error && (has.data ?? []).length === 0) {
           const links = Array.isArray(existing.data.photo_links) ? (existing.data.photo_links as { photoId?: unknown }[]) : [];
-          await sealFirstVersion(data.token, String(existing.data.id), existing.data.captured_fields ?? {}, links.map((l) => String(l.photoId ?? "")).filter(Boolean));
+          await sealFirstVersion(data.token, String(existing.data.id), (() => { const cf = (existing.data.captured_fields ?? {}) as { values?: Record<string, string>; formDefaults?: Record<string, string> }; return { ...(cf.formDefaults ?? {}), ...(cf.values ?? {}) }; })(), links.map((l) => String(l.photoId ?? "")).filter(Boolean));
         }
       }
       // Finish again: the same packet; its one notice is tried only if it never went (the claim keeps it to one email).
@@ -99,7 +99,7 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     if (me || !made) throw new Error("save");
     // Seal version 1 of the packet (migration 0030) as the technician, so the office reviews and the contractor signs a
     // fixed snapshot. Best effort: until the migration is live, or for a technician without a company, the packet still sends.
-    const version = made.id && row.company_id ? await sealFirstVersion(data.token, String(made.id), row.captured_fields, row.photo_links.map((l) => String(l.photoId))) : null;
+    const version = made.id && row.company_id ? await sealFirstVersion(data.token, String(made.id), { ...data.formDefaults, ...data.values }, row.photo_links.map((l) => String(l.photoId))) : null;
     const notice = await office.sendOfficeNotice(db, String(made.id), String(made.sent_at), capture);
     return { ok: true as const, created: true, versionId: version, sentBy: String(made.sent_by_name ?? name), sentAt: String(made.sent_at), notice };
   });
