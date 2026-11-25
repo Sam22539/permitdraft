@@ -14,7 +14,7 @@ const CAPTION: [string, string][] = [
 function Row({ done, title, sub }: { done: boolean; title: string; sub: string }) {
   return (
     <div className="flex items-center gap-3 rounded-[12px] bg-white px-3 py-2.5">
-      <span aria-hidden className={`grid size-6 shrink-0 place-items-center rounded-full ${done ? "bg-[var(--pd-success-bg)] text-[12px] font-extrabold text-[var(--pd-success-icon)]" : "border-2 border-dashed border-[#8A93A3]"}`}>{done ? "✓" : ""}</span>
+      <span aria-hidden className={`grid size-6 shrink-0 place-items-center rounded-full ${done ? "bg-[var(--pd-success-bg)] text-[12px] font-extrabold text-[var(--pd-success-icon)]" : "border-2 border-dashed border-[var(--pd-gray-500)]"}`}>{done ? "✓" : ""}</span>
       <div><p className="text-[14px] font-bold text-[var(--pd-navy-900)]">{title}</p><p className="text-[12px] text-[var(--pd-gray-600)]">{sub}</p></div>
     </div>
   );
@@ -25,16 +25,16 @@ export function WorkflowDemo() {
   const { t } = useLang();
   const [s, setS] = useState<Step>(0);
   const phoneStatus = s === 0 ? t("Saved on phone", "Guardado en el teléfono") : s === 1 ? t("Queued · no signal", "En cola · sin señal") : t("Delivered to office", "Entregado a la oficina");
-  const phonePill = s === 0 ? "bg-[#13264A] text-white" : s === 1 ? "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]" : "bg-[var(--pd-success-bg)] text-[#166534]";
+  const phonePill = s === 0 ? "bg-[var(--pd-navy-800)] text-white" : s === 1 ? "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]" : "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]";
   const captured = s === 0 ? 4 : 6;
   const officeOn = s >= 2;
 
   const phone = (
-    <div className="mx-auto w-full max-w-[310px] rounded-[34px] border-[6px] border-[#05080F] bg-[var(--pd-gray-50)] shadow-xl">
+    <div className="mx-auto w-full max-w-[310px] rounded-[34px] border-[6px] border-[var(--pd-black)] bg-[var(--pd-gray-50)] shadow-xl">
       <div className="rounded-t-[28px] bg-[var(--pd-navy-900)] px-4 pb-4 pt-5 text-white">
-        <div className="flex items-center justify-between gap-2"><span className="text-[13px] text-[#C9D2E0]">{t("Job", "Trabajo")} PD-1187</span><span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${phonePill}`}>{phoneStatus}</span></div>
+        <div className="flex items-center justify-between gap-2"><span className="text-[13px] text-[var(--pd-on-navy-muted)]">{t("Job", "Trabajo")} PD-1187</span><span className={`rounded-full px-2.5 py-0.5 text-[12px] font-bold ${phonePill}`}>{phoneStatus}</span></div>
         <p className="mt-1 font-display text-[19px] font-bold">1187 Oak St, Pasadena</p>
-        <p className="text-[13px] text-[#C9D2E0]">{t("Heat pump change-out · Luis M.", "Cambio de bomba de calor · Luis M.")}</p>
+        <p className="text-[13px] text-[var(--pd-on-navy-muted)]">{t("Heat pump change-out · Luis M.", "Cambio de bomba de calor · Luis M.")}</p>
       </div>
       <div className="flex flex-col gap-2 p-3">
         <Row done title={t("Outdoor data plate", "Placa de datos exterior")} sub="Carrier 25VNA036" />
@@ -42,7 +42,7 @@ export function WorkflowDemo() {
         <Row done title={t("Panel rating", "Capacidad del panel")} sub="100 A" />
         <Row done={captured === 6} title={t("Outdoor unit photo", "Foto de la unidad exterior")} sub={captured === 6 ? t("Photo saved", "Foto guardada") : t("Needed for this permit", "Necesaria para este permiso")} />
         <Row done={captured === 6} title={t("Panel label photo", "Foto de la etiqueta del panel")} sub={captured === 6 ? t("Photo saved", "Foto guardada") : t("Needed for this permit", "Necesaria para este permiso")} />
-        <div className={`mt-1 rounded-[12px] py-3 text-center text-[14px] font-bold ${s === 0 ? "bg-[#DFE4EB] text-[var(--pd-gray-700)]" : s === 1 ? "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]" : "bg-[var(--pd-success-bg)] text-[#166534]"}`}>
+        <div className={`mt-1 rounded-[12px] py-3 text-center text-[14px] font-bold ${s === 0 ? "bg-[var(--pd-gray-200)] text-[var(--pd-gray-700)]" : s === 1 ? "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]" : "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]"}`}>
           {s === 0 ? t("Capture 2 more to send", "Capture 2 más para enviar") : s === 1 ? t("Sends when there is signal", "Se envía cuando haya señal") : t("Packet v1 delivered", "Paquete v1 entregado")}
         </div>
       </div>
@@ -56,7 +56,7 @@ export function WorkflowDemo() {
       {s === 2 && (
         <div className="flex flex-col gap-2">
           <div className="rounded-[12px] border-2 border-[var(--pd-conflict-border)] bg-white p-3"><p className="text-[13px] font-bold text-[var(--pd-conflict-fg)]">{t("1 conflict", "1 conflicto")}</p><p className="text-[15px] font-semibold">{t("Panel rating: typed 100 A · label photo reads 125 A", "Capacidad: escrito 100 A · la foto dice 125 A")}</p></div>
-          <div className="rounded-[12px] border border-[#BBF7D0] bg-[#F0FDF4] p-3 text-[15px] text-[#166534]">{t("5 items matched their photos", "5 datos coinciden con sus fotos")}</div>
+          <div className="rounded-[12px] border border-[var(--pd-success-border)] bg-[var(--pd-success-soft-bg)] p-3 text-[15px] text-[var(--pd-success-fg)]">{t("5 items matched their photos", "5 datos coinciden con sus fotos")}</div>
           <p className="text-[13px] text-[var(--pd-gray-600)]">{t("Office email delivered (confirmed) · 9:47 AM", "Correo a la oficina entregado (confirmado) · 9:47 AM")}</p>
         </div>
       )}
@@ -73,9 +73,9 @@ export function WorkflowDemo() {
       {s === 4 && (
         <div className="flex flex-col gap-2">
           {[["v1 · A91C", t("Sent by Luis from PD-1187", "Enviado por Luis desde PD-1187")], ["v2 · 7F3A", t("Office set panel to 125 A from the label photo", "La oficina puso 125 A según la foto")]].map(([k, v]) => (
-            <div key={k} className="flex items-center gap-3 rounded-[12px] border border-[var(--pd-gray-200)] bg-white p-3"><span className="rounded-full bg-[#E0E7FF] px-2.5 py-0.5 font-mono text-[12px] text-[#1E3A8A]">{k}</span><span className="text-[14px]">{v}</span></div>
+            <div key={k} className="flex items-center gap-3 rounded-[12px] border border-[var(--pd-gray-200)] bg-white p-3"><span className="rounded-full bg-[var(--pd-info-bg)] px-2.5 py-0.5 font-mono text-[12px] text-[var(--pd-info-fg)]">{k}</span><span className="text-[14px]">{v}</span></div>
           ))}
-          <div className="flex items-center gap-3 rounded-[12px] border border-[#BBF7D0] bg-[#F0FDF4] p-3"><span className="rounded-full bg-[var(--pd-success-bg)] px-2.5 py-0.5 font-mono text-[12px] text-[#166534]">{t("Signed v2", "Firmado v2")}</span><span className="text-[14px] text-[#166534]">{t("Contractor signed. Ready to file on the city portal.", "El contratista firmó. Listo para presentar en el portal de la ciudad.")}</span></div>
+          <div className="flex items-center gap-3 rounded-[12px] border border-[var(--pd-success-border)] bg-[var(--pd-success-soft-bg)] p-3"><span className="rounded-full bg-[var(--pd-success-bg)] px-2.5 py-0.5 font-mono text-[12px] text-[var(--pd-success-fg)]">{t("Signed v2", "Firmado v2")}</span><span className="text-[14px] text-[var(--pd-success-fg)]">{t("Contractor signed. Ready to file on the city portal.", "El contratista firmó. Listo para presentar en el portal de la ciudad.")}</span></div>
         </div>
       )}
     </div>
@@ -85,17 +85,17 @@ export function WorkflowDemo() {
     <section id="workflow" aria-labelledby="wf-h" className="pd-dark rounded-[28px] bg-[var(--pd-navy-900)] p-4 text-white sm:p-7">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 id="wf-h" className="text-[17px] font-bold !text-white">{t("One job, start to finish", "Un trabajo, de principio a fin")}</h2>
-        <p className="font-mono text-[12px] uppercase tracking-[0.12em] text-[#C9D2E0]">{t("Illustrative demo · sample data · no real permit is sent", "Demo ilustrativa · datos de muestra · no se envía ningún permiso real")}</p>
+        <p className="font-mono text-[12px] uppercase tracking-[0.12em] text-[var(--pd-on-navy-muted)]">{t("Illustrative demo · sample data · no real permit is sent", "Demo ilustrativa · datos de muestra · no se envía ningún permiso real")}</p>
       </div>
-      <div role="tablist" aria-label={t("Workflow steps", "Pasos del flujo")} className="flex gap-1 overflow-x-auto rounded-[14px] bg-[#13264A] p-1 sm:grid sm:grid-cols-5">
+      <div role="tablist" aria-label={t("Workflow steps", "Pasos del flujo")} className="flex gap-1 overflow-x-auto rounded-[14px] bg-[var(--pd-navy-800)] p-1 sm:grid sm:grid-cols-5">
         {STEPS.map(([en, es], i) => (
           <button key={en} role="tab" type="button" aria-selected={s === i} onClick={() => setS(i as Step)}
-            className={`flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-[10px] px-3 text-[13px] sm:px-1 font-bold sm:text-[15px] ${s === i ? "bg-white text-[var(--pd-navy-900)]" : "text-white hover:bg-[#1B3159]"}`}>
-            <span aria-hidden className={`hidden size-6 place-items-center rounded-full text-[12px] sm:grid ${s === i ? "bg-[var(--pd-orange-700)] text-white" : "bg-[#2A3F63] text-white"}`}>{i + 1}</span>{t(en, es)}
+            className={`flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-[10px] px-3 text-[13px] sm:px-1 font-bold sm:text-[15px] ${s === i ? "bg-white text-[var(--pd-navy-900)]" : "text-white hover:bg-[var(--pd-navy-700)]"}`}>
+            <span aria-hidden className={`hidden size-6 place-items-center rounded-full text-[12px] sm:grid ${s === i ? "bg-[var(--pd-orange-700)] text-white" : "bg-[var(--pd-navy-700)] text-white"}`}>{i + 1}</span>{t(en, es)}
           </button>
         ))}
       </div>
-      <div className="my-4 h-1 overflow-hidden rounded-full bg-[#2A3F63]"><div className="h-full bg-[var(--pd-orange-500)] transition-[width] duration-300" style={{ width: `${((s + 1) / 5) * 100}%` }} /></div>
+      <div className="my-4 h-1 overflow-hidden rounded-full bg-[var(--pd-navy-700)]"><div className="h-full bg-[var(--pd-orange-500)] transition-[width] duration-300" style={{ width: `${((s + 1) / 5) * 100}%` }} /></div>
       <div role="tabpanel" aria-live="polite" className="grid items-start gap-5 md:grid-cols-[310px_minmax(0,1fr)]">
         <div className={s >= 2 ? "hidden md:block" : ""}>{phone}</div>
         <div className={s < 2 ? "hidden md:block" : ""}>{office}</div>

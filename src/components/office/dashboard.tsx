@@ -9,12 +9,12 @@ import { OfficeCard, OfficeShell } from "./shell";
 export const PIPELINE = [
   { key: "draft", en: "New / Draft", es: "Nuevo / Borrador", cls: "bg-[var(--pd-navy-900)] text-white", num: "text-white" },
   { key: "field", en: "Field capture", es: "Captura en campo", cls: "bg-[var(--pd-gray-100)] text-[var(--pd-navy-900)]", num: "" },
-  { key: "missing", en: "Missing info", es: "Falta información", cls: "bg-[#FFEDD5] text-[#9A3412]", num: "" },
-  { key: "review", en: "Office review", es: "Revisión de oficina", cls: "bg-[#E0E7FF] text-[#1E3A8A]", num: "" },
+  { key: "missing", en: "Missing info", es: "Falta información", cls: "bg-[var(--pd-orange-100)] text-[var(--pd-orange-800)]", num: "" },
+  { key: "review", en: "Office review", es: "Revisión de oficina", cls: "bg-[var(--pd-info-bg)] text-[var(--pd-info-fg)]", num: "" },
   { key: "ready", en: "Ready to submit", es: "Listo para presentar", cls: "bg-[var(--pd-gray-100)] text-[var(--pd-navy-900)]", num: "" },
-  { key: "submitted", en: "Submitted", es: "Presentado", cls: "bg-[#EDE9FE] text-[#5B21B6]", num: "" },
-  { key: "corrections", en: "Corrections", es: "Correcciones", cls: "bg-[#FEE2E2] text-[#991B1B]", num: "" },
-  { key: "approved", en: "Approved", es: "Aprobado", cls: "bg-[#DCFCE7] text-[#166534]", num: "" },
+  { key: "submitted", en: "Submitted", es: "Presentado", cls: "bg-[var(--pd-submitted-bg)] text-[var(--pd-submitted-fg)]", num: "" },
+  { key: "corrections", en: "Corrections", es: "Correcciones", cls: "bg-[var(--pd-danger-bg)] text-[var(--pd-danger-fg)]", num: "" },
+  { key: "approved", en: "Approved", es: "Aprobado", cls: "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]", num: "" },
 ] as const;
 export type StageKey = (typeof PIPELINE)[number]["key"];
 
@@ -30,8 +30,8 @@ export type DashData = {
 };
 
 const STATUS_PILL: Record<StageKey, string> = {
-  draft: "bg-[var(--pd-gray-100)] text-[var(--pd-navy-900)]", field: "bg-[var(--pd-gray-100)] text-[var(--pd-gray-700)]", missing: "bg-[#FFEDD5] text-[#9A3412]",
-  review: "bg-[#E0E7FF] text-[#1E3A8A]", ready: "bg-[#E0F2FE] text-[#075985]", submitted: "bg-[#EDE9FE] text-[#5B21B6]", corrections: "bg-[#FEE2E2] text-[#991B1B]", approved: "bg-[#DCFCE7] text-[#166534]",
+  draft: "bg-[var(--pd-gray-100)] text-[var(--pd-navy-900)]", field: "bg-[var(--pd-gray-100)] text-[var(--pd-gray-700)]", missing: "bg-[var(--pd-orange-100)] text-[var(--pd-orange-800)]",
+  review: "bg-[var(--pd-info-bg)] text-[var(--pd-info-fg)]", ready: "bg-[var(--pd-ready-bg)] text-[var(--pd-ready-fg)]", submitted: "bg-[var(--pd-submitted-bg)] text-[var(--pd-submitted-fg)]", corrections: "bg-[var(--pd-danger-bg)] text-[var(--pd-danger-fg)]", approved: "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]",
 };
 
 export const SAMPLE: DashData = {
@@ -61,14 +61,14 @@ export const SAMPLE: DashData = {
   months: [{ label: "Jul", jobs: 52, approved: 34 }, { label: "Aug", jobs: 61, approved: 41 }, { label: "Sep", jobs: 55, approved: 39 }, { label: "Oct", jobs: 70, approved: 48 }, { label: "Nov", jobs: 84, approved: 62 }],
 };
 
-const TONE = { orange: "bg-[#EA580C]", amber: "bg-[#D97706]", green: "bg-[#16A34A]", violet: "bg-[#7C3AED]" } as const;
+const TONE = { orange: "bg-[var(--pd-orange-600)]", amber: "bg-[var(--pd-conflict-border)]", green: "bg-[var(--pd-chart-1)]", violet: "bg-[var(--pd-chart-2)]" } as const;
 
 function Kpi({ label, value, sub, dark }: { label: string; value: string; sub: string; dark?: boolean }) {
   return (
     <div className={`flex min-h-[118px] min-w-0 flex-col gap-1 rounded-[16px] border p-3.5 ${dark ? "border-transparent bg-[var(--pd-navy-900)] text-white" : "border-[var(--pd-gray-200)] bg-white"}`}>
       <p className={`text-[13px] font-bold ${dark ? "text-white" : "text-[var(--pd-navy-900)]"}`}>{label}</p>
       <p className="font-display text-[28px] font-bold leading-none tracking-[-0.02em]">{value}</p>
-      <p className={`mt-auto text-[12px] ${dark ? "text-[#C9D2E0]" : "text-[var(--pd-gray-600)]"}`}>{sub}</p>
+      <p className={`mt-auto text-[12px] ${dark ? "text-[var(--pd-on-navy-muted)]" : "text-[var(--pd-gray-600)]"}`}>{sub}</p>
     </div>
   );
 }
@@ -76,15 +76,15 @@ function Kpi({ label, value, sub, dark }: { label: string; value: string; sub: s
 function Donut({ counts }: { counts: DashData["counts"] }) {
   const { t } = useLang();
   const parts = [
-    { k: "approved", c: "#16A34A", n: counts.approved ?? 0, l: t("Approved", "Aprobado") },
-    { k: "submitted", c: "#7C3AED", n: counts.submitted ?? 0, l: t("Submitted", "Presentado") },
-    { k: "review", c: "#2563EB", n: counts.review ?? 0, l: t("Office review", "Revisión de oficina") },
-    { k: "missing", c: "#EA580C", n: counts.missing ?? 0, l: t("Missing info", "Falta información") },
-    { k: "other", c: "#94A3B8", n: (counts.draft ?? 0) + (counts.field ?? 0) + (counts.ready ?? 0) + (counts.corrections ?? 0), l: t("Draft and other", "Borrador y otros") },
+    { k: "approved", c: "var(--pd-chart-1)", n: counts.approved ?? 0, l: t("Approved", "Aprobado") },
+    { k: "submitted", c: "var(--pd-chart-2)", n: counts.submitted ?? 0, l: t("Submitted", "Presentado") },
+    { k: "review", c: "var(--pd-chart-3)", n: counts.review ?? 0, l: t("Office review", "Revisión de oficina") },
+    { k: "missing", c: "var(--pd-orange-600)", n: counts.missing ?? 0, l: t("Missing info", "Falta información") },
+    { k: "other", c: "var(--pd-chart-5)", n: (counts.draft ?? 0) + (counts.field ?? 0) + (counts.ready ?? 0) + (counts.corrections ?? 0), l: t("Draft and other", "Borrador y otros") },
   ];
   const total = parts.reduce((a, p) => a + p.n, 0);
   let acc = 0;
-  const stops = total ? parts.map((p) => { const a = (acc / total) * 360; acc += p.n; return `${p.c} ${a}deg ${(acc / total) * 360}deg`; }).join(",") : "#E5E7EB 0deg 360deg";
+  const stops = total ? parts.map((p) => { const a = (acc / total) * 360; acc += p.n; return `${p.c} ${a}deg ${(acc / total) * 360}deg`; }).join(",") : "var(--pd-gray-200) 0deg 360deg";
   return (
     <div className="flex items-center gap-6">
       <div className="relative size-[132px] shrink-0 rounded-full" style={{ background: `conic-gradient(${stops})` }} role="img" aria-label={parts.map((p) => `${p.l} ${p.n}`).join(", ")}>
@@ -107,13 +107,13 @@ function Bars({ months }: { months: DashData["months"] }) {
           <div key={m.label} className="flex flex-1 flex-col items-center gap-1.5">
             <div className="flex h-[128px] w-full items-end justify-center gap-1">
               <div className="w-1/2 max-w-[28px] rounded-t-[4px] bg-[var(--pd-navy-900)]" style={{ height: `${(m.jobs / max) * 100}%` }} />
-              <div className="w-1/2 max-w-[28px] rounded-t-[4px] bg-[#EA580C]" style={{ height: `${(m.approved / max) * 100}%` }} />
+              <div className="w-1/2 max-w-[28px] rounded-t-[4px] bg-[var(--pd-orange-600)]" style={{ height: `${(m.approved / max) * 100}%` }} />
             </div>
             <span className="text-[12px] text-[var(--pd-gray-600)]">{m.label}</span>
           </div>
         ))}
       </div>
-      <p className="mt-2 flex gap-4 text-[12px] text-[var(--pd-gray-700)]"><span className="flex items-center gap-1.5"><span aria-hidden className="size-2.5 bg-[var(--pd-navy-900)]" />{t("Jobs sent", "Trabajos enviados")}</span><span className="flex items-center gap-1.5"><span aria-hidden className="size-2.5 bg-[#EA580C]" />{t("Approved", "Aprobados")}</span></p>
+      <p className="mt-2 flex gap-4 text-[12px] text-[var(--pd-gray-700)]"><span className="flex items-center gap-1.5"><span aria-hidden className="size-2.5 bg-[var(--pd-navy-900)]" />{t("Jobs sent", "Trabajos enviados")}</span><span className="flex items-center gap-1.5"><span aria-hidden className="size-2.5 bg-[var(--pd-orange-600)]" />{t("Approved", "Aprobados")}</span></p>
     </div>
   );
 }
@@ -133,7 +133,7 @@ export function OfficeDashboard({ data, sample, loading }: { data: DashData; sam
 
   const rail = (
     <>
-      <OfficeCard title={<>{t("Notifications", "Avisos")} <span className="ml-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[12px] text-[#991B1B]">{data.notes.length}</span></>}>
+      <OfficeCard title={<>{t("Notifications", "Avisos")} <span className="ml-1 rounded-full bg-[var(--pd-danger-bg)] px-2 py-0.5 text-[12px] text-[var(--pd-danger-fg)]">{data.notes.length}</span></>}>
         {data.notes.length === 0 ? <p className="text-[14px] text-[var(--pd-gray-600)]">{t("Nothing new.", "Nada nuevo.")}</p> : (
           <ul className="flex flex-col gap-3">{data.notes.map((x, i) => <li key={i} className="flex gap-2.5"><span aria-hidden className={`mt-1.5 size-2.5 shrink-0 rounded-full ${TONE[x.tone]}`} /><div><p className="text-[14px] font-bold">{x.title}</p><p className="text-[12px] text-[var(--pd-gray-600)]">{x.detail}</p></div></li>)}</ul>
         )}
