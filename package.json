@@ -10,7 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsr generate && tsc --noEmit",
-    "test": "node --test"
+    "test": "node --test",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "4.0.83",
