@@ -7,6 +7,7 @@ import { loadPhotos, JOB_ID, type PhotoRec } from "../lib/photos";
 import { draftJobId, syncPhotos } from "../lib/photo-sync";
 import { useLang } from "../lib/lang";
 import { useDemo } from "../components/demo";
+import { readDraftValues } from "../lib/job-draft";
 
 export const Route = createFileRoute("/sync")({
   head: () => ({ meta: [{ title: "Sync — PermitDraft" }, { name: "description", content: "What is still waiting to upload from this phone, and a way to try again." }, { name: "robots", content: "noindex" }] }),
@@ -32,7 +33,9 @@ export function SyncPage() {
   const [recs, setRecs] = useState<PhotoRec[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [lastTry, setLastTry] = useState<{ at: Date; left: number } | null>(null);
-  const refresh = () => loadPhotos(JOB_ID).then(setRecs).catch(() => setRecs([]));
+  const [readErr, setReadErr] = useState(false);
+  // A failed read is not an empty queue: say so and offer to read again.
+  const refresh = () => loadPhotos(JOB_ID).then((r) => { setReadErr(false); setRecs(r); }).catch(() => { setReadErr(true); setRecs(null); });
   useEffect(() => { void refresh(); }, []);
 
   const waiting = (recs ?? []).filter((r) => !r.uploaded);
@@ -51,7 +54,11 @@ export function SyncPage() {
     return { job, total: all.length, up, last: Math.max(...all.map((r) => r.savedAt)) };
   });
   const open = jobs.filter((j) => j.up < j.total), delivered = jobs.filter((j) => j.up === j.total && j.total > 0);
-  const label = (job: string) => (job === JOB_ID ? "PD-1187 · 1187 Oak St" : job.toUpperCase());
+  // The job in progress: its own typed address (the demo's sample job reads as PD-1187).
+  const draft = (() => { try { return readDraftValues(); } catch { return {} as Record<string, string>; } })();
+  const label = (job: string) => job !== JOB_ID ? job.toUpperCase()
+    : demo ? "PD-1187 · 1187 Oak St"
+    : [draft.addr, draft.city].filter(Boolean).join(", ") || t("Job in progress", "Trabajo en curso");
 
   return (
     <AppPage bottom>
@@ -67,7 +74,8 @@ export function SyncPage() {
           </div>
           <h1 className="font-display text-[32px] font-bold tracking-[-0.02em] !text-white">{t("Sync", "Sincronizar")}</h1>
           <p className="text-[15px] leading-snug text-[#C9D2E0]" role="status">
-            {recs === null ? t("Checking this phone…", "Revisando este teléfono…")
+            {readErr ? t("Could not read this phone's saved photos. Nothing was deleted.", "No se pudieron leer las fotos guardadas en este teléfono. No se borró nada.")
+              : recs === null ? t("Checking this phone…", "Revisando este teléfono…")
               : open.length === 0 ? t("Every photo on this phone has uploaded. A job reaches the office only after Finish & Send.", "Todas las fotos de este teléfono se subieron. Un trabajo llega a la oficina solo después de Finalizar y enviar.")
               : t(`${open.length} ${open.length === 1 ? "job" : "jobs"} waiting to upload · they upload on their own when this screen is open and you have signal`, `${open.length} ${open.length === 1 ? "trabajo" : "trabajos"} esperando para subir · se suben solos cuando esta pantalla está abierta y tiene señal`)}
           </p>
@@ -99,6 +107,7 @@ export function SyncPage() {
               ))}
             </section>
           )}
+          {readErr && <button type="button" onClick={() => void refresh()} className="h-12 rounded-[12px] border border-[#C5CDD8] bg-white text-[15px] font-bold">{t("Read the phone again", "Leer el teléfono de nuevo")}</button>}
           {lastTry && (
             <p className="text-[13px] text-[var(--pd-gray-600)]" role="status">
               {t(`Last try ${time(lastTry.at)}: `, `Último intento ${time(lastTry.at)}: `)}
