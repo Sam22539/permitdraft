@@ -59,8 +59,16 @@ export const sendOfficePacket = createServerFn({ method: "POST" })
     const waiting = data.slots.filter((s) => !have.has(s)).length;
     const office = await import("./office.server");
     const capture = office.isTestPerson(u.user);
-    const existing = await db.from("office_packets").select("id, sent_by_name, sent_at").eq("user_id", uid).eq("job_id", data.jobId).maybeSingle();
+    const existing = await db.from("office_packets").select("id, sent_by_name, sent_at, company_id, captured_fields, photo_links").eq("user_id", uid).eq("job_id", data.jobId).maybeSingle();
     if (existing.data) {
+      // A packet sent before migration 0030 went live has no version yet: seal its stored snapshot as version 1 now.
+      if (existing.data.company_id) {
+        const has = await db.from("packet_versions").select("id").eq("packet_id", existing.data.id).limit(1);
+        if (!has.error && (has.data ?? []).length === 0) {
+          const links = Array.isArray(existing.data.photo_links) ? (existing.data.photo_links as { photoId?: unknown }[]) : [];
+          await sealFirstVersion(data.token, String(existing.data.id), existing.data.captured_fields ?? {}, links.map((l) => String(l.photoId ?? "")).filter(Boolean));
+        }
+      }
       // Finish again: the same packet; its one notice is tried only if it never went (the claim keeps it to one email).
       const notice = await office.sendOfficeNotice(db, String(existing.data.id), String(existing.data.sent_at), capture);
       return { ok: true as const, created: false, sentBy: existing.data.sent_by_name as string, sentAt: existing.data.sent_at as string, notice };
