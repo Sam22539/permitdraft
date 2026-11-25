@@ -19,6 +19,11 @@
   --pd-orange-300: #FDBA74; /* eyebrow text and links on navy */
   --pd-orange-100: #FFEDD5; /* soft orange badge background */
 
+  /* ---------- Marketing surfaces (homepage direction A) ---------- */
+  --pd-warm-white: #FAF9F6;  /* marketing page canvas */
+  --pd-warm-border: #E6E2D8; /* hairlines and card borders on warm white */
+  --pd-black: #05080F;       /* homepage direction B canvas */
+
   /* ---------- Neutrals ---------- */
   --pd-white: #FFFFFF;
   --pd-gray-50:  #F4F5F7;   /* app background (office + tech app) */

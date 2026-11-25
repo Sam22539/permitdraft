@@ -24,17 +24,18 @@ a{color:#C2410C}
 <div style="min-height: 100vh; display: flex; flex-direction: column">
 <header style="background: #0B1B33; color: #fff; padding: 14px 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
 <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<img src="/_blob/a30cbbc821751d8b62862841bb3975f0" alt="PermitDraft" width="28" height="28">
 <a href="#" style="color: #FDBA74; font-weight: 600; font-size: 14px; text-decoration: none">← Office review queue</a>
 <span style="color: #3B5078">|</span>
-<span style="font-weight: 700">PD-2026-10482 · 4412 Alder Ct, Sacramento</span>
+<span style="font-weight: 700">PD-1187 · 1187 Oak St, Pasadena</span>
 </div>
-<div style="display: flex; gap: 8px; align-items: center"><span class="mono" style="background: #13264A; border: 1px solid #22385F; border-radius: 99px; padding: 4px 10px; font-size: 12px; color: #C3CEDD">{{ verLabel }}</span><span style="width: 34px; height: 34px; border-radius: 99px; background: #C2410C; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">SM</span></div>
+<div style="display: flex; gap: 8px; align-items: center"><span class="mono" style="background: #13264A; border: 1px solid #22385F; border-radius: 99px; padding: 4px 10px; font-size: 12px; color: #C3CEDD">{{ verLabel }}</span><span style="width: 34px; height: 34px; border-radius: 99px; background: #C2410C; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">MR</span></div>
 </header>
 
 <div style="padding: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box">
 <main style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-end">
-<div><h1 style="font-size: 26px; font-weight: 800">Heat pump change-out</h1><p style="color: #5A6779; font-size: 14px">Marcus Reyes · captured by Javier Diaz · Nov 23, 10:14 AM · Sacramento County</p></div>
+<div><h1 style="font-size: 26px; font-weight: 800">Heat pump change-out</h1><p style="color: #5A6779; font-size: 14px">Sample customer · captured by Luis M. · Nov 24, 9:47 AM · City of Pasadena</p></div>
 <span style="background: #E0E7FF; color: #1E3A8A; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700">Office review</span>
 </div>
 
@@ -48,18 +49,25 @@ a{color:#C2410C}
 <section class="cd" style="border: 2px solid #D97706; padding: 18px; display: flex; flex-direction: column; gap: 14px">
 <div style="display: flex; gap: 10px; align-items: center"><span style="background: #FEF3C7; color: #78350F; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700">Conflict</span><h2 style="font-size: 17px">Panel rating</h2></div>
 <div style="display: flex; flex-wrap: wrap; gap: 14px">
-<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Javier entered</p><p style="font-size: 26px; font-weight: 800">100 A</p></div>
+<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Luis entered</p><p style="font-size: 26px; font-weight: 800">100 A</p></div>
 <div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Panel label photo reads</p><p style="font-size: 26px; font-weight: 800">125 A</p></div>
 <div style="flex: 1 1 200px; height: 110px; border-radius: 10px; background: #3A4352; color: #C3CEDD; font-size: 13px; display: flex; align-items: center; justify-content: center">[Panel label photo]</div>
 </div>
-<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" class="ob" onClick="{{ usePhoto }}">Use photo value (125 A)</button><button type="button" class="gb" onClick="{{ askTech }}">Ask Javier to confirm</button><button type="button" class="gb" onClick="{{ keep }}">Keep 100 A, add note</button></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" class="ob" onClick="{{ usePhoto }}">Use photo value (125 A)</button><button type="button" class="gb" onClick="{{ askTech }}">Ask Luis to confirm</button><button type="button" class="gb" onClick="{{ keep }}">Keep 100 A, add note</button></div>
 </section>
 </sc-if>
 <sc-if value="{{ asked }}" hint-placeholder-val="{{ false }}">
-<section style="background: #FFFBEB; border: 1px solid #F2C46B; border-radius: 14px; padding: 16px"><p style="font-weight: 700; color: #78350F">Waiting on Javier</p><p style="font-size: 14px; color: #78350F">He got the question on his phone, on this job. You'll be notified when he answers.</p></section>
+<section style="background: #FFFBEB; border: 1px solid #F2C46B; border-radius: 14px; padding: 16px"><p style="font-weight: 700; color: #78350F">Waiting on Luis</p><p style="font-size: 14px; color: #78350F">He got the question on his phone, on this job. You'll be notified when he answers.</p></section>
 </sc-if>
 <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
-<section style="background: #F0FDF4; border: 1px solid #A7E3BC; border-radius: 14px; padding: 16px"><p style="font-weight: 700; color: #14532D">{{ doneLabel }}</p><p style="font-size: 14px; color: #14532D">Saved as a new version. The earlier version is kept read-only.</p></section>
+<section class="cd" style="border: 2px solid #A7E3BC; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap"><span style="background: #DCFCE7; color: #166534; border-radius: 99px; padding: 3px 10px; font-size: 12px; font-weight: 700">Office decision</span><h2 style="font-size: 17px">{{ doneLabel }}</h2></div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">Luis entered (v1)</p><p style="{{ v1Style }}">100 A</p></div>
+<div style="flex: 1 1 160px; background: #F4F5F7; border-radius: 10px; padding: 14px"><p style="font-size: 13px; color: #5A6779">{{ v2Label }}</p><p style="font-size: 26px; font-weight: 800">{{ v2Value }}</p></div>
+</div>
+<p style="font-size: 14px; color: #3E4A5C">Saved as version 2 (7F3A·92C1). Version 1 is kept read-only.</p>
+</section>
 </sc-if>
 
 <section class="cd" style="overflow: hidden">
@@ -105,27 +113,29 @@ a{color:#C2410C}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
 class Component extends DCLogic {
-  constructor(p) { super(p); this.state = { c: 'open', by: '', sent: false, log: [{ t: '10:14', x: 'Javier sent packet v1 from the job' }, { t: '10:14', x: 'Office email delivered' }, { t: '10:21', x: 'Sam opened the packet' }] }; }
+  constructor(p) { super(p); this.state = { c: 'open', by: '', sent: false, log: [{ t: '9:47', x: 'Luis sent packet v1 from the job' }, { t: '9:47', x: 'Office email delivered (confirmed)' }, { t: '9:52', x: 'Maria opened the packet' }] }; }
   renderVals() {
     const s = this.state; const done = s.c === 'done';
-    const addLog = (x) => s.log.concat([{ t: '10:' + (22 + s.log.length), x: x }]);
+    const addLog = (x) => s.log.concat([{ t: '9:' + (53 + s.log.length), x: x }]);
     const ok = 'display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700; background: #DCFCE7; color: #166534';
     const warn = 'display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700; background: #FEF3C7; color: #78350F';
     const rows = [
       { k: 'Equipment', v: 'Carrier 25VNA036', src: 'Data plate photo', check: 'Matched', pill: ok },
-      { k: 'Model / serial', v: '25VNA036A003 / 4823X9', src: 'Entered by Javier', check: 'Matched', pill: ok },
+      { k: 'Model / serial', v: '25VNA036A003 / 4823X9', src: 'Entered by Luis', check: 'Matched', pill: ok },
       { k: 'Refrigerant', v: 'R-454B', src: 'Entered · plate agrees', check: 'Matched', pill: ok },
       { k: 'Panel rating', v: done ? s.by === 'keep' ? '100 A' : '125 A' : '100 A', src: done ? 'Decided in v2' : 'Entered · photo disagrees', check: done ? 'Resolved' : 'Conflict', pill: done ? ok : warn },
-      { k: 'Duct sealing', v: 'Not required (like-for-like)', src: 'Entered by Javier', check: 'Matched', pill: ok },
+      { k: 'Duct sealing', v: 'Not required (like-for-like)', src: 'Entered by Luis', check: 'Matched', pill: ok },
       { k: 'Clearance', v: '24 in left side', src: 'Outdoor unit photo', check: 'Matched', pill: ok },
     ];
-    return { rows: rows, verLabel: done ? 'Packet v2' : 'Packet v1', conflictCount: done ? '0' : '1', okCount: done ? '6' : '5',
+    return { rows: rows, verLabel: done ? 'Packet v2 · 7F3A' : 'Packet v1 · A91C', conflictCount: done ? '0' : '1', okCount: done ? '6' : '5',
       open: s.c === 'open', asked: s.c === 'asked', done: done,
-      doneLabel: s.by === 'keep' ? 'Kept 100 A with a note.' : 'Panel rating set to 125 A from the label photo.',
-      usePhoto: () => this.setState({ c: 'done', by: 'photo', log: addLog('Sam set panel rating to 125 A · v2 saved') }),
-      keep: () => this.setState({ c: 'done', by: 'keep', log: addLog('Sam kept 100 A with a note · v2 saved') }),
-      askTech: () => this.setState({ c: 'asked', log: addLog('Sam asked Javier to confirm the panel rating') }),
-      hint: s.sent ? 'Sent to Marcus Reyes. You will see it here the moment he signs.' : done ? 'Everything is resolved. Ready for the contractor.' : 'Resolve the conflict first.',
+      doneLabel: s.by === 'keep' ? 'Panel rating kept at 100 A, with a note' : 'Panel rating → 125 A from the label photo',
+      v1Style: 'font-size: 26px; font-weight: 800; ' + (s.by === 'keep' ? '' : 'color: #5A6779; text-decoration: line-through'),
+      v2Label: s.by === 'keep' ? 'Kept (v2) · note added' : 'Label photo (v2)', v2Value: s.by === 'keep' ? '100 A' : '125 A',
+      usePhoto: () => this.setState({ c: 'done', by: 'photo', log: addLog('Maria set panel rating to 125 A from the label photo · v2 saved') }),
+      keep: () => this.setState({ c: 'done', by: 'keep', log: addLog('Maria kept 100 A with a note · v2 saved') }),
+      askTech: () => this.setState({ c: 'asked', log: addLog('Maria asked Luis to confirm the panel rating') }),
+      hint: s.sent ? 'Sent to Dana K. (contractor). You will see it here the moment she signs.' : done ? 'Everything is resolved. Ready for the contractor.' : 'Resolve the conflict first.',
       cantSend: !done || s.sent, sendLabel: s.sent ? 'Sent for signature ✓' : 'Send v2 for signature',
       send: () => this.setState({ sent: true, log: addLog('Sent v2 for signature · email delivered') }),
       log: s.log.slice().reverse() };

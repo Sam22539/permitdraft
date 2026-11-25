@@ -4,31 +4,68 @@ Each screen has a reference file in `mockups/` (open it in the PermitDraft Redes
 
 ---
 
-## A. Homepage — permitdraft.co (`Homepage.dc.html`)
+## A. Homepage — permitdraft.co
 
-A public marketing page. On desktop the content is 1200 max width. Everything must stack cleanly at 390 px.
+> **Status:** two directions are waiting on Sam's pick. **A is recommended by both ChatGPT and Claude.**
+> - **A: warm-white editorial.** `HomepageA.dc.html` (mobile: `HomepageA-mobile.dc.html`).
+> - **B: executive navy, cinematic.** `HomepageV2.dc.html` (mobile: `HomepageB-mobile.dc.html`).
+> - Renders at 320/390/768/1024/1440 are in `renders/round3/`.
+> - `Homepage.dc.html` (v1) is superseded. Don't build it.
 
-1. **Nav (navy):** logo (document icon in Orange 500 + "Permit**Draft**" in Space Grotesk 24/700, "Draft" in Orange 500), then the links How it works · Products · Pricing · Sign in, then a primary button **Book a demo**.
-2. **Hero (navy):**
-   - Left side, top to bottom:
-     - Eyebrow "For HVAC contractors · California & Arizona".
-     - H1 "Permit-ready before the truck leaves the driveway." (84 px).
-     - Lead paragraph.
-     - Buttons **Book a demo** (primary) and **See how it works** (outline on navy).
-     - A fine-print line.
-   - Right side: a phone mockup showing the job checklist, a floating white "Permit draft v2 · Signed" card, and a small "Delivered to office" status chip.
-   - Use real product screenshots once they exist.
-3. **Proof strip (navy, 1 px navy-700 borders top and bottom):** four columns: Offline first · Every value has proof · One locked version · English y Español.
-4. **How it works (gray-50):** a 56 px title, then three white cards with big orange 01/02/03: Capture, Review, Sign.
-5. **Products (white):** two 24 px-radius panels side by side.
-   - Technician app: navy panel.
-   - Office portal: light panel.
-   - Each panel has an eyebrow, a 36 px title, a paragraph and three feature chips.
-6. **Pricing (gray-50):** "One plan. Your whole crew." plus a Core card with a 2 px navy border. **The price is `[PRICE]` until Sam decides ($49 vs $69).** CTA: Start with the demo.
-7. **Closing CTA (navy):** "Stop doing permits at the kitchen table." (72 px), centered, with two buttons.
-8. **Footer (navy-950):** logo, the draft-only legal line, and the links Coverage · Resources · Privacy · Terms · Español.
+### A1. Nav (navy `#0B1B33`, 68 px tall)
+- The real logo `public/generated-assets/company-logo.png` (white variant `docs/design/assets/pd-logo-white.png` on navy), then "PermitDraft" in Inter 19/700.
+- Desktop links: How it works · Pricing (`/pricing`) · Technician app (`/demo`, *proposed target*) · **Office sign in** (`/sign-in`, outlined button).
+- At ≤760 px the links hide and a 44 px **Menu** button (`aria-expanded`, `aria-controls`) opens a stacked list. Office sign in and Technician app come first, each row 48 px tall.
 
-Motion is subtle. Hero elements fade up 12 px over 400 ms, staggered. The floating card in the hero drifts 6 px slowly. Respect `prefers-reduced-motion`. No gradient washes, no stock photos of people.
+### A2. Hero (warm white `#FAF9F6`)
+- Eyebrow "For HVAC contractors in California & Arizona". *The coverage wording is an open decision: the code also covers Texas.*
+- H1: "Finish the job. Send the paperwork to the office." Space Grotesk 700, `clamp(38px, 6.2vw, 84px)`.
+- Mechanism line, 18–22/600: "Job-site photos → permit draft → office review → contractor signature."
+- A 17 px supporting paragraph, then **Book a demo** (`/early-access`) and **See the workflow** (`#flow`).
+
+### A3. Interactive workflow demo (`#flow`, navy panel, radius 28)
+- Label: "Illustrative demo · sample data · no real permit is sent".
+- **5-step stepper:** Capture → Queued → Delivered → Review → Sign.
+  - Real `<button>`s with `aria-pressed` and 48 px controls.
+  - The grid is `repeat(auto-fit, minmax(118px, 1fr))`: one row on desktop, 2 columns at 390 px, 1 at 320 px.
+  - Manual only: **no autoplay**.
+  - The caption is in an `aria-live="polite"` region; focus never moves.
+  - A **Next step → / Restart demo** button.
+- **Phone (job PD-1187)** and **office panel** sit side by side on desktop and **stack on mobile**. The office panel is never hidden.
+- What each step shows:
+  - **Capture:** 4/6 captured, "Saved on phone". The office shows "Nothing received".
+  - **Queued:** "Queued · no signal" (amber). The button reads "Waiting for signal · sends automatically". The office still shows nothing.
+  - **Delivered:** "Delivered to office". The office gets packet v1 with a conflict card (100 A typed vs. 125 A on the label photo).
+  - **Review:** an office decision card (100 A struck through as v1 → 125 A as v2, "Maria chose Use photo value").
+  - **Sign:** "Signed v2 · ready to file".
+- Minimum text sizes: checklist labels 14 px, values and pills 12 px.
+
+### A4. Capability strip
+Four columns, each a title plus one line: Capture offline · Evidence-linked · Version-locked · English y Español.
+
+### A5. Evidence
+- "The photo is the proof."
+- A data-plate figure with the model line outlined in orange, next to the draft field card ("Model number · 25VNA036A003 · Source: data plate photo · Matched").
+- The figure is an illustration until a licensed photo exists, and its caption says so.
+
+### A6. Two products
+Two cards on the same job, PD-1187:
+- the technician app (white card) with a checklist crop
+- the office portal (navy card) with a pipeline and table crop
+
+### A7. Trust, pricing, CTA, footer
+- **Trust:** a version timeline (v1 · A91C → v2 · 7F3A → Signed v2).
+- **Pricing:** Core at `[PRICE]`.
+- **CTA:** a navy closing section, "See it on a real heat pump change-out."
+- **Footer:** the draft-only legal line, unchanged.
+
+### A8. Claims needing Sam's approval before going public
+- Reading values from photos
+- Automatic send on reconnect
+- Version-locked signatures
+- Email delivery confirmation
+
+These aren't built yet (see the Round 3 table in `review/claude-notes.md`). Soften or remove them until they're approved.
 
 ---
 
@@ -41,6 +78,15 @@ Motion is subtle. Hero elements fade up 12 px over 400 ms, staggered. The floati
 - Only company admins and office reviewers can sign in here.
 
 ### B2. Dashboard (`OfficeDashboard.dc.html`)
+> **Desktop-first (Sam: critical).** The office portal is designed for desktop. At **≥ 1200 px** it must use the desktop layout:
+> - the fixed 230 px navy sidebar
+> - **6 KPI cards in one row**
+> - **8 pipeline tiles in one row**
+> - the full jobs table, with tracking numbers and dates on one line
+> - a 2×2 grid of bottom cards
+> - a fixed 280 px right rail
+>
+> Reference widths are 1440 (primary), 1280 and 1920. Smaller layouts (tablet, phone) are fallbacks only, and they must never change the desktop composition.
 - **Sidebar (navy 900, 230 wide):**
   - Logo at the top.
   - Navigation: Dashboard (active: Orange 700 fill) · Customers · Leads (red count badge) · Jobs / Projects · Permits · Technicians · Dispatch & Schedule · Documents · Equipment · Inspections · Invoices & Billing · Reports & Analytics · Automation · Integrations · Company Settings.
@@ -118,11 +164,25 @@ The reference frame is 390 × 844. Every primary action is at least 56 px tall. 
 - **Amber card:** the office's message, "You entered" vs "Label photo", the photo, **Change to {value}** (primary) and **Keep {value} and add a note**.
 - The answer goes back to the office and creates a new packet version.
 
-### C5. Sent (`TechSent.dc.html`)
+### C5. Sent (`TechSent.dc.html`) and Queued (`TechQueued.dc.html`)
 - Big green check, "Delivered to the office", address and time.
 - Receipt table: Packet version + fingerprint · Items · Photos uploaded · Office notified ("Email confirmed").
 - Buttons: **Next job · {address}** (primary) and **Back to today's jobs**.
-- If there's no signal, the screen title becomes "Saved on phone. Will send when you have signal", and the receipt rows show "Waiting".
+- With no signal, show **`TechQueued.dc.html`** instead:
+- an amber "Queued · no signal" pill and the heading "Saved on your phone"
+- receipt rows: photos uploaded "0 of 3 · waiting", office notified "Not yet"
+- the line "You can keep working. Queued jobs show on the Sync tab."
+
+It never says "sent" until the server confirms.
+
+---
+
+### C6. Sync tab (`TechSync.dc.html`)
+- Lists queued packets: job, version, photos uploaded (with a progress bar) and the last try with its reason.
+- Lists jobs delivered today, each with "office email confirmed".
+- A 56 px **Try again now** button.
+- The tab label shows the waiting count.
+- Never marks a job as sent before the office has it.
 
 ---
 
