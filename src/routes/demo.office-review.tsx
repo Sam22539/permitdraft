@@ -23,7 +23,7 @@ const START: ReviewData = {
   ],
   photos: [{ label: "Data plate" }, { label: "Outdoor unit" }, { label: "Panel label" }, { label: "Line set" }],
   activity: [{ time: "9:52", text: "Maria opened the packet" }, { time: "9:47", text: "Office email delivered (confirmed)" }, { time: "9:47", text: "Luis sent packet v1 from the job" }],
-  signature: null, user: { name: "Maria R.", role: "Office" },
+  checked: true, signature: null, user: { name: "Maria R.", role: "Office" },
 };
 
 /** Sample review: decisions change only this page's memory, so the demo shows how versions work without sending anything. */
@@ -48,6 +48,7 @@ function DemoReview() {
         });
         return null;
       },
+      completeChecks: async () => { setD((x) => ({ ...x, checked: true })); return null; },
       requestSignature: async (to) => {
         setD((x) => ({ ...x, signature: { requestedTo: to }, activity: [{ time: now(), text: t(`Signature request for v${x.version?.n} queued (sample: nothing is sent)`, `Solicitud de firma para v${x.version?.n} en cola (muestra: no se envía nada)`) }, ...x.activity] }));
         return null;
