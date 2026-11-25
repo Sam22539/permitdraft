@@ -76,6 +76,7 @@ export function SyncPage() {
           <p className="text-[15px] leading-snug text-[var(--pd-on-navy-muted)]" role="status">
             {readErr ? t("Could not read this phone's saved photos. Nothing was deleted.", "No se pudieron leer las fotos guardadas en este teléfono. No se borró nada.")
               : recs === null ? t("Checking this phone…", "Revisando este teléfono…")
+              : (recs ?? []).length === 0 ? t("No photos are saved on this phone right now.", "No hay fotos guardadas en este teléfono ahora.")
               : open.length === 0 ? t("Every photo on this phone has uploaded. A job reaches the office only after Finish & Send.", "Todas las fotos de este teléfono se subieron. Un trabajo llega a la oficina solo después de Finalizar y enviar.")
               : t(`${open.length} ${open.length === 1 ? "job" : "jobs"} waiting to upload · they upload on their own when this screen is open and you have signal`, `${open.length} ${open.length === 1 ? "trabajo" : "trabajos"} esperando para subir · se suben solos cuando esta pantalla está abierta y tiene señal`)}
           </p>
