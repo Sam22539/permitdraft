@@ -37,11 +37,21 @@ export function ConflictBox({ c, field, captured, capturedSource }: { c: Correct
   const { t } = useLang();
   const note = c.lastReturn?.reason;
   return (
-    <div className="pd-conflict" role="alert" data-testid={`conflict-${field}`}>
-      <p className="pd-ev-label">{t("Conflict: resolve before Ready", "Conflicto: resuélvalo antes de marcar listo")}</p>
-      <p className="pd-ev-text">{t("Captured value", "Valor capturado")}: <strong data-testid={`conflict-captured-${field}`}>{captured || t("No value yet", "Sin valor todavía")}</strong> ({t("Source", "Fuente")}: {capturedSource})</p>
-      <p className="pd-ev-text">{t("Conflicting value", "Valor en conflicto")}: <strong data-testid={`conflict-value-${field}`}>{c.value}</strong> ({t("Source", "Fuente")}: {c.evidence})</p>
-      {note && <p className="pd-ev-text">{t("Reviewer note", "Nota del revisor")}: “{note}”</p>}
+    <div className="pd-ui pd-conflict flex flex-col gap-3 rounded-[16px] border border-[#E9C46A] bg-[var(--pd-conflict-bg)] p-4" role="alert" data-testid={`conflict-${field}`}>
+      <p className="pd-ev-label flex items-center gap-2 text-[17px] font-bold !text-[var(--pd-conflict-fg)]"><span aria-hidden className="text-[var(--pd-conflict-border)]">⚠</span>{t("Conflict: resolve before Ready", "Conflicto: resuélvalo antes de marcar listo")}</p>
+      {note && <p className="pd-ev-text text-[15px] !text-[var(--pd-conflict-fg)]">{t("Reviewer note", "Nota del revisor")}: “{note}”</p>}
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="rounded-[12px] bg-white px-3 py-2.5">
+          <p className="text-[13px] text-[var(--pd-gray-600)]">{t("Captured value", "Valor capturado")}</p>
+          <strong className="block font-display text-[22px] leading-tight text-[var(--pd-navy-900)]" data-testid={`conflict-captured-${field}`}>{captured || t("No value yet", "Sin valor todavía")}</strong>
+          <p className="text-[12px] text-[var(--pd-gray-600)]">{t("Source", "Fuente")}: {capturedSource}</p>
+        </div>
+        <div className="rounded-[12px] bg-white px-3 py-2.5">
+          <p className="text-[13px] text-[var(--pd-gray-600)]">{t("Conflicting value", "Valor en conflicto")}</p>
+          <strong className="block font-display text-[22px] leading-tight text-[var(--pd-navy-900)]" data-testid={`conflict-value-${field}`}>{c.value}</strong>
+          <p className="text-[12px] text-[var(--pd-gray-600)]">{t("Source", "Fuente")}: {c.evidence}</p>
+        </div>
+      </div>
     </div>
   );
 }

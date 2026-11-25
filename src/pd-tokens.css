@@ -93,10 +93,10 @@
 }
 
 
-/* Redesign scope: the new components and screens render inside `.pd`, so existing pages keep their current look
+/* Redesign scope: the new components and screens render inside `.pd-ui` (`.pd` is the permit draft page class in permit.css), so existing pages keep their current look
    until each phase moves them over. */
-.pd { font-family: var(--pd-font-ui); color: var(--pd-ink); }
-.pd :where(a, button, input, select, textarea, [tabindex]):focus-visible { outline: 3px solid var(--pd-orange-700); outline-offset: 2px; }
-.pd :where(.pd-dark, .pd-dark *) :where(a, button, input, select, textarea, [tabindex]):focus-visible,
-.pd .pd-dark:where(a, button):focus-visible { outline-color: var(--pd-orange-500); }
-@media (prefers-reduced-motion: reduce) { .pd * { animation: none !important; transition: none !important; } }
+.pd-ui { font-family: var(--pd-font-ui); color: var(--pd-ink); }
+.pd-ui :where(a, button, input, select, textarea, [tabindex]):focus-visible { outline: 3px solid var(--pd-orange-700); outline-offset: 2px; }
+.pd-ui :where(.pd-dark, .pd-dark *) :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.pd-ui .pd-dark:where(a, button):focus-visible { outline-color: var(--pd-orange-500); }
+@media (prefers-reduced-motion: reduce) { .pd-ui * { animation: none !important; transition: none !important; } }

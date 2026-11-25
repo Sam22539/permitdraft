@@ -52,7 +52,7 @@ export function SyncPage() {
 
   return (
     <AppPage bottom>
-      <div className="pd -mx-4 -mt-4 flex flex-col">
+      <div className="pd-ui -mx-4 -mt-4 flex flex-col">
         <header className="flex flex-col gap-2 bg-[var(--pd-navy-900)] px-5 pb-6 pt-5 text-white">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[14px] text-[#C9D2E0]">{today}</p>

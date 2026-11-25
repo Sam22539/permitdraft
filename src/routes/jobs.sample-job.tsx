@@ -113,7 +113,7 @@ function CapturedDetail({ id }: { id: string }) {
   return (
     <AppPage bottom capture>
       {saved && (
-        <section role="status" className="pd mb-2 flex flex-col gap-4" data-testid="delivered">
+        <section role="status" className="pd-ui mb-2 flex flex-col gap-4" data-testid="delivered">
           <span aria-hidden className="grid size-20 place-items-center rounded-full bg-[var(--pd-success-bg)] text-[40px] font-extrabold text-[var(--pd-success-icon)]">✓</span>
           <div>
             <h2 className="font-display text-[30px] font-bold leading-tight tracking-[-0.02em] !text-[var(--pd-navy-900)]">{demo ? t("Sample job finished", "Trabajo de muestra terminado") : t("Delivered to the office", "Entregado a la oficina")}</h2>

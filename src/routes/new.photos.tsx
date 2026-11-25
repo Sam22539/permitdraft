@@ -224,7 +224,7 @@ function NewPhotos() {
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" inlineAction={demo} compactFoot={demo} action={<>
         {!demo && (stillUp ?? 0) > 0 && (
-          <section role="status" className="pd flex flex-col gap-3 rounded-[16px] border-2 border-[var(--pd-conflict-border)] bg-white p-4" data-testid="queued">
+          <section role="status" className="pd-ui flex flex-col gap-3 rounded-[16px] border-2 border-[var(--pd-conflict-border)] bg-white p-4" data-testid="queued">
             <span className="self-start rounded-full bg-[var(--pd-conflict-bg)] px-3 py-1 text-[13px] font-bold text-[var(--pd-conflict-fg)]">{typeof navigator !== "undefined" && !navigator.onLine ? t("Queued · no signal", "En cola · sin señal") : t("Waiting to upload", "Esperando para subir")}</span>
             <h2 className="font-display text-[22px] font-bold leading-tight !text-[var(--pd-navy-900)]">{t("Saved on your phone · not sent yet", "Guardado en su teléfono · aún no enviado")}</h2>
             <div className="flex justify-between text-[15px]"><span className="text-[var(--pd-gray-600)]">{t("Photos uploaded", "Fotos subidas")}</span><strong>{t(`${stillUp} still waiting`, `${stillUp} aún en espera`)}</strong></div>

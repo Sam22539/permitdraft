@@ -18,7 +18,7 @@ const statuses: [PdStatus, string][] = [
 
 function DesignPreview() {
   return (
-    <main className="pd min-h-screen bg-[var(--pd-gray-50)]">
+    <main className="pd-ui min-h-screen bg-[var(--pd-gray-50)]">
       <header className="pd-dark bg-[var(--pd-navy-900)] px-6 py-4 lg:px-10">
         <PdLogo onDark />
       </header>
