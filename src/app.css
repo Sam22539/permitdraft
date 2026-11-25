@@ -1004,3 +1004,9 @@ a:hover .rp-seg,a:focus-visible .rp-seg{opacity:.75}
 .jl-lists{display:grid;gap:14px}
 .jl-pin span{display:block;width:22px;height:22px;margin:0 2px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#0b5cab;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .jl-open{margin-top:6px;text-decoration:underline;font-weight:600;color:#0b5cab}
+/* Phase 3: the technician Jobs screen opens on the navy band from docs/design/renders/tech-1-jobs.jpg; on phones the
+   office-style counts and shortcuts step aside so the job list comes first (they stay on computer screens). */
+.jb-hero{background:#0B1B33;color:#fff;margin:0 -1rem .25rem;padding:1.25rem 1.25rem 1.5rem;border-radius:0 0 20px 20px;gap:10px}
+.jb-hero .jb-dot{background:#4ADE80}
+@media (max-width:1023px){.jb-metrics,.jb-shortcuts{display:none}}
+@media (min-width:1024px){.jb-hero{margin:0 0 .5rem;border-radius:20px}}
