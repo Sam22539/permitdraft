@@ -34,7 +34,7 @@ export type PdStatus = "matched" | "conflict" | "missing" | "review" | "submitte
 const statusStyle: Record<PdStatus, string> = {
   matched: "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]",
   approved: "bg-[var(--pd-success-bg)] text-[var(--pd-success-fg)]",
-  conflict: "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]",
+  conflict: "border border-[var(--pd-conflict-border)] bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]",
   missing: "bg-[var(--pd-missing-bg)] text-[var(--pd-missing-fg)] border border-dashed border-[var(--pd-missing-border)]",
   review: "bg-[var(--pd-info-bg)] text-[var(--pd-info-fg)]",
   submitted: "bg-[var(--pd-submitted-bg)] text-[var(--pd-submitted-fg)]",
@@ -49,12 +49,13 @@ export function PdStatusPill({ status, children, className }: { status: PdStatus
 /* ---------- Chip (headers, versions) ---------- */
 export function PdChip({ children, mono, tone = "info", className }: { children: React.ReactNode; mono?: boolean; tone?: "info" | "neutral" | "orange"; className?: string }) {
   const tones = { info: "bg-[var(--pd-info-bg)] text-[var(--pd-info-fg)]", neutral: "bg-[var(--pd-gray-100)] text-[var(--pd-missing-fg)]", orange: "bg-[var(--pd-orange-100)] text-[var(--pd-orange-800)]" };
-  return <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap", mono && "font-mono font-medium", tones[tone], className)}>{children}</span>;
+  return <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold max-w-full", mono && "font-mono font-medium", tones[tone], className)}>{children}</span>;
 }
 
 /* ---------- Card ---------- */
-export function PdCard({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-[14px] border border-[var(--pd-gray-200)] bg-white", className)} {...props} />;
+/** tech: the technician app's 16px card radius; the office keeps 14px. */
+export function PdCard({ className, tech, ...props }: React.HTMLAttributes<HTMLDivElement> & { tech?: boolean }) {
+  return <div className={cn(tech ? "rounded-[16px]" : "rounded-[14px]", "border border-[var(--pd-gray-200)] bg-white", className)} {...props} />;
 }
 
 /* ---------- KPI card (office dashboard) ---------- */
@@ -84,7 +85,7 @@ export function PdSyncPill({ state, lang = "en", onNavy }: { state: PdSyncState;
     state === "delivered" ? "bg-[var(--pd-success-bg)] text-[var(--pd-success-soft-fg)]"
     : state === "queued" ? "bg-[var(--pd-conflict-bg)] text-[var(--pd-conflict-fg)]"
     : onNavy ? "bg-[var(--pd-navy-700)] text-[var(--pd-on-navy-muted)]" : "bg-[var(--pd-gray-100)] text-[var(--pd-missing-fg)]";
-  return <span role="status" className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-bold whitespace-nowrap", style)}>{syncText[state][lang === "es" ? 1 : 0]}</span>;
+  return <span role="status" className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-bold max-w-full text-balance", style)}>{syncText[state][lang === "es" ? 1 : 0]}</span>;
 }
 
 /* ---------- Draft-only notice ---------- */
@@ -110,5 +111,5 @@ export function PdLogo({ onDark, size = 30, withName = true, className }: { onDa
 
 /* ---------- Eyebrow label ---------- */
 export function PdEyebrow({ children, onDark, className }: { children: React.ReactNode; onDark?: boolean; className?: string }) {
-  return <p className={cn("font-mono text-[12px] uppercase tracking-[0.14em]", onDark ? "text-[var(--pd-orange-300)]" : "text-[var(--pd-orange-700)]", className)}>{children}</p>;
+  return <p className={cn("font-mono text-[13px] font-medium uppercase tracking-[0.14em]", onDark ? "text-[var(--pd-orange-300)]" : "text-[var(--pd-orange-700)]", className)}>{children}</p>;
 }
