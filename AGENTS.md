@@ -10,11 +10,12 @@
 
 ## Team rules (set by Sam, Nov 2026)
 
-### Who does what
-- **Claude** — technical lead. Writes and changes app code and design files; makes the final technical call.
-- **Ted (Foundable)** — builds only what is approved in `docs/MASTER_PROMPT.md`, on his own branch.
-- **ChatGPT / Codex** — reviewer. Reads code and leaves comments on pull requests. Does not change code unless Sam assigns a specific task.
-- **Sam** — owner. Only Sam approves merges into `main` and anything that goes live.
+### Who does what (updated by Sam, Nov 24 2026)
+- **Claude**: lead developer and designer. Builds the homepage, office portal and technician app; writes and changes app code, design files and migrations; makes the final technical call.
+- **Codex**: code reviewer on every pull request (comment `@codex review`). Can take a clearly scoped task when Claude or Sam assigns it in a PR comment, on its own `codex/…` branch.
+- **ChatGPT ("Sol")**: design reviewer and visual mockups (`docs/design/review/VISUAL_BRIEF.md`). It posts on pull requests and does not change app code unless Sam assigns a task.
+- **Ted (Foundable)**: **removed from code work.** Ted must not commit, push or open pull requests in this repository. Foundable's sync stays only to publish the website from `main` (see the Foundable note above).
+- **Sam**: owner. Only Sam merges into `main`, and merging `main` publishes the live site.
 
 ### How changes happen
 1. Every change goes on a branch (`claude/…`, `ted/…`, `codex/…`) and becomes a pull request. Nobody pushes straight to `main`.
