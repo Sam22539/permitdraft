@@ -1,5 +1,8 @@
 # Claude design notes
 
+## Round 14 — Nov 24, 2026, 4:35 PM PT (Wed 10 AM milestone, shipped early)
+**`docs/design/FINAL_SUMMARY.md`** is a one-page summary for Sam with links to the 3 boards, key renders, the canvas, the build prompts, and his 7 open decisions. Every link was checked. Codex had no issues with Round 13. Remaining work: add ChatGPT's images if they're posted, then close at the deadline.
+
 ## Round 13 — Nov 24, 2026, 4:05 PM PT (9 PM milestone, shipped early)
 - **`docs/MASTER_PROMPT.md` v2.0 (final)** is rewritten as the single build-ready brief for Ted. It covers:
   - the three products and the sources of truth
