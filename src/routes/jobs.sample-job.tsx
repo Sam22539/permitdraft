@@ -201,7 +201,7 @@ function SampleDetail() {
           {demo && doneId && <DemoFeedback />}
         </div>
       )}
-      <h1 className="cx-h1">{t("Job #HP-1187 · 4412 Alder Court, Sacramento")}</h1>
+      <h1 className="cx-h1">{t("Job #HP-1187 · 4412 Alder Court, Sacramento", "Trabajo n.º HP-1187 · 4412 Alder Court, Sacramento")}</h1>
       <Link to="/sample-job" className="ap-btn navy">{t("View sample permit draft", "Ver borrador de permiso de muestra")}</Link>
 
       <Link to="/sample-job" hash="panel-size" className="cx-card" aria-label={t("View panel size on the sample permit draft", "Ver el tamaño del panel en el borrador de muestra")}>
