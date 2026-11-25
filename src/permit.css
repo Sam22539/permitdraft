@@ -46,8 +46,8 @@
 .pd-foot p:first-child{font-weight:700}
 .pd-foot p:last-child{opacity:.8;font-size:.95rem}
 
-.pd-conflict { margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #b42318; border-radius: 0.5rem; background: #fef3f2; }
-.pd-conflict .pd-ev-label { color: #b42318; }
+.pd-conflict { margin-top: 0.75rem; padding: 1rem; border: 1px solid #E9C46A; border-radius: 16px; background: #FEF3C7; }
+.pd-conflict .pd-ev-label { color: #78350F; }
 .pd-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .pd-card .pd-ev-src + button { margin-top: 0.75rem; }
 

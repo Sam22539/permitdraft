@@ -223,6 +223,16 @@ function NewPhotos() {
   }
   return (
     <StepShell n={5} title={["Photos", "Fotos"]} sub={["Step 5 of 5 · Evidence photos", "Paso 5 de 5 · Fotos de evidencia"]} back="/new/checks" inlineAction={demo} compactFoot={demo} action={<>
+        {!demo && (stillUp ?? 0) > 0 && (
+          <section role="status" className="pd-ui flex flex-col gap-3 rounded-[16px] border-2 border-[var(--pd-conflict-border)] bg-white p-4" data-testid="queued">
+            <span className="self-start rounded-full bg-[var(--pd-conflict-bg)] px-3 py-1 text-[13px] font-bold text-[var(--pd-conflict-fg)]">{typeof navigator !== "undefined" && !navigator.onLine ? t("Queued · no signal", "En cola · sin señal") : t("Waiting to upload", "Esperando para subir")}</span>
+            <h2 className="font-display text-[22px] font-bold leading-tight !text-[var(--pd-navy-900)]">{t("Saved on your phone · not sent yet", "Guardado en su teléfono · aún no enviado")}</h2>
+            <div className="flex justify-between text-[15px]"><span className="text-[var(--pd-gray-600)]">{t("Photos uploaded", "Fotos subidas")}</span><strong>{t(`${stillUp} still waiting`, `${stillUp} aún en espera`)}</strong></div>
+            <div className="flex justify-between text-[15px]"><span className="text-[var(--pd-gray-600)]">{t("Office notified", "Oficina avisada")}</span><strong className="text-[var(--pd-conflict-fg)]">{t("Not yet", "Todavía no")}</strong></div>
+            <p className="text-[14px] text-[var(--pd-gray-700)]">{t("Your job and photos stay on this phone. When you have signal, tap Finish & Send again. Don't sign out until it's delivered.", "Su trabajo y sus fotos se quedan en este teléfono. Cuando tenga señal, toque Finalizar y enviar otra vez. No cierre sesión hasta que se entregue.")}</p>
+            <Link to="/sync" className="text-[14px] font-semibold text-[var(--pd-orange-700)] underline">{t("See what's waiting on the Sync tab", "Ver lo pendiente en la pestaña Sincronizar")}</Link>
+          </section>
+        )}
         {!demo && sendErr && <p role="alert" className="cx-err" data-testid="send-error">{t("Could not save the office packet. Your job is still editable: try Finish again.", "No se pudo guardar el paquete de oficina. Su trabajo sigue editable: intente Finalizar de nuevo.")}</p>}
         {failed && <p role="alert" className="cx-err" data-testid="finish-error">{t("Could not save this job on this device. Nothing was cleared: your capture is still here. Try Finish again.", "No se pudo guardar este trabajo en este dispositivo. No se borró nada: su captura sigue aquí. Intente Finalizar de nuevo.")}</p>}
         {(fa.missing.length > 0 || fa.contradiction || unticked.length > 0 || (!demo && ready && missing.length > 0)) && (

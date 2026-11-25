@@ -113,14 +113,23 @@ function CapturedDetail({ id }: { id: string }) {
   return (
     <AppPage bottom capture>
       {saved && (
-        <div role="status" className="cx-card calm">
-          <p className="font-semibold">{demo ? t("Demo job saved. Nothing is filed.", "Trabajo de demostración guardado. No se presenta nada.") : t("Job saved. This is not permit filing.", "Trabajo guardado. No es la presentación del permiso.")}</p>
-          <Link to={p("/permit/draft/$id")} params={{ id } as never} className="ap-btn primary" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
+        <section role="status" className="pd-ui mb-2 flex flex-col gap-4" data-testid="delivered">
+          <span aria-hidden className="grid size-20 place-items-center rounded-full bg-[var(--pd-success-bg)] text-[40px] font-extrabold text-[var(--pd-success-icon)]">✓</span>
+          <div>
+            <h2 className="font-display text-[30px] font-bold leading-tight tracking-[-0.02em] !text-[var(--pd-navy-900)]">{demo ? t("Sample job finished", "Trabajo de muestra terminado") : t("Delivered to the office", "Entregado a la oficina")}</h2>
+            <p className="text-[15px] text-[var(--pd-gray-700)]">{sm.addr} · {new Date(cap.finishedAt).toLocaleTimeString(lang === "es" ? "es-US" : "en-US", { hour: "numeric", minute: "2-digit" })}</p>
+          </div>
+          <div className="overflow-hidden rounded-[16px] border border-[var(--pd-gray-200)] bg-white">
+            <div className="flex justify-between border-b border-[var(--pd-gray-200)] px-4 py-3 text-[15px]"><span className="text-[var(--pd-gray-600)]">{t("Packet", "Paquete")}</span><strong>{demo ? t("Sample · not sent", "Muestra · no enviado") : t("Saved for office review", "Guardado para revisión de oficina")}</strong></div>
+            <div className="flex justify-between border-b border-[var(--pd-gray-200)] px-4 py-3 text-[15px]"><span className="text-[var(--pd-gray-600)]">{t("Photos", "Fotos")}</span><strong>{t(`${have} of ${slots.length}`, `${have} de ${slots.length}`)}</strong></div>
+            {!demo && <div className="px-4 py-3 text-[15px]" data-testid="core-receipt"><PacketInfo jobId={id} /></div>}
+          </div>
+          <p className="text-[15px] text-[var(--pd-gray-700)]">{demo ? t("Demo: nothing was sent or filed.", "Demo: no se envió ni se presentó nada.") : t("If the office has a question, it will show up on this job and on your Jobs screen. This is not permit filing.", "Si la oficina tiene una pregunta, aparecerá en este trabajo y en su pantalla de Trabajos. No es la presentación del permiso.")}</p>
+          <Link to={p("/jobs")} className="ap-btn primary" data-testid="back-jobs">{t("Back to today's jobs", "Volver a los trabajos de hoy")}</Link>
+          <Link to={p("/permit/draft/$id")} params={{ id } as never} className="ap-btn ghost" data-testid="open-review">{t("Open review draft", "Abrir borrador de revisión")}</Link>
           {demo && <DemoFeedback />}
-        </div>
-      )}
-      {!demo && saved && (
-        <section className="cx-card calm" data-testid="core-receipt"><h2 className="cx-h">{t("Office receipt", "Recibo de la oficina")}</h2><PacketInfo jobId={id} /></section>
+          <hr className="border-[var(--pd-gray-200)]" />
+        </section>
       )}
       <h1 className="cx-h1" data-testid="captured-title">{t("Captured job · ", "Trabajo capturado · ")}{sm.addr}</h1>
       <p className="cx-note">{t(`Finished ${when} · ${type}. Not filed with the permitting authority.`, `Finalizado ${when} · ${type}. No presentado ante la autoridad de permisos.`)}{cap.submittedBy ? t(` Submitted by ${cap.submittedBy}.`, ` Enviado por ${cap.submittedBy}.`) : ""}</p>

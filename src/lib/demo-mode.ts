@@ -13,6 +13,7 @@ export function toDemoPath(path: string): string {
   if (path === "/permit/draft/$id") return "/demo/draft/$id";
   if (path === "/office-handoff") return "/demo/office-handoff";
   if (path === "/settings") return "/demo/settings";
+  if (path === "/sync") return "/demo/sync";
   if (path === "/new" || path.startsWith("/new/")) return "/demo" + path;
   return path;
 }

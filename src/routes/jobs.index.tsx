@@ -43,7 +43,7 @@ export function Jobs() {
   const captured = useCaptured();
   const jurs = useOfficeJurisdictions();
   const act = urgentAction(insp, todayIso());
-  const [chip, setChip] = useState<Chip>("Awaiting review");
+  const [chip, setChip] = useState<Chip>("All");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"recent" | "addr" | "status">("recent");
   const capJobs: (Job & { cap: Captured; awaiting: boolean })[] = captured.map((c) => {
@@ -68,14 +68,18 @@ export function Jobs() {
 
   return (
     <AppPage bottom wide>
-      <header className="jb-head">
+      <header className="jb-head pd-ui jb-hero">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[14px] text-[#C9D2E0]" suppressHydrationWarning>{new Date().toLocaleDateString(lang === "es" ? "es-US" : "en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
+          <span className="jb-offline rounded-full border border-[#2A3F63] px-3 py-1 text-[13px] font-semibold !text-white"><span className="jb-dot" aria-hidden />{t("Works with no signal", "Funciona sin señal")}</span>
+        </div>
         <div className="jb-title-row">
           <div className="jb-title">
-            <h1>{t("Jobs", "Trabajos")}</h1>
-            <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
+            <h1 className="!text-white">{t("Jobs", "Trabajos")}</h1>
           </div>
           <Link to={p("/new")} className="ap-btn primary jb-newbtn" data-testid="jobs-new"><Plus size={20} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
         </div>
+        <p className="text-[15px] text-[#C9D2E0]" data-testid="jobs-summary">{t(`${all.length} ${all.length === 1 ? "job" : "jobs"} · ${count("Missing info")} missing information`, `${all.length} ${all.length === 1 ? "trabajo" : "trabajos"} · ${count("Missing info")} con información faltante`)}</p>
         {trial.state === "active" && (() => { const d = daysLeft(trial.expiresAt); return (
           <p className="jb-trial" data-testid="trial-banner">{t(`${d} ${d === 1 ? "day" : "days"} left in your free trial`, `Quedan ${d} ${d === 1 ? "día" : "días"} de su prueba gratis`)} · <Link to="/demo" className="underline font-semibold">{t("Try the demo", "Probar la demo")}</Link></p>
         ); })()}
