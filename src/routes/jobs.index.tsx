@@ -72,7 +72,7 @@ export function Jobs() {
         <div className="jb-title-row">
           <div className="jb-title">
             <h1>{t("Jobs", "Trabajos")}</h1>
-            <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Saves offline", "Guarda sin conexión")}</span>
+            <span className="jb-offline"><span className="jb-dot" aria-hidden />{t("Works with no signal · saves on this phone", "Funciona sin señal · guarda en este teléfono")}</span>
           </div>
           <Link to={p("/new")} className="ap-btn primary jb-newbtn" data-testid="jobs-new"><Plus size={20} aria-hidden />{t("New job", "Nuevo trabajo")}</Link>
         </div>

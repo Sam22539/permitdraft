@@ -365,7 +365,7 @@ html:has(.ap-demo):has(.cx-head){scroll-padding-top:max(140px,8.5rem)}
   .ap-top-app .ap-brand{gap:.4rem}
   .ap-top-app .ap-logo{gap:.4rem}
   .ap-top-app .ap-lang button{padding:0 .55rem;font-size:.9rem;min-width:44px}
-  .ap-mode{font-size:.7rem;padding:0 .45rem;min-height:22px}
+  .ap-mode{font-size:.75rem;padding:0 .45rem;min-height:22px}
 }
 /* Photo controls: a quiet remove action and large unit choices */
 .ph-remove{justify-self:center;display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;font-weight:700;color:#C2410C;text-decoration:underline;text-underline-offset:4px;cursor:pointer}

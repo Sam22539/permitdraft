@@ -5,7 +5,7 @@ import { removePhoto, savePhoto, setPhotoUnit, type PhotoView, type Slot, type U
 
 export function PendingLabel({ p }: { p: PhotoView }) {
   const { t } = useLang();
-  return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Saved on this device", "Guardada en este dispositivo")}</span>;
+  return <span className="ph-wait">{p.uploaded ? t("Uploaded", "Subida") : t("Saved on phone", "Guardada en el teléfono")}</span>;
 }
 
 export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit, job, onChanged }: { job?: string; onChanged?: () => void | Promise<void>; tagUnit?: boolean; slot: Slot; label: [string, string]; photo?: PhotoView; takeLabel?: [string, string] }) {
@@ -68,7 +68,7 @@ export function PhotoSlot({ slot, label, photo, takeLabel, tagUnit, job, onChang
       </div>
       {photo && <button type="button" className="ph-remove" onClick={remove}>{t("Remove photo", "Quitar foto")}</button>}
       {busy && <p role="status" className="ap-muted">{t("Saving…", "Guardando…")}</p>}
-      {ok && !busy && <p role="status" className="font-semibold">{t("Photo saved on this device. Waiting to upload.", "Foto guardada en este dispositivo. Esperando para subir.")}</p>}
+      {ok && !busy && <p role="status" className="font-semibold">{t("Photo saved on this phone. Waiting to upload.", "Foto guardada en este teléfono. Esperando para subir.")}</p>}
       {err && <p role="alert" className="ph-err">{err}</p>}
     </div>
   );
